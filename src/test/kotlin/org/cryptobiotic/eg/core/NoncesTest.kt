@@ -1,6 +1,6 @@
 package org.cryptobiotic.eg.core
 
-import org.cryptobiotic.eg.intgroup.productionGroup
+import org.cryptobiotic.eg.core.intgroup.productionGroup
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

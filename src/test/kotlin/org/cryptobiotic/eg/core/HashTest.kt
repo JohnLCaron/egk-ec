@@ -5,8 +5,8 @@ import io.kotest.property.checkAll
 import io.kotest.property.forAll
 import org.cryptobiotic.eg.core.Base16.fromHexSafe
 import org.cryptobiotic.eg.core.Base16.toHex
-import org.cryptobiotic.eg.intgroup.PowRadixOption
-import org.cryptobiotic.eg.intgroup.productionGroup
+import org.cryptobiotic.eg.core.intgroup.PowRadixOption
+import org.cryptobiotic.eg.core.intgroup.productionGroup
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

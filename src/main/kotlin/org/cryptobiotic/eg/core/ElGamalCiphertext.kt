@@ -1,7 +1,5 @@
 package org.cryptobiotic.eg.core
 
-import org.cryptobiotic.eg.intgroup.toElementModQ
-
 /**
  * An "exponential ElGamal ciphertext" (i.e., with the plaintext in the exponent to allow for
  * homomorphic addition). (See [ElGamal 1982](https://ieeexplore.ieee.org/abstract/document/1057074))

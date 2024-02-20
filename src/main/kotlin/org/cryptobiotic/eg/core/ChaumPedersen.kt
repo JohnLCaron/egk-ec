@@ -1,7 +1,7 @@
 package org.cryptobiotic.eg.core
 
 import com.github.michaelbull.result.*
-import org.cryptobiotic.eg.intgroup.toElementModQ
+import org.cryptobiotic.eg.core.Base16.toHex
 import kotlin.collections.fold
 
 /**
@@ -228,5 +228,40 @@ fun ChaumPedersenProof.verifyDecryption(
     }
     // The challenge value c = H(HE ; 0x30, K, A, B, a, b, M ). eq 71, 9.B.
     val challenge = hashFunction(extendedBaseHash.bytes, 0x30.toByte(), publicKey, encryptedVote.pad, encryptedVote.data, a, b, M)
+    return (challenge.toElementModQ(group) == this.c)
+}
+
+/**
+ * Verification 11 (Correctness of decryptions of contest data)
+ * An election verifier must confirm the correct decryption of the contest data field for each contest by
+ * verifying the conditions analogous to Verification 9 for the corresponding NIZK proof with (A, B)
+ * replaced by (C0 , C1 , C2 ) and Mi by beta as follows. An election verifier must compute the following
+ * values.
+ *   (11.1) a = g^v · K^c mod p,
+ *   (11.2) b = C0^v · β^c mod p.
+ * An election verifier must then confirm the following.
+ *   (11.A) The given value v is in the set Zq .
+ *   (11.B) The challenge value c satisfies c = H(HE ; 0x31, K, C0 , C1 , C2 , a, b, β).
+ */
+fun ChaumPedersenProof.verifyContestDataDecryption(
+    publicKey: ElementModP, // K
+    extendedBaseHash: UInt256, // He
+    beta: ElementModP,
+    hashedCiphertext: HashedElGamalCiphertext,
+): Boolean {
+    val group = compatibleContextOrFail(publicKey, hashedCiphertext.c0, beta)
+    val a = group.gPowP(this.r) * (publicKey powP this.c) // 11.1
+    val b = (hashedCiphertext.c0 powP this.r) * (beta powP this.c) // 11.2
+
+    // 11.A The given value v is in the set Z_q.
+    if (!this.r.inBounds()) {
+        return false
+    }
+    // The challenge value c = H(HE ; 0x31, K, C0 , C1 , C2 , a, b, β) // 11.B
+    val challenge = hashFunction(extendedBaseHash.bytes, 0x31.toByte(), publicKey,
+        hashedCiphertext.c0,
+        hashedCiphertext.c1.toHex(),
+        hashedCiphertext.c2,
+        a, b, beta)
     return (challenge.toElementModQ(group) == this.c)
 }
