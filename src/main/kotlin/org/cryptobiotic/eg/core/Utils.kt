@@ -7,11 +7,17 @@ import kotlinx.datetime.toLocalDateTime
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.cryptobiotic.eg.core.Base16.toHex
+import java.io.File
 import java.math.BigInteger
 import java.nio.ByteOrder
+import java.nio.file.Files
+import java.nio.file.Path
 
 import java.security.SecureRandom
+
+private val logger = KotlinLogging.logger("core.Utils")
 
 private val rng = SecureRandom.getInstanceStrong()
 fun randomBytes(length: Int): ByteArray {
@@ -21,6 +27,31 @@ fun randomBytes(length: Int): ByteArray {
 }
 
 fun isBigEndian(): Boolean = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN
+
+fun getSystemTimeInMillis() : Long = System.currentTimeMillis()
+
+fun doesPathExist(path: String): Boolean = Files.exists(Path.of(path))
+
+fun createDirectories(directory: String): Boolean {
+    if (doesPathExist(directory)) {
+        return true
+    }
+    return try {
+        Files.createDirectories(Path.of(directory))
+        logger.warn { "error createDirectories = '$directory' " }
+        true
+    } catch (t: Throwable) {
+        false
+    }
+}
+
+fun isDirectory(path: String): Boolean = Files.isDirectory(Path.of(path))
+
+fun fileReadLines(filename: String): List<String> = File(filename).readLines()
+
+fun fileReadBytes(filename: String): ByteArray = File(filename).readBytes()
+
+fun fileReadText(filename: String): String = File(filename).readText()
 
 /**
  * Throughout our bignum arithmetic, every operation needs to check that its operands are compatible

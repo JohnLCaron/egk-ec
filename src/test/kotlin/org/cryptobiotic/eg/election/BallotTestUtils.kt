@@ -2,12 +2,12 @@ package org.cryptobiotic.eg.election
 
 import com.github.michaelbull.result.*
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.decrypt.DecryptingTrusteeDoerre
+import org.cryptobiotic.eg.decrypt.DecryptingTrustee
 import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import org.cryptobiotic.eg.keyceremony.PublicKeys
 
-fun makeDoerreTrustee(ktrustee: KeyCeremonyTrustee, electionId : UInt256): DecryptingTrusteeDoerre {
-    return DecryptingTrusteeDoerre(
+fun makeDoerreTrustee(ktrustee: KeyCeremonyTrustee, electionId : UInt256): DecryptingTrustee {
+    return DecryptingTrustee(
         ktrustee.id,
         ktrustee.xCoordinate,
         ktrustee.guardianPublicKey(),

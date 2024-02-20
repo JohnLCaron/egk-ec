@@ -2,6 +2,8 @@ package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.UInt256
 import org.cryptobiotic.eg.core.hashFunction
+import org.cryptobiotic.eg.election.ElectionConstants
+import org.cryptobiotic.eg.election.GroupType
 import java.math.BigInteger
 
 /**
@@ -40,7 +42,18 @@ class VecGroup(
     val qbitLength: Int = order.bitLength()
     val qbyteLength = (qbitLength + 7) / 8
 
-    val parameterBaseHash = parameterBaseHash(this)
+    val constants by lazy {
+        ElectionConstants(curveName, GroupType.EllipticCurve, "v3.0.0",
+            mapOf(
+                "a" to a.toByteArray(),
+                "b" to b.toByteArray(),
+                "primeModulus" to primeModulus.toByteArray(),
+                "order" to order.toByteArray(),
+                "g" to g.toByteArray(),
+                "h" to h.toByteArray(),
+            )
+        )
+    }
 
     fun elementFromByteArray(ba: ByteArray): VecElementModP? {
         if (ba.size != 2*pbyteLength) return null
@@ -256,24 +269,4 @@ class VecGroup(
             }
         }
     }
-}
-const val protocolVersion = "v3.0.0"
-
-private fun parameterBaseHash(primes : VecGroup) : UInt256 {
-    // HP = H(ver; 0x00, p, q, g) ; spec 2.0.0 p 16, eq 4
-    // The symbol ver denotes the version byte array that encodes the used version of this specification.
-    // The array has length 32 and contains the UTF-8 encoding of the string “v2.0.0” followed by 0x00-
-    // bytes, i.e. ver = 0x76322E302E30 ∥ b(0, 27). FIX should be b(0, 26)
-    val version = protocolVersion.encodeToByteArray()
-    val HV = ByteArray(32) { if (it < version.size) version[it] else 0 }
-
-    return hashFunction(
-        HV,
-        0x00.toByte(),
-        primes.a.toByteArray(),
-        primes.b.toByteArray(),
-        primes.primeModulus.toByteArray(),
-        primes.g.toByteArray(),
-        primes.h.toByteArray(),
-    )
 }

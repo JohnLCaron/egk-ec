@@ -21,7 +21,7 @@ class ElectionConfigTest {
         println("HV = ${HV.toHex()}")
         assertEquals("76322E302E300000000000000000000000000000000000000000000000000000", HV.toHex())
 
-        val HP = productionGroup().parameterBaseHash
+        val HP = productionGroup().constants.parameterBaseHash
         println("HP = ${HP.toHex()}")
         assertEquals("2B3B025E50E09C119CBA7E9448ACD1CABC9447EF39BF06327D81C665CDD86296", HP.toHex())
     }

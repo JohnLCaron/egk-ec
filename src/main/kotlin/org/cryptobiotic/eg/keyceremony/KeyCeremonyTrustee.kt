@@ -206,7 +206,7 @@ open class KeyCeremonyTrustee(
     ): HashedElGamalCiphertext {
 
         val K_l = other.publicKey() // other's publicKey
-        val hp = K_l.context.parameterBaseHash.bytes
+        val hp = K_l.context.constants.parameterBaseHash
         val i = xCoordinate
         val l = other.guardianXCoordinate
 
@@ -260,7 +260,7 @@ open class KeyCeremonyTrustee(
 
         val alpha = c0
         val beta = c0 powP this.electionPrivateKey()
-        val hp = group.parameterBaseHash.bytes
+        val hp = group.constants.parameterBaseHash
         val kil =
             hashFunction(hp, 0x11.toByte(), share.ownerXcoord, xCoordinate, guardianPublicKey(), alpha, beta).bytes
 

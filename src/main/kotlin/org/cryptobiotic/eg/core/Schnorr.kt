@@ -26,7 +26,7 @@ data class SchnorrProof(
         val gPowV = group.gPowP(response)
         val h = gPowV * (publicKey powP challenge) // h_ij (2.1)
         // h = g^v * K^c = g^(u - c*s) * g^s*c = g^(u - c*s + c*s) = g^u
-        val c = hashFunction(group.parameterBaseHash.bytes, 0x10.toByte(), guardianXCoord, coeff, publicKey, h).toElementModQ(group) // 2.C
+        val c = hashFunction(group.constants.parameterBaseHash, 0x10.toByte(), guardianXCoord, coeff, publicKey, h).toElementModQ(group) // 2.C
         // c wouldnt agree unless h = g^u
         // therefore, whoever generated v knows s
 
@@ -61,7 +61,7 @@ fun ElGamalKeypair.schnorrProof(
 ): SchnorrProof {
     val context = compatibleContextOrFail(publicKey.key, secretKey.key, nonce)
     val h = context.gPowP(nonce) // h = g ^ u; spec 2.0.0,  eq 11
-    val c = hashFunction(context.parameterBaseHash.bytes, 0x10.toByte(), guardianXCoord, coeff, publicKey, h).toElementModQ(context) // eq 12
+    val c = hashFunction(context.constants.parameterBaseHash, 0x10.toByte(), guardianXCoord, coeff, publicKey, h).toElementModQ(context) // eq 12
     val v = nonce - secretKey.key * c
 
     return SchnorrProof(publicKey.key, c, v)

@@ -2,6 +2,7 @@ package org.cryptobiotic.eg.core.ecgroup
 
 
 import org.cryptobiotic.eg.core.*
+import org.cryptobiotic.eg.core.intgroup.GroupConstants
 import java.math.BigInteger
 
 class EcGroupContext(val name: String): GroupContext {
@@ -21,7 +22,7 @@ class EcGroupContext(val name: String): GroupContext {
     override val TWO_MOD_Q: ElementModQ = EcElementModQ(this, BigInteger.TWO)
     val NUM_Q_BITS: Int  = ecGroup.qbitLength
 
-    override val parameterBaseHash: UInt256 = ecGroup.parameterBaseHash
+    override val constants = ecGroup.constants
     val dlogg = DLogarithm(G_MOD_P)
 
     // TODO diff of this and safe version?

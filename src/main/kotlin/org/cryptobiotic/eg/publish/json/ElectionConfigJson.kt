@@ -5,6 +5,7 @@ import org.cryptobiotic.util.ErrorMessages
 import kotlinx.serialization.Serializable
 import org.cryptobiotic.eg.core.Base16.fromHex
 import org.cryptobiotic.eg.core.Base16.toHex
+import org.cryptobiotic.eg.core.safeEnumValueOf
 
 @Serializable
 data class ElectionConfigJson(
@@ -57,32 +58,25 @@ fun ElectionConfigJson.import(constants: ElectionConstants?, manifestBytes: Byte
 @Serializable
 data class ElectionConstantsJson(
     val name: String,
-    val large_prime: String,
-    val small_prime: String,
-    val cofactor: String,
-    val generator: String,
+    val type: String,
+    val protocolVersion: String,
+    val constants : Map<String, String>
 )
 
 fun ElectionConstants.publishJson() = ElectionConstantsJson(
     this.name,
-    this.largePrime.toHex(),
-    this.smallPrime.toHex(),
-    this.cofactor.toHex(),
-    this.generator.toHex(),
+    this.type.toString(),
+    this.protocolVersion,
+    this.constants.mapValues { it.value.toHex() }
 )
 
 fun ElectionConstantsJson.import(errs: ErrorMessages) : ElectionConstants? {
-    if (this.large_prime.fromHex() == null) errs.add("malformed large_prime")
-    if (this.small_prime.fromHex() == null) errs.add("malformed small_prime")
-    if (this.cofactor.fromHex() == null) errs.add("malformed cofactor")
-    if (this.generator.fromHex() == null) errs.add("malformed generator")
+    val gtype = safeEnumValueOf(this.type) ?: GroupType.IntegerGroup
 
-    return if (errs.hasErrors()) null
-    else ElectionConstants(
+    return ElectionConstants(
         this.name,
-        this.large_prime.fromHex()!!,
-        this.small_prime.fromHex()!!,
-        this.cofactor.fromHex()!!,
-        this.generator.fromHex()!!,
+        gtype,
+        this.protocolVersion,
+        this.constants.mapValues { it.value.fromHex()!! }
     )
 }
