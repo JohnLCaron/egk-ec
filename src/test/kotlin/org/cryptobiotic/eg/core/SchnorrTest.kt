@@ -8,8 +8,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.checkAll
-import org.cryptobiotic.eg.ecgroup.EcGroupContext
-import org.cryptobiotic.eg.intgroup.productionGroup
+import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
+import org.cryptobiotic.eg.core.intgroup.productionGroup
 
 class SchnorrTest : WordSpec({
     val intGroup = productionGroup()

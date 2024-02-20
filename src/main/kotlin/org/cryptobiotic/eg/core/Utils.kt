@@ -7,7 +7,7 @@ import kotlinx.datetime.toLocalDateTime
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import org.cryptobiotic.eg.ecgroup.toHex
+import org.cryptobiotic.eg.core.Base16.toHex
 import java.math.BigInteger
 import java.nio.ByteOrder
 
@@ -89,6 +89,12 @@ fun BigInteger.toStringShort(): String {
         "${s.substring(0, 7)}...${s.substring(len-8, len)}"
     else s
 }
+
+fun BigInteger.normalize() : String {
+    val ba = this.toByteArray().normalize(32)
+    return ba.toHex().lowercase()
+}
+fun BigInteger.toHex() = this.toByteArray().toHex().lowercase()
 
 /**
  * Convert an integer to a big-endian array of four bytes. Negative numbers will be in

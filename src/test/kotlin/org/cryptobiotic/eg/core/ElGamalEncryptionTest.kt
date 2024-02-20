@@ -9,10 +9,9 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.checkAll
 import io.kotest.property.forAll
-import org.cryptobiotic.eg.ecgroup.EcGroupContext
+import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
 
-import org.cryptobiotic.eg.intgroup.productionGroup
-import org.cryptobiotic.eg.intgroup.toElementModQ
+import org.cryptobiotic.eg.core.intgroup.productionGroup
 import kotlin.test.assertEquals
 
 private fun smallInts() = Arb.int(min = 0, max = 1000)

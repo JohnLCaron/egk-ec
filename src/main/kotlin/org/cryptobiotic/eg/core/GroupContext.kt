@@ -226,12 +226,10 @@ interface ElementModP : Element, Comparable<ElementModP> {
     }
 }
 
-/* Converts an integer to an ElementModQ, with optimizations when possible for small integers
+// Converts an integer to an ElementModQ, with optimizations when possible for small integers
 fun Int.toElementModQ(ctx: GroupContext) =
     when {
         this < 0 -> throw NoSuchElementException("no negative numbers allowed")
-        !ctx.isProductionStrength() && this >= intTestQ ->
-            throw NoSuchElementException("tried to make an element >= q")
         else -> ctx.uIntToElementModQ(this.toUInt())
     }
 
@@ -239,11 +237,8 @@ fun Int.toElementModQ(ctx: GroupContext) =
 fun Long.toElementModQ(ctx: GroupContext) =
     when {
         this < 0 -> throw NoSuchElementException("no negative numbers allowed")
-        !ctx.isProductionStrength() && this >= intTestQ ->
-            throw NoSuchElementException("tried to make an element >= q")
         else -> ctx.uLongToElementModQ(this.toULong())
     }
-*/
 
 /**
  * Verifies that every element has a compatible [GroupContext] and returns the first context.
@@ -281,3 +276,4 @@ fun GroupContext.addQ(vararg elements: ElementModQ) = elements.asIterable().addQ
  * multiplication operation for large enough numbers of inputs.
  */
 fun GroupContext.multP(vararg elements: ElementModP) = elements.asIterable().multP()
+

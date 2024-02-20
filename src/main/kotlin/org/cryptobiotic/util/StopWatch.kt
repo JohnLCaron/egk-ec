@@ -44,6 +44,16 @@ class Stopwatch(running: Boolean = true) {
         return String.format("%.4g %s", value, abbreviate(unit))
     }
 
+    fun took(): String {
+        val took = this.stop()
+        return took(took)
+    }
+
+    fun perRow(count: Int): String {
+        val took = this.stop()
+        return perRow(took, count)
+    }
+
     companion object {
 
         fun took(took: Long): String {
@@ -53,7 +63,7 @@ class Stopwatch(running: Boolean = true) {
 
         fun perRow(took: Long, nrows: Int): String {
             val tookMs = took / 1_000_000
-            val perRow = tookMs.toDouble()  / nrows
+            val perRow = if (nrows == 0) 0.0 else tookMs.toDouble()  / nrows
             return "took ${tookMs} ms for $nrows rows, ${perRow.sigfig(3)} ms per row"
         }
 
