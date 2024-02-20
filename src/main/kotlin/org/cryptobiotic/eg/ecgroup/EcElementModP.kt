@@ -24,9 +24,7 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementModP): ElementM
     }
 
     // what does it mean to be in bounds ??
-    override fun inBounds(): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun inBounds(): Boolean = true // TODO("Not yet implemented")
 
     override fun isValidResidue(): Boolean {
         return group.ecGroup.isPointOnCurve(this.ec.x, this.ec.y)
@@ -53,12 +51,22 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementModP): ElementM
     override fun toStringShort(): String {
         return "ECqPGroupElement(${ec.x.toStringShort()}, ${ec.y.toStringShort()})"
     }
-}
 
-fun BigInteger.toStringShort(): String {
-    val s = toHex()
-    val len = s.length
-    return if (len > 16)
-      "${s.substring(0, 7)}...${s.substring(len-8, len)}"
-    else s
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as EcElementModP
+
+        if (group != other.group) return false
+        if (ec != other.ec) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = group.hashCode()
+        result = 31 * result + ec.hashCode()
+        return result
+    }
 }

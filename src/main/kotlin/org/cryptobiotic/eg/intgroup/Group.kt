@@ -35,7 +35,7 @@ class ProductionGroupContext(
     val zeroModQ: ProductionElementModQ
     val oneModQ: ProductionElementModQ
     val twoModQ: ProductionElementModQ
-    val dlogger: DLog
+    val dlogger: DLogarithm
     val qMinus1Q: ProductionElementModQ
     val montgomeryIMinusOne: BigInteger
     val montgomeryIPrime: BigInteger
@@ -52,7 +52,7 @@ class ProductionGroupContext(
         zeroModQ = ProductionElementModQ(0U.toBigInteger(), this)
         oneModQ = ProductionElementModQ(1U.toBigInteger(), this)
         twoModQ = ProductionElementModQ(2U.toBigInteger(), this)
-        dlogger = DLog(gModP)
+        dlogger = DLogarithm(gModP)
         qMinus1Q = (zeroModQ - oneModQ) as ProductionElementModQ
         montgomeryIMinusOne = montIMinus1Bytes.toBigInteger()
         montgomeryIPrime = montIPrimeBytes.toBigInteger()
@@ -96,7 +96,7 @@ class ProductionGroupContext(
         get() = numPBits
 
     override val parameterBaseHash: UInt256
-        get() = constants.hp // TODO("Not yet implemented")
+        get() = constants.hp
 
     override fun isCompatible(ctx: GroupContext): Boolean {
         if (!(ctx is ProductionGroupContext))

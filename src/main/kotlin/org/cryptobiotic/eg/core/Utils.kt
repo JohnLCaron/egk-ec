@@ -7,6 +7,8 @@ import kotlinx.datetime.toLocalDateTime
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import org.cryptobiotic.eg.ecgroup.toHex
+import java.math.BigInteger
 import java.nio.ByteOrder
 
 import java.security.SecureRandom
@@ -78,6 +80,14 @@ fun concatByteArrays(vararg bytes: ByteArray): ByteArray {
     }
 
     return result
+}
+
+fun BigInteger.toStringShort(): String {
+    val s = toHex()
+    val len = s.length
+    return if (len > 16)
+        "${s.substring(0, 7)}...${s.substring(len-8, len)}"
+    else s
 }
 
 /**

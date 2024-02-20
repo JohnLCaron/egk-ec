@@ -1,19 +1,14 @@
-package org.cryptobiotic.eg.intgroup
+package org.cryptobiotic.eg.core
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.cryptobiotic.eg.core.ElementModP
 import java.util.concurrent.ConcurrentHashMap
 
 // TODO make this settable. The maximum vote allowed for the tally.
 private const val MAX_DLOG: Int = 100_000
 
-fun dLoggerOf(base: ElementModP) = DLog(base)
-
-class DLog(val base: ElementModP) {
-
-    fun base() = base
+class DLogarithm(val base: ElementModP) {
 
     // We're taking advantage of Java's ConcurrentHashMap, which allows us to know
     // we can safely attempt reads on the map without needing our global lock, which
