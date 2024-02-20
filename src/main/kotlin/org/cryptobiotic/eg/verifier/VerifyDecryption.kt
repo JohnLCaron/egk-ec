@@ -5,8 +5,6 @@ import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
 
-import com.github.michaelbull.result.*
-
 import kotlin.collections.mutableSetOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,8 +18,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.yield
 import org.cryptobiotic.util.Stopwatch
-
-import kotlin.math.roundToInt
 
 private const val debug = false
 
@@ -178,7 +174,7 @@ class VerifyDecryption(
             joinAll(*verifierJobs.toTypedArray())
         }
 
-        if (showTime) println("   verifySpoiledBallotTallies ${stopwatch.perRow(count)}")
+        if (showTime) println("   verifySpoiledBallotTallies ${stopwatch.tookPer(count, "ballots")}")
         return !errs.hasErrors()
     }
 

@@ -32,7 +32,7 @@ class Stopwatch(running: Boolean = true) {
     }
 
     // TimeUnit.SECONDS, MILLISECONDS, MICROSECONDS, NANOSECONDS
-    fun elapsed(desiredUnit: TimeUnit): Long {
+    fun elapsed(desiredUnit: TimeUnit = TimeUnit.MILLISECONDS): Long {
         return desiredUnit.convert(elapsedNanos(), TimeUnit.NANOSECONDS)
     }
 
@@ -49,9 +49,9 @@ class Stopwatch(running: Boolean = true) {
         return took(took)
     }
 
-    fun perRow(count: Int): String {
+    fun tookPer(count: Int, what: String="nrows"): String {
         val took = this.stop()
-        return perRow(took, count)
+        return perRow(took, count, what)
     }
 
     companion object {
@@ -61,10 +61,10 @@ class Stopwatch(running: Boolean = true) {
             return "took ${tookMs} ms"
         }
 
-        fun perRow(took: Long, nrows: Int): String {
+        fun perRow(took: Long, nrows: Int, what: String="nrows"): String {
             val tookMs = took / 1_000_000
             val perRow = if (nrows == 0) 0.0 else tookMs.toDouble()  / nrows
-            return "took ${tookMs} ms for $nrows rows, ${perRow.sigfig(3)} ms per row"
+            return "took ${tookMs} ms for $nrows $what, ${perRow.sigfig(3)} ms per $what"
         }
 
         // TODO units option

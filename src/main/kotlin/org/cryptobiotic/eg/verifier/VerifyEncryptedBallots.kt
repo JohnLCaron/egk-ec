@@ -71,7 +71,7 @@ class VerifyEncryptedBallots(
         }
 
         if (showTime) {
-            println("   VerifyEncryptedBallots with $nthreads threads ${stopwatch.perRow(count)}")
+            println("   VerifyEncryptedBallots with $nthreads threads ${stopwatch.tookPer(count, "ballots")}")
         }
         return !errs.hasErrors()
     }

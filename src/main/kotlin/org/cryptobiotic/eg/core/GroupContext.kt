@@ -2,6 +2,7 @@ package org.cryptobiotic.eg.core
 
 import org.cryptobiotic.eg.core.Base16.fromHex
 import org.cryptobiotic.eg.core.Base16.toHex
+import org.cryptobiotic.eg.election.ElectionConstants
 
 /**
  * The GroupContext interface provides all the necessary context to define the arithmetic that we'll
@@ -45,7 +46,8 @@ interface GroupContext {
     /** The number of bits it takes to represent any element mod p. */
     val NUM_P_BITS: Int
 
-    val parameterBaseHash: UInt256
+    /** group parameters */
+    val constants: ElectionConstants
 
     /**
      * Identifies whether two internal GroupContexts are "compatible", so elements made in one

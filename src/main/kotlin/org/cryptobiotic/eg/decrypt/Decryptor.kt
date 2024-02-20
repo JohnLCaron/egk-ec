@@ -16,7 +16,7 @@ private const val maxDlog: Int = 1000
  * An EncryptedBallot can also be decrypted if you know the master nonce.
  * Communication with the trustees is with a list of all the ciphertexts from a single ballot / tally at one.
  */
-class DecryptorDoerre(
+class Decryptor(
     val group: GroupContext,
     val extendedBaseHash: UInt256,
     val jointPublicKey: ElGamalPublicKey,

@@ -59,10 +59,10 @@ class ProductionGroupContext(
         montgomeryPPrime = montPPrimeBytes.toBigInteger()
     }
 
+    val groupConstants = GroupConstants(name, pBytes, qBytes, rBytes, gBytes)
+    override val constants = groupConstants.constants
+
     override fun isProductionStrength() = true
-
-    val constants = ElectionConstants(name, pBytes, qBytes, rBytes, gBytes)
-
     override fun toString() : String = name
 
     override val ONE_MOD_P
@@ -94,9 +94,6 @@ class ProductionGroupContext(
 
     override val NUM_P_BITS: Int
         get() = numPBits
-
-    override val parameterBaseHash: UInt256
-        get() = constants.hp
 
     override fun isCompatible(ctx: GroupContext): Boolean {
         if (!(ctx is ProductionGroupContext))

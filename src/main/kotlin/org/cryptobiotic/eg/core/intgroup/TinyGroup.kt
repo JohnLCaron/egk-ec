@@ -61,13 +61,14 @@ internal class TinyGroupContext(
 
     override fun isProductionStrength() = false
 
-    val constants: ElectionConstants = ElectionConstants(
-                name,
-                p.toByteArray(),
-                q.toByteArray(),
-                r.toByteArray(),
-                g.toByteArray(),
-            )
+    val groupConstants = GroupConstants(
+        name,
+        p.toByteArray(),
+        q.toByteArray(),
+        r.toByteArray(),
+        g.toByteArray(),
+    )
+    override val constants = groupConstants.constants
 
     override fun toString(): String = name
 
@@ -91,8 +92,6 @@ internal class TinyGroupContext(
         get() = 2
     override val NUM_P_BITS: Int
         get() = 31
-    override val parameterBaseHash: UInt256
-        get() = constants.hp
 
     override fun isCompatible(ctx: GroupContext): Boolean = !ctx.isProductionStrength()
 

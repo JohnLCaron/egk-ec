@@ -6,7 +6,7 @@ import org.cryptobiotic.eg.core.*
  * A Trustee that has a share of the election private key, for the purpose of decryption.
  * DecryptingTrustee must stay private. Guardian is its public info in the election record.
  */
-data class DecryptingTrusteeDoerre(
+data class DecryptingTrustee(
     val id: String,
     val xCoordinate: Int,
     val publicKey: ElementModP, // Must match the public record

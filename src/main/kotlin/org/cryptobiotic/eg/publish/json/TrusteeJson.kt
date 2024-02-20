@@ -3,7 +3,7 @@ package org.cryptobiotic.eg.publish.json
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.util.ErrorMessages
 import kotlinx.serialization.Serializable
-import org.cryptobiotic.eg.decrypt.DecryptingTrusteeDoerre
+import org.cryptobiotic.eg.decrypt.DecryptingTrustee
 import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 
 /** These must stay private, not in the election record. */
@@ -24,11 +24,11 @@ fun KeyCeremonyTrustee.publishJson(): TrusteeJson {
     )
 }
 
-fun TrusteeJson.importDecryptingTrustee(group: GroupContext, errs : ErrorMessages): DecryptingTrusteeDoerre? {
+fun TrusteeJson.importDecryptingTrustee(group: GroupContext, errs : ErrorMessages): DecryptingTrustee? {
     val privateKey = this.polynomial_coefficients[0].import(group) ?: errs.addNull("malformed privateKey") as ElementModQ?
     val keyShare = this.key_share.import(group) ?: errs.addNull("malformed keyShare") as ElementModQ?
     return if (errs.hasErrors()) null
-    else DecryptingTrusteeDoerre(
+    else DecryptingTrustee(
         this.id,
         this.x_coordinate,
         group.gPowP(privateKey!!),
