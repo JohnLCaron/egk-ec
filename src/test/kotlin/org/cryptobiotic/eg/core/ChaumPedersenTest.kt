@@ -5,6 +5,7 @@ import com.github.michaelbull.result.Ok
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.checkAll
+import org.cryptobiotic.eg.ecgroup.EcGroupContext
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.test.Test
@@ -14,11 +15,16 @@ import org.cryptobiotic.eg.intgroup.productionGroup
 import org.cryptobiotic.eg.intgroup.toElementModQ
 
 class ChaumPedersenTest {
-    val useGroup = productionGroup() // tinyGroup()
+    val intGroup = productionGroup()
+    val ecGroup = EcGroupContext("P-256")
 
     @Test
     fun testCCKnownNonceProofsSimpleEncryptionZero() {
-        val context = useGroup
+        testCCKnownNonceProofsSimpleEncryptionZero(intGroup)
+        testCCKnownNonceProofsSimpleEncryptionZero(ecGroup)
+    }
+
+    fun testCCKnownNonceProofsSimpleEncryptionZero(context: GroupContext) {
         val keypair = elGamalKeyPairFromSecret(context.TWO_MOD_Q)
         val nonce = context.TWO_MOD_Q
         val message0 = 0.encrypt(keypair, nonce)
@@ -34,10 +40,10 @@ class ChaumPedersenTest {
                 keypair.publicKey,
                 extendedBaseHash
             )
-        println(goodProof.verify(message0, keypair.publicKey, extendedBaseHash, 1))
+        //println(goodProof.verify(message0, keypair.publicKey, extendedBaseHash, 1))
         assertTrue(goodProof.verify(message0, keypair.publicKey, extendedBaseHash, 1) is Ok)
 
-        println(goodProof.verify(message0, keypair.publicKey, extendedBaseHash2, 1)) // extendedBaseHash doesnt match
+        //println(goodProof.verify(message0, keypair.publicKey, extendedBaseHash2, 1)) // extendedBaseHash doesnt match
         assertFalse(goodProof.verify(message0, keypair.publicKey, extendedBaseHash2, 1) is Ok)
 
         val badProof1 =
@@ -48,7 +54,7 @@ class ChaumPedersenTest {
                 keypair.publicKey,
                 extendedBaseHash
             )
-        println(badProof1.verify(message0, keypair.publicKey, extendedBaseHash, 1))
+        //println(badProof1.verify(message0, keypair.publicKey, extendedBaseHash, 1))
         assertFalse(badProof1.verify(message0, keypair.publicKey, extendedBaseHash, 1) is Ok)
 
         val badProof2 =
@@ -59,7 +65,7 @@ class ChaumPedersenTest {
                 keypair.publicKey,
                 extendedBaseHash
             )
-        println(badProof2.verify(message0, keypair.publicKey, extendedBaseHash, 1)) // vote doesnt match
+        //println(badProof2.verify(message0, keypair.publicKey, extendedBaseHash, 1)) // vote doesnt match
         assertFalse(badProof2.verify(message0, keypair.publicKey, extendedBaseHash, 1) is Ok)
 
         // validating equivalent but different message (same nonce)
@@ -72,13 +78,17 @@ class ChaumPedersenTest {
                 keypair.publicKey,
                 extendedBaseHash
             )
-        println(badProof3.verify(message0, keypair.publicKey, extendedBaseHash, 1)) // new
+        //println(badProof3.verify(message0, keypair.publicKey, extendedBaseHash, 1)) // new
         assertTrue(badProof3.verify(message0, keypair.publicKey, extendedBaseHash, 1) is Ok)
     }
 
     @Test
     fun testCCProofsKnownNonce() {
-        val context = useGroup
+        testCCProofsKnownNonce(intGroup)
+        testCCProofsKnownNonce(ecGroup)
+    }
+
+    fun testCCProofsKnownNonce(context: GroupContext) {
         runTest {
             checkAll(
                 propTestFastConfig,
@@ -159,7 +169,11 @@ class ChaumPedersenTest {
 
     @Test
     fun testDisjunctiveProofKnownNonceSimple() {
-        val context = useGroup
+        testDisjunctiveProofKnownNonceSimple(intGroup)
+        testDisjunctiveProofKnownNonceSimple(ecGroup)
+    }
+
+    fun testDisjunctiveProofKnownNonceSimple(context: GroupContext) {
         val keypair = elGamalKeyPairFromSecret(context.TWO_MOD_Q)
         val nonce = context.ONE_MOD_Q
         val message0 = 0.encrypt(keypair, nonce)
@@ -242,7 +256,11 @@ class ChaumPedersenTest {
 
     @Test
     fun disjunctiveProofs() {
-        val context = useGroup
+        disjunctiveProofs(intGroup)
+        disjunctiveProofs(ecGroup)
+    }
+
+    fun disjunctiveProofs(context: GroupContext) {
         runTest {
             checkAll(
                 propTestFastConfig,
@@ -274,7 +292,11 @@ class ChaumPedersenTest {
 
     @Test
     fun testAccum() {
-        val context = productionGroup()
+        testAccum(intGroup)
+        testAccum(ecGroup)
+    }
+
+    fun testAccum(context: GroupContext) {
         val constant = 42
         val key = context.ONE_MOD_P
         val nonce = context.TWO_MOD_Q
@@ -311,7 +333,11 @@ class ChaumPedersenTest {
 
     @Test
     fun testAccumDifferentNonces() {
-        val context = productionGroup()
+        testAccumDifferentNonces(intGroup)
+        testAccumDifferentNonces(ecGroup)
+    }
+
+    fun testAccumDifferentNonces(context: GroupContext) {
         val constant = 42
         val contestNonce = context.randomElementModQ(2)
         val hashHeader = UInt256.random()
@@ -351,7 +377,11 @@ class ChaumPedersenTest {
 
     @Test
     fun testRangeProofsSimple() {
-        val context = useGroup
+        testRangeProofsSimple(intGroup)
+        testRangeProofsSimple(ecGroup)
+    }
+
+    fun testRangeProofsSimple(context: GroupContext) {
         val secretKey = 2.toElementModQ(context)
         val keypair = elGamalKeyPairFromSecret(secretKey)
         val publicKey = keypair.publicKey
@@ -386,7 +416,11 @@ class ChaumPedersenTest {
 
     @Test
     fun testRangeProofs() {
-        val context = useGroup
+        testRangeProofs(intGroup)
+        testRangeProofs(ecGroup)
+    }
+
+    fun testRangeProofs(context: GroupContext) {
         runTest {
             checkAll(
                 propTestFastConfig,
@@ -416,7 +450,11 @@ class ChaumPedersenTest {
 
     @Test
     fun testBadRangeProofs() {
-        val context = useGroup
+        testBadRangeProofs(intGroup)
+        testBadRangeProofs(ecGroup)
+    }
+
+    fun testBadRangeProofs(context: GroupContext) {
         runTest {
             checkAll(
                 propTestFastConfig,
@@ -441,7 +479,7 @@ class ChaumPedersenTest {
 
                 val proofValidation = proof.verify(ciphertext, keypair.publicKey, qbar, p0)
                 assertTrue(proofValidation is Err)
-                println("testBadRangeProofs $p0, $p1 = ${proofValidation.error}")
+                //println("testBadRangeProofs $p0, $p1 = ${proofValidation.error}")
             }
         }
     }

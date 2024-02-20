@@ -6,9 +6,6 @@ import java.math.BigInteger
 
 class EcGroupContext(val name: String): GroupContext {
     val ecGroup: VecGroup = VecGroups.getEcGroup(name)
-    override val parameterBaseHash: UInt256 = ecGroup.parameterBaseHash
-
-    val dlogg = EcLogaritm(ecGroup)
     val ONE = EcElementModP(this, ecGroup.ONE)
 
     override val GINV_MOD_P: ElementModP = EcElementModP(this, ecGroup.g.inv())
@@ -18,12 +15,14 @@ class EcGroupContext(val name: String): GroupContext {
     override val MAX_BYTES_P: Int = ecGroup.pbyteLength
     override val ONE_MOD_P: ElementModP = this.ONE
 
-    val NUM_Q_BITS: Int  = ecGroup.qbitLength
     override val MAX_BYTES_Q: Int = ecGroup.qbyteLength
-
     override val ZERO_MOD_Q: ElementModQ = EcElementModQ(this, BigInteger.ZERO)
     override val ONE_MOD_Q: ElementModQ = EcElementModQ(this, BigInteger.ONE)
     override val TWO_MOD_Q: ElementModQ = EcElementModQ(this, BigInteger.TWO)
+    val NUM_Q_BITS: Int  = ecGroup.qbitLength
+
+    override val parameterBaseHash: UInt256 = ecGroup.parameterBaseHash
+    val dlogg = DLogarithm(G_MOD_P)
 
     // TODO diff of this and safe version?
     override fun binaryToElementModP(b: ByteArray): ElementModP? {
@@ -45,7 +44,7 @@ class EcGroupContext(val name: String): GroupContext {
 
     override fun dLogG(p: ElementModP, maxResult: Int): Int? {
         require (p is EcElementModP)
-        return dlogg.dLog(p.ec, maxResult)
+        return dlogg.dLog(p, maxResult)
     }
 
     override fun gPowP(exp: ElementModQ): ElementModP {

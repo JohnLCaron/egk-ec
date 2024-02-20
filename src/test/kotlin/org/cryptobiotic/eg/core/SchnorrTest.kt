@@ -2,42 +2,64 @@ package org.cryptobiotic.eg.core
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
+import io.kotest.core.spec.style.WordSpec
+import io.kotest.core.spec.style.wordSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.checkAll
-import kotlin.test.Test
-import kotlin.test.assertTrue
+import org.cryptobiotic.eg.ecgroup.EcGroupContext
 import org.cryptobiotic.eg.intgroup.productionGroup
 
+class SchnorrTest : WordSpec({
+    val intGroup = productionGroup()
+    val ecGroup = EcGroupContext("P-256")
 
-class SchnorrTest {
-    val useGroup = productionGroup()
+    include(testSchnorrProof("integer group", intGroup))
+    include(testSchnorrProof("elliptic group", ecGroup))
+})
 
-    @Test
-    fun testCorruption() {
-        runTest {
-            checkAll(
-                propTestFastConfig,
-                elGamalKeypairs(useGroup),
-                Arb.int(1, 11),
-                Arb.int(0, 10),
-                elementsModQ(useGroup),
-                validResiduesOfP(useGroup),
-                elementsModQ(useGroup)
-            ) { kp, i, j, nonce, fakeElementModP, fakeElementModQ ->
-                val goodProof = kp.schnorrProof(i, j, nonce)
-                // hp : UInt256, guardianXCoord: Int, coeff: Int
-                assertTrue(goodProof.validate(i, j) is Ok)
+private fun testSchnorrProof(name: String, group: GroupContext) = wordSpec {
+    name should {
+        "create valid SchnoorProofs" {
+            runTest {
+                checkAll(
+                    propTestFastConfig,
+                    elGamalKeypairs(group),
+                    Arb.int(1, 11),
+                    Arb.int(0, 10),
+                    elementsModQ(group),
+                    validResiduesOfP(group),
+                    elementsModQ(group)
+                ) { kp, i, j, nonce, fakeElementModP, fakeElementModQ ->
+                    val goodProof = kp.schnorrProof(i, j, nonce)
+                    (goodProof.validate(i, j) is Ok) shouldBe true
+                }
+            }
+        }
+    }
 
-                val badProof1 = goodProof.copy(challenge = fakeElementModQ)
-                val badProof2 = goodProof.copy(response = fakeElementModQ)
+    name should {
+        "not validate bad SchnoorProofs" {
+            runTest {
+                checkAll(
+                    propTestFastConfig,
+                    elGamalKeypairs(group),
+                    Arb.int(1, 11),
+                    Arb.int(0, 10),
+                    elementsModQ(group),
+                    validResiduesOfP(group),
+                    elementsModQ(group)
+                ) { kp, i, j, nonce, fakeElementModP, fakeElementModQ ->
+                    val goodProof = kp.schnorrProof(i, j, nonce)
+                    val badProof1 = goodProof.copy(challenge = fakeElementModQ)
+                    val badProof2 = goodProof.copy(response = fakeElementModQ)
 
-                // The generator might have generated replacement values equal to the
-                // originals, so we need to be a little bit careful here.
-
-                assertTrue(goodProof.challenge == fakeElementModQ || badProof1.validate(i, j, false) is Err)
-                assertTrue(goodProof.response == fakeElementModQ || badProof2.validate(i, j, false) is Err)
-                assertTrue(kp.publicKey.key == fakeElementModP || badProof2.validate(i, j, false) is Err)
+                    // The generator might have generated replacement values equal to the
+                    // originals, so we need to be a little bit careful here.
+                    (badProof1.validate(i, j, false) is Err) shouldBe true
+                    (badProof2.validate(i, j, false) is Err) shouldBe true
+                }
             }
         }
     }

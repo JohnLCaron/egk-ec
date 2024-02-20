@@ -1,7 +1,5 @@
 package org.cryptobiotic.eg.core
 
-import org.cryptobiotic.eg.intgroup.dLoggerOf
-
 /** A public and private keypair, suitable for doing ElGamal cryptographic operations. */
 data class ElGamalKeypair(val secretKey: ElGamalSecretKey, val publicKey: ElGamalPublicKey) {
     init {
@@ -20,7 +18,7 @@ data class ElGamalKeypair(val secretKey: ElGamalSecretKey, val publicKey: ElGama
 class ElGamalPublicKey(inputKey: ElementModP) {
     val key = inputKey.acceleratePow()
     val inverseKey = inputKey.multInv() // not accelerated because not used for pow
-    private val dlogger = dLoggerOf(inputKey) // TODO needs to be group dependent ??
+    private val dlogger = DLogarithm(inputKey)
 
     val context: GroupContext
         get() = this.key.context
@@ -51,9 +49,7 @@ class ElGamalPublicKey(inputKey: ElementModP) {
             is ElGamalPublicKey -> key == other.key
             else -> false
         }
-
     override fun hashCode(): Int = key.hashCode()
-
     override fun toString(): String = key.toString()
 }
 
