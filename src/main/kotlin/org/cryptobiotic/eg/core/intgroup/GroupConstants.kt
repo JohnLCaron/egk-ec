@@ -1,10 +1,8 @@
 package org.cryptobiotic.eg.core.intgroup
 
-import org.cryptobiotic.eg.core.Base16.toHex
-import org.cryptobiotic.eg.core.UInt256
-import org.cryptobiotic.eg.core.hashFunction
 import org.cryptobiotic.eg.election.ElectionConstants
 import org.cryptobiotic.eg.election.GroupType
+import java.math.BigInteger
 
 const val protocolVersion = "v2.0.0"
 
@@ -16,13 +14,13 @@ data class GroupConstants(
     /** name of the constants defining the Group*/
     val name: String,
     /** large prime or P. */
-    val largePrime: ByteArray,
+    val largePrime: BigInteger,
     /** small prime or Q. */
-    val smallPrime: ByteArray,
+    val smallPrime: BigInteger,
     /** cofactor or R. */
-    val cofactor: ByteArray,
+    val cofactor: BigInteger,
     /** generator or G. */
-    val generator: ByteArray,
+    val generator: BigInteger,
 ) {
 
     val constants by lazy {
@@ -36,36 +34,31 @@ data class GroupConstants(
             )
     }
 
-    // override because of the byte arrays
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || this::class != other::class) return false
+        if (javaClass != other?.javaClass) return false
 
         other as GroupConstants
 
         if (name != other.name) return false
-        if (!largePrime.contentEquals(other.largePrime)) return false
-        if (!smallPrime.contentEquals(other.smallPrime)) return false
-        if (!cofactor.contentEquals(other.cofactor)) return false
-        if (!generator.contentEquals(other.generator)) return false
+        if (largePrime != other.largePrime) return false
+        if (smallPrime != other.smallPrime) return false
+        if (cofactor != other.cofactor) return false
+        if (generator != other.generator) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = name.hashCode()
-        result = 31 * result + largePrime.contentHashCode()
-        result = 31 * result + smallPrime.contentHashCode()
-        result = 31 * result + cofactor.contentHashCode()
-        result = 31 * result + generator.contentHashCode()
+        result = 31 * result + largePrime.hashCode()
+        result = 31 * result + smallPrime.hashCode()
+        result = 31 * result + cofactor.hashCode()
+        result = 31 * result + generator.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "name = ${this.name}\n" +
-                "largePrime = ${this.largePrime.toHex()}\n" +
-                "smallPrime = ${this.smallPrime.toHex()}\n" +
-                "  cofactor = ${this.cofactor.toHex()}\n" +
-                " generator = ${this.generator.toHex()}"
+        return "GroupConstants(name='$name', largePrime=$largePrime, smallPrime=$smallPrime, cofactor=$cofactor, generator=$generator)"
     }
 }

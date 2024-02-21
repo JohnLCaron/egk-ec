@@ -6,7 +6,7 @@ import io.kotest.property.forAll
 import org.cryptobiotic.eg.core.Base16.fromHexSafe
 import org.cryptobiotic.eg.core.Base16.toHex
 import org.cryptobiotic.eg.core.intgroup.PowRadixOption
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -15,7 +15,7 @@ class HashTest {
     @Test
     fun sameAnswerTwiceInARow() {
         runTest {
-            val context = productionGroup(PowRadixOption.LOW_MEMORY_USE)
+            val context = productionGroup()
             forAll(propTestFastConfig, elementsModP(context), elementsModQ(context)) { p, q ->
                 val h1 = hashFunction(p.byteArray(), q)
                 val h2 = hashFunction(p.byteArray(), q)
@@ -27,7 +27,7 @@ class HashTest {
     @Test
     fun basicHashProperties() {
         runTest {
-            val context = productionGroup(PowRadixOption.LOW_MEMORY_USE)
+            val context = productionGroup()
             checkAll(propTestFastConfig, elementsModQ(context), elementsModQ(context)) { q1, q2 ->
                 val h1 = hashFunction(q1.byteArray(), q1)
                 val h2 = hashFunction(q2.byteArray(), q2)

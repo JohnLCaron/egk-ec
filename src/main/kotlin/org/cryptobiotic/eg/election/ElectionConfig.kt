@@ -3,7 +3,7 @@ package org.cryptobiotic.eg.election
 import org.cryptobiotic.eg.core.UInt256
 import org.cryptobiotic.eg.core.hashFunction
 
-const val protocolVersion = "v2.0.0"
+const val currentConfigVersion = "2.1.0"
 
 /** Configuration input for KeyCeremony. */
 data class ElectionConfig(
@@ -107,7 +107,6 @@ fun electionBaseHash(Hp: UInt256, HM: UInt256, n : Int, k : Int) : UInt256 {
 
 /** Make ElectionConfig, calculating Hp, Hm and Hb. */
 fun makeElectionConfig(
-    configVersion: String,
     constants: ElectionConstants,
     numberOfGuardians: Int,
     quorum: Int,
@@ -122,7 +121,7 @@ fun makeElectionConfig(
     val electionBaseHash = electionBaseHash(parameterBaseHash, manifestHash, numberOfGuardians, quorum)
 
     return ElectionConfig(
-        configVersion,
+        currentConfigVersion,
         constants,
         numberOfGuardians,
         quorum,

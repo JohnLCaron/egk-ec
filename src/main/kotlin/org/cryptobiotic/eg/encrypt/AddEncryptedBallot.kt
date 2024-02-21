@@ -20,7 +20,6 @@ private val logger = KotlinLogging.logger("AddEncryptedBallot")
 
 /** Encrypt a ballot and add to election record. Single threaded only. */
 class AddEncryptedBallot(
-    val group: GroupContext,
     val manifest: Manifest, // should already be validated
     val configChaining: Boolean,
     val configBaux0: ByteArray,
@@ -32,22 +31,22 @@ class AddEncryptedBallot(
     val isJson: Boolean, // must match election record serialization type
 ) : Closeable {
     val ballotValidator = BallotInputValidation(manifest)
+    val publisher = makePublisher(outputDir, false)
 
     // note that the encryptor doesnt know if its chained
     val encryptor = Encryptor(
-        group,
+        jointPublicKey.context,
         manifest,
         jointPublicKey,
         extendedBaseHash,
         deviceName,
     )
     val decryptor = DecryptBallotWithNonce(
-        group,
+        jointPublicKey.context,
         jointPublicKey,
         extendedBaseHash
     )
 
-    val publisher = makePublisher(outputDir, false, isJson)
     val sink: EncryptedBallotSinkIF = publisher.encryptedBallotSink(deviceName)
     val baux0: ByteArray
 
@@ -58,7 +57,7 @@ class AddEncryptedBallot(
     private var closed = false
 
     init {
-        val consumer = makeConsumer(group, outputDir, isJson)
+        val consumer = makeConsumer(outputDir)
         val chainResult = consumer.readEncryptedBallotChain(deviceName)
         if (chainResult is Ok) {
             // this is a restart on an existing chain

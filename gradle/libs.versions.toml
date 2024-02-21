@@ -40,12 +40,13 @@ ktor-server-tests-jvm = { module = "io.ktor:ktor-server-tests-jvm", version.ref 
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "kotlin-version" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version = "5.10.0" }
 kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest-version" }
+kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest-version" }
 kotest-runner = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest-version" }
 mockk = { module = "io.mockk:mockk", version = "1.13.7" }
 
 [bundles]
 eglib = ["bull-result", "kotlinx-cli", "kotlinx-coroutines-core", "kotlinx-datetime", "kotlinx-serialization-json", "oshai-logging"]
-egtest = ["test-common", "test-annotations-common", "kotlinx-coroutines-test", "kotest-runner", "kotest-property"]
+egtest = ["test-common", "test-annotations-common", "kotlinx-coroutines-test", "kotest-runner", "kotest-property", "kotest-datatest"]
 jvmtest = ["junit-jupiter-params", "kotlin-test-junit5", "logback-classic", "mockk"]
 logging = ["oshai-logging", "logback-classic"]
 

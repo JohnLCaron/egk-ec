@@ -12,8 +12,8 @@ import org.cryptobiotic.util.ErrorMessages
 
 private val logger = KotlinLogging.logger("ElectionRecordFactory")
 
-fun readElectionRecord(group : GroupContext, topDir: String) : ElectionRecord {
-    val consumerIn = makeConsumer(group, topDir)
+fun readElectionRecord(topDir: String) : ElectionRecord {
+    val consumerIn = makeConsumer(topDir)
     return readElectionRecord(consumerIn)
 }
 
@@ -67,7 +67,7 @@ fun readElectionRecord(consumer: Consumer) : ElectionRecord {
                     config = readConfigResult.value
                     stage = ElectionRecord.Stage.CONFIG
                 } else {
-                    // Always has to be a config
+                    // Always has to have a config
                     throw RuntimeException(readConfigResult.unwrapError().toString())
                 }
             }
@@ -97,6 +97,7 @@ private class ElectionRecordImpl(val consumer: Consumer,
                                  val config : ElectionConfig,
                                  val manifest: Manifest
 ) : ElectionRecord {
+    override val group = consumer.group
 
     override fun stage(): ElectionRecord.Stage {
         return stage

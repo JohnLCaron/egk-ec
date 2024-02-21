@@ -5,9 +5,8 @@ import kotlinx.cli.ArgType
 import kotlinx.cli.default
 import kotlinx.cli.required
 import org.cryptobiotic.eg.core.getSystemDate
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.election.makeElectionConfig
-import org.cryptobiotic.eg.election.protocolVersion
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readAndCheckManifest
 
@@ -22,6 +21,11 @@ class RunCreateElectionConfig {
                 ArgType.String,
                 shortName = "manifest",
                 description = "Manifest file or directory (json or protobuf)"
+            ).required()
+            val groupName by parser.option(
+                ArgType.String,
+                shortName = "group",
+                description = "Group name"
             ).required()
             val nguardians by parser.option(
                 ArgType.Int,
@@ -58,6 +62,7 @@ class RunCreateElectionConfig {
             println(
                 "RunCreateElectionConfig starting\n" +
                         "   manifest= $electionManifest\n" +
+                        "   groupName= $groupName\n" +
                         "   nguardians= $nguardians\n" +
                         "   quorum= $quorum\n" +
                         "   output = $outputDir\n" +
@@ -66,15 +71,14 @@ class RunCreateElectionConfig {
                         "   chainCodes = $chainCodes"
             )
 
-            val group = productionGroup()
+            val group = productionGroup(groupName)
 
-            val (isJson, _, manifestBytes) = readAndCheckManifest(group, electionManifest)
+            val (isJson, _, manifestBytes) = readAndCheckManifest(electionManifest)
 
             // As input, either specify the input directory that contains electionConfig.protobuf file,
             // OR the election manifest, nguardians and quorum.
             val config =
                 makeElectionConfig(
-                    protocolVersion,
                     group.constants,
                     nguardians,
                     quorum,
@@ -87,7 +91,7 @@ class RunCreateElectionConfig {
                     ),
                 )
 
-            val publisher = makePublisher(outputDir, true, isJson)
+            val publisher = makePublisher(outputDir, true)
             publisher.writeElectionConfig(config)
 
             println("RunCreateElectionConfig success, outputType = ${if (isJson) "JSON" else "PROTO"}")

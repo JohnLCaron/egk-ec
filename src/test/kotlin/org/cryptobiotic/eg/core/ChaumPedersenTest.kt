@@ -11,7 +11,7 @@ import kotlin.math.min
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 
 class ChaumPedersenTest {
     val intGroup = productionGroup()

@@ -17,18 +17,21 @@ import kotlin.io.path.isDirectory
 
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.core.GroupContext
+import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.publish.Consumer
+import org.cryptobiotic.eg.publish.ElectionRecord
 import org.cryptobiotic.util.ErrorMessages
 
 private val logger = KotlinLogging.logger("ConsumerJsonJvm")
 
 /** Can read both zipped and unzipped JSON election record */
-class ConsumerJson(val topDir: String, val group: GroupContext) : Consumer {
+class ConsumerJson(val topDir: String) : Consumer {
     var fileSystem : FileSystem = FileSystems.getDefault()
     var fileSystemProvider : FileSystemProvider = fileSystem.provider()
     var jsonPaths = ElectionRecordJsonPaths(topDir)
     val jsonReader = Json { explicitNulls = false; ignoreUnknownKeys = true; prettyPrint = true }
+    override val group: GroupContext
 
     init {
         if (!Files.exists(Path.of(topDir))) {
@@ -37,16 +40,21 @@ class ConsumerJson(val topDir: String, val group: GroupContext) : Consumer {
         if (topDir.endsWith(".zip")) {
             val filePath = Path.of(topDir)
             fileSystem = FileSystems.newFileSystem(filePath, emptyMap<String, String>())
-            //val wtf = fileSystem.rootDirectories
-            //wtf.forEach { root ->
-            //    Files.walk(root).forEach { path -> println(path) }
-            //}
             fileSystemProvider = fileSystem.provider()
             jsonPaths = ElectionRecordJsonPaths("")
 
             println("electionConstantsPath = ${jsonPaths.electionConstantsPath()} -> ${fileSystem.getPath(jsonPaths.electionConstantsPath())}")
             println("manifestPath = ${jsonPaths.manifestPath()} -> ${fileSystem.getPath(jsonPaths.manifestPath())}")
             println("electionConfigPath = ${jsonPaths.electionConfigPath()} -> ${fileSystem.getPath(jsonPaths.electionConfigPath())}")
+        }
+        // must have a config and constants
+        val readConfigResult = readElectionConfig()
+        if (readConfigResult is Ok) {
+            val config = readConfigResult.value
+            val constants = config.constants
+            group = productionGroup(constants.name)
+        } else {
+            throw RuntimeException("Configuration and constants not found in $topDir")
         }
     }
 

@@ -4,7 +4,6 @@ import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import org.cryptobiotic.eg.publish.json.PublisherJson
-import org.cryptobiotic.util.ErrorMessages
 
 /** Write the Election Record as protobuf or json files. */
 interface Publisher {
@@ -41,7 +40,6 @@ interface Closeable {
 fun makePublisher(
     topDir: String,
     createNew: Boolean = false, // false = create directories if not already exist, true = create clean directories,
-    jsonSerialization: Boolean = false, // false = protobuf, true = json
 ): Publisher {
     return PublisherJson(topDir, createNew)
 }

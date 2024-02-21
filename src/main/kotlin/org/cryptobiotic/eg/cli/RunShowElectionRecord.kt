@@ -9,7 +9,7 @@ import kotlinx.cli.ArgType
 import kotlinx.cli.required
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.Base16.toHex
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.Consumer
@@ -49,15 +49,15 @@ class RunShowElectionRecord {
 
             val showSet = if (show == null) emptySet() else show!!.split(",").toSet()
 
-            showElectionRecord(productionGroup(), inputDir, ShowSet(showSet), details ?: false, ballotStyle)
+            showElectionRecord(inputDir, ShowSet(showSet), details ?: false, ballotStyle)
         }
 
         class ShowSet(val want: Set<String>) {
             fun has(show: String) = want.contains("all") || want.contains(show)
         }
 
-        fun showElectionRecord(group: GroupContext, inputDir: String, showSet: ShowSet, details: Boolean, ballotStyle : String?) {
-            val consumer = makeConsumer(group, inputDir)
+        fun showElectionRecord(inputDir: String, showSet: ShowSet, details: Boolean, ballotStyle : String?) {
+            val consumer = makeConsumer(inputDir)
             val electionRecord = readElectionRecord(consumer)
             println("ShowElectionRecord from $inputDir, stage = ${electionRecord.stage()}")
             if (ballotStyle != null) println("  for just ballot style='${ballotStyle}'")

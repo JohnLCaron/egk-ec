@@ -1,11 +1,14 @@
 package org.cryptobiotic.eg.publish.json
 
+import kotlinx.serialization.Serializable
+
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.util.ErrorMessages
-import kotlinx.serialization.Serializable
 import org.cryptobiotic.eg.core.Base16.fromHex
+import org.cryptobiotic.eg.core.Base16.fromHexSafe
 import org.cryptobiotic.eg.core.Base16.toHex
 import org.cryptobiotic.eg.core.safeEnumValueOf
+import java.math.BigInteger
 
 @Serializable
 data class ElectionConfigJson(
@@ -67,16 +70,24 @@ fun ElectionConstants.publishJson() = ElectionConstantsJson(
     this.name,
     this.type.toString(),
     this.protocolVersion,
-    this.constants.mapValues { it.value.toHex() }
+    this.constants.mapValues { it.value.toString(16) }
 )
 
 fun ElectionConstantsJson.import(errs: ErrorMessages) : ElectionConstants? {
     val gtype = safeEnumValueOf(this.type) ?: GroupType.IntegerGroup
+    this.constants.entries.forEach() { (key, value) ->
+        try {
+            BigInteger(value, 16)
+        } catch (t: Throwable) {
+            errs.add("constant '$key' has invalid value '$value, should be BigInteger in hex")
+        }
+    }
+    if (errs.hasErrors()) return null
 
     return ElectionConstants(
         this.name,
         gtype,
         this.protocolVersion,
-        this.constants.mapValues { it.value.fromHex()!! }
+        this.constants.mapValues { BigInteger(it.value, 16) }
     )
 }

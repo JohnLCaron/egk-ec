@@ -19,7 +19,6 @@ import java.math.BigInteger
  */
 
 // So far, I havent seen any use for order, buts its lurking underneath VCR ECqPGroup. ugh.
-// given that, I dont know that PFieldElement is needed. But leave it for now.
 // the order of G is the smallest positive number n such that ng = O (the point at infinity of the curve, and the identity element)
 class VecGroup(
     val curveName: String,
@@ -43,14 +42,15 @@ class VecGroup(
     val qbyteLength = (qbitLength + 7) / 8
 
     val constants by lazy {
-        ElectionConstants(curveName, GroupType.EllipticCurve, "v3.0.0",
+        ElectionConstants(curveName, GroupType.EllipticCurve, "v2.1.0",
             mapOf(
-                "a" to a.toByteArray(),
-                "b" to b.toByteArray(),
-                "primeModulus" to primeModulus.toByteArray(),
-                "order" to order.toByteArray(),
-                "g" to g.toByteArray(),
-                "h" to h.toByteArray(),
+                "a" to a,
+                "b" to b,
+                "primeModulus" to primeModulus,
+                "order" to order,
+                "g.x" to g.x,
+                "g.y" to g.y,
+                "h" to h,
             )
         )
     }
@@ -219,9 +219,21 @@ class VecGroup(
         return right
     }
 
-
     override fun toString(): String {
         return "ECqPGroup($curveName)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as VecGroup
+
+        return curveName == other.curveName
+    }
+
+    override fun hashCode(): Int {
+        return curveName.hashCode()
     }
 
     companion object {
