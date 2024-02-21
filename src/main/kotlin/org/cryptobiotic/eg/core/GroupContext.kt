@@ -2,6 +2,9 @@ package org.cryptobiotic.eg.core
 
 import org.cryptobiotic.eg.core.Base16.fromHex
 import org.cryptobiotic.eg.core.Base16.toHex
+import org.cryptobiotic.eg.core.ecgroup.VecGroup
+import org.cryptobiotic.eg.core.intgroup.PowRadixOption
+import org.cryptobiotic.eg.core.intgroup.ProductionMode
 import org.cryptobiotic.eg.election.ElectionConstants
 
 /**
@@ -278,4 +281,14 @@ fun GroupContext.addQ(vararg elements: ElementModQ) = elements.asIterable().addQ
  * multiplication operation for large enough numbers of inputs.
  */
 fun GroupContext.multP(vararg elements: ElementModP) = elements.asIterable().multP()
+
+fun productionGroup(groupName: String? = null): GroupContext {
+    return if (groupName == null) org.cryptobiotic.eg.core.intgroup.productionIntGroup(
+        PowRadixOption.LOW_MEMORY_USE,
+        ProductionMode.Mode4096
+    )
+    else if (groupName.startsWith("Integer group")) org.cryptobiotic.eg.core.intgroup.productionIntGroup(groupName)
+    else org.cryptobiotic.eg.core.ecgroup.EcGroupContext(groupName)
+}
+
 

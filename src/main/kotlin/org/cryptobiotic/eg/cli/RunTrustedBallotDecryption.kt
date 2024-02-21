@@ -22,7 +22,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption.Companion.readDecryptingTrustees
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.intgroup.productionGroup
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.decrypt.Decryptor
 import org.cryptobiotic.eg.decrypt.Guardians
@@ -78,9 +77,8 @@ class RunTrustedBallotDecryption {
             )
 
             try {
-                val group = productionGroup()
                 runDecryptBallots(
-                    group, inputDir, outputDir, readDecryptingTrustees(group, inputDir, trusteeDir),
+                    inputDir, outputDir, readDecryptingTrustees(inputDir, trusteeDir),
                     decryptChallenged, nthreads ?: 11
                 )
             } catch (t : Throwable) {
@@ -89,7 +87,6 @@ class RunTrustedBallotDecryption {
         }
 
         fun runDecryptBallots(
-            group: GroupContext,
             inputDir: String,
             outputDir: String,
             decryptingTrustees: List<DecryptingTrusteeIF>,
@@ -99,17 +96,17 @@ class RunTrustedBallotDecryption {
             println(" runDecryptBallots on ballots in ${inputDir} with nthreads = $nthreads")
             val stopwatch = Stopwatch() // start timing here
 
-            val consumerIn = makeConsumer(group, inputDir)
+            val consumerIn = makeConsumer(inputDir)
             val result: Result<TallyResult, ErrorMessages> = consumerIn.readTallyResult()
             if (result is Err) {
                 logger.error { result.error.toString() }
                 return 0
             }
             val tallyResult = result.unwrap()
-            val guardians = Guardians(group, tallyResult.electionInitialized.guardians)
+            val guardians = Guardians(consumerIn.group, tallyResult.electionInitialized.guardians)
 
             val decryptor = Decryptor(
-                group,
+                consumerIn.group,
                 tallyResult.electionInitialized.extendedBaseHash,
                 tallyResult.electionInitialized.jointPublicKey(),
                 guardians,
@@ -117,7 +114,7 @@ class RunTrustedBallotDecryption {
             )
 
             // TODO you often want to put the decryption results in the same directory, but sinks now are append-only.
-            val publisher = makePublisher(outputDir, false, consumerIn.isJson())
+            val publisher = makePublisher(outputDir, false)
             val sink: DecryptedTallyOrBallotSinkIF = publisher.decryptedTallyOrBallotSink()
 
             val ballotIter: Iterable<EncryptedBallot> =

@@ -11,14 +11,10 @@ import kotlinx.cli.default
 import kotlinx.cli.required
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.Base16.toHex
-import org.cryptobiotic.eg.core.intgroup.productionGroup
-import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import org.cryptobiotic.eg.keyceremony.keyCeremonyExchange
 import org.cryptobiotic.eg.publish.*
-import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stopwatch
 
 /**
@@ -57,8 +53,7 @@ class RunTrustedKeyCeremony {
             parser.parse(args)
             println("RunTrustedKeyCeremony starting\n   input= $inputDir\n   trustees= $trusteeDir\n   output = $outputDir")
 
-            val group = productionGroup()
-            val consumerIn = makeConsumer(group, inputDir)
+            val consumerIn = makeConsumer(inputDir)
             val configResult = consumerIn.readElectionConfig()
             if (configResult is Err) {
                 println("readElectionConfig error ${configResult.error}")
@@ -68,7 +63,7 @@ class RunTrustedKeyCeremony {
 
             try {
                 val result = runKeyCeremony(
-                    group,
+                    consumerIn.group,
                     inputDir,
                     config,
                     outputDir,
@@ -113,11 +108,11 @@ class RunTrustedKeyCeremony {
                 )
             )
 
-            val publisher = makePublisher(outputDir, false, isJson)
+            val publisher = makePublisher(outputDir, false)
             publisher.writeElectionInitialized(electionInitialized)
 
             // store the trustees in some private place.
-            val trusteePublisher : Publisher = makePublisher(trusteeDir, false, isJson)
+            val trusteePublisher : Publisher = makePublisher(trusteeDir, false)
             trustees.forEach { trusteePublisher.writeTrustee(trusteeDir, it) }
 
             println("RunTrustedKeyCeremony ${stopwatch.took()}")

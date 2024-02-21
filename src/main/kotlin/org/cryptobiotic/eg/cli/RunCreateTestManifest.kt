@@ -44,7 +44,7 @@ class RunCreateTestManifest {
             )
 
             val manifest = buildTestManifest(ncontests, nselections)
-            val publisher = makePublisher(outputDir, true, outputType == "JSON")
+            val publisher = makePublisher(outputDir, true)
             publisher.writeManifest(manifest)
 
             println("RunCreateTestManifest success")

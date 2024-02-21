@@ -1,7 +1,8 @@
 package org.cryptobiotic.eg.cli
 
 import org.cryptobiotic.eg.election.Manifest
-import org.cryptobiotic.eg.election.protocolVersion
+
+const val manifestVersion = "v2.0.0"
 
 /** Build test Manifests */
 class ManifestBuilder(val manifestName: String = electionScopeId, styleDef : String = styleDefault) {
@@ -81,7 +82,7 @@ class ManifestBuilder(val manifestName: String = electionScopeId, styleDef : Str
         val parties: List<Manifest.Party> = listOf(Manifest.Party("dog"), Manifest.Party("cat"))
         return Manifest(
             manifestName,
-            protocolVersion,
+            manifestVersion,
             Manifest.ElectionType.general,
             "start",
             "end",

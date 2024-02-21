@@ -10,8 +10,6 @@ import kotlinx.cli.ArgType
 import kotlinx.cli.required
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.Base16.toHex
-import org.cryptobiotic.eg.core.intgroup.productionGroup
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.decrypt.Decryptor
 import org.cryptobiotic.eg.decrypt.Guardians
@@ -64,12 +62,10 @@ class RunTrustedTallyDecryption {
             println("RunTrustedTallyDecryption starting\n   input= $inputDir\n   trustees= $trusteeDir\n   output = $outputDir")
 
             try {
-                val group = productionGroup()
                 runDecryptTally(
-                    group,
                     inputDir,
                     outputDir,
-                    readDecryptingTrustees(group, inputDir, trusteeDir, missing),
+                    readDecryptingTrustees(inputDir, trusteeDir, missing),
                     createdBy
                 )
             } catch (t: Throwable) {
@@ -78,19 +74,17 @@ class RunTrustedTallyDecryption {
         }
 
         fun readDecryptingTrustees(
-            group: GroupContext,
             inputDir: String,
             trusteeDir: String,
             missing: String? = null
         ): List<DecryptingTrusteeIF> {
-            val consumerIn = makeConsumer(group, inputDir)
-            val initResult = consumerIn.readElectionInitialized()
+            val trusteeSource = makeConsumer(inputDir)
+            val initResult = trusteeSource.readElectionInitialized()
             if (initResult is Err) {
                 logger.error { initResult.error.toString() }
                 return emptyList()
             }
             val init = initResult.unwrap()
-            val trusteeSource: Consumer = makeTrusteeSource(trusteeDir, group, consumerIn.isJson())
             val readTrusteeResults : List<Result<DecryptingTrusteeIF, ErrorMessages>> = init.guardians.map { trusteeSource.readTrustee(trusteeDir, it.guardianId) }
             val (allTrustees, allErrors) = readTrusteeResults.partition()
             if (allErrors.isNotEmpty()) {
@@ -106,7 +100,6 @@ class RunTrustedTallyDecryption {
         }
 
         fun runDecryptTally(
-            group: GroupContext,
             inputDir: String,
             outputDir: String,
             decryptingTrustees: List<DecryptingTrusteeIF>,
@@ -114,7 +107,7 @@ class RunTrustedTallyDecryption {
         ) {
             val stopwatch = Stopwatch()
 
-            val consumerIn = makeConsumer(group, inputDir)
+            val consumerIn = makeConsumer(inputDir)
             val result = consumerIn.readTallyResult()
             if (result is Err) {
                 println("readTallyResult error ${result.error}")
@@ -128,9 +121,9 @@ class RunTrustedTallyDecryption {
                 electionInit.guardians.filter { !trusteeNames.contains(it.guardianId) }.map { it.guardianId }
             println("runDecryptTally present = $trusteeNames missing = $missingGuardians")
 
-            val guardians = Guardians(group, electionInit.guardians)
+            val guardians = Guardians(consumerIn.group, electionInit.guardians)
             val decryptor = Decryptor(
-                group,
+                consumerIn.group,
                 electionInit.extendedBaseHash,
                 electionInit.jointPublicKey(),
                 guardians,
@@ -144,7 +137,7 @@ class RunTrustedTallyDecryption {
                     logger.error { " RunTrustedTallyDecryption error=${errs}" }
                     return
                 }
-                val publisher = makePublisher(outputDir, false, consumerIn.isJson())
+                val publisher = makePublisher(outputDir, false)
                 publisher.writeDecryptionResult(
                     DecryptionResult(
                         tallyResult,

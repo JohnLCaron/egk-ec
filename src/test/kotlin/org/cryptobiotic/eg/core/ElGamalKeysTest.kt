@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.core.spec.style.wordSpec
 import io.kotest.matchers.shouldBe
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 
 class ElGamalKeysTest : WordSpec({
     val intGroup = productionGroup()

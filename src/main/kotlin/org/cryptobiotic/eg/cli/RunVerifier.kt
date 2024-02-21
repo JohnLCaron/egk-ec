@@ -8,7 +8,7 @@ import kotlin.math.roundToInt
 
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.Base16.toHex
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.Consumer
@@ -47,13 +47,13 @@ class RunVerifier {
             parser.parse(args)
             println("RunVerifier starting\n   input= $inputDir")
 
-            runVerifier(productionGroup(), inputDir, nthreads, showTime)
+            runVerifier(inputDir, nthreads, showTime)
         }
 
-        fun runVerifier(group: GroupContext, inputDir: String, nthreads: Int, showTime: Boolean = false): Boolean {
+        fun runVerifier(inputDir: String, nthreads: Int, showTime: Boolean = false): Boolean {
             val stopwatch = Stopwatch() // start timing here
 
-            val electionRecord = readElectionRecord(group, inputDir)
+            val electionRecord = readElectionRecord(inputDir)
             val verifier = Verifier(electionRecord, nthreads)
             val stats = Stats()
             val allOk = verifier.verify(stats, showTime)
@@ -66,7 +66,7 @@ class RunVerifier {
         }
 
         // RunVerifier.runVerifier(group, consumerIn, 11, true)
-        fun runVerifier(group: GroupContext, consumer: Consumer, nthreads: Int, showTime: Boolean = false): Boolean {
+        fun runVerifier(consumer: Consumer, nthreads: Int, showTime: Boolean = false): Boolean {
             val stopwatch = Stopwatch() // start timing here
 
             val electionRecord = readElectionRecord(consumer)
@@ -81,10 +81,10 @@ class RunVerifier {
             return allOk
         }
 
-        fun verifyEncryptedBallots(group: GroupContext, inputDir: String, nthreads: Int) {
+        fun verifyEncryptedBallots(inputDir: String, nthreads: Int) {
             val stopwatch = Stopwatch() // start timing here
 
-            val electionRecord = readElectionRecord(group, inputDir)
+            val electionRecord = readElectionRecord(inputDir)
             val verifier = Verifier(electionRecord, nthreads)
 
             val stats = Stats()
@@ -95,10 +95,10 @@ class RunVerifier {
             println("VerifyEncryptedBallots ${stopwatch.took()}")
         }
 
-        fun verifyDecryptedTally(group: GroupContext, inputDir: String) {
+        fun verifyDecryptedTally(inputDir: String) {
             val stopwatch = Stopwatch() // start timing here
 
-            val electionRecord = readElectionRecord(group, inputDir)
+            val electionRecord = readElectionRecord(inputDir)
             val verifier = Verifier(electionRecord, 1)
 
             val decryptedTally = electionRecord.decryptedTally() ?: throw IllegalStateException("no decryptedTally ")
@@ -110,10 +110,10 @@ class RunVerifier {
             println("verifyDecryptedTally ${stopwatch.took()} ")
         }
 
-        fun verifyChallengedBallots(group: GroupContext, inputDir: String) {
+        fun verifyChallengedBallots(inputDir: String) {
             val stopwatch = Stopwatch() // start timing here
 
-            val electionRecord = readElectionRecord(group, inputDir)
+            val electionRecord = readElectionRecord(inputDir)
             val verifier = Verifier(electionRecord, 1)
 
             val stats = Stats()
@@ -124,8 +124,8 @@ class RunVerifier {
             println("verifyRecoveredShares ${stopwatch.took()}")
         }
 
-        fun verifyTallyBallotIds(group: GroupContext, inputDir: String) {
-            val electionRecord = readElectionRecord(group, inputDir)
+        fun verifyTallyBallotIds(inputDir: String) {
+            val electionRecord = readElectionRecord(inputDir)
             println("$inputDir stage=${electionRecord.stage()} ncast_ballots=${electionRecord.encryptedTally()!!.castBallotIds.size}")
 
             val verifier = Verifier(electionRecord, 1)

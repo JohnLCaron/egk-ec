@@ -5,7 +5,6 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.unwrap
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.intgroup.productionGroup
 import org.cryptobiotic.eg.encrypt.AddEncryptedBallot
 import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
@@ -25,8 +24,7 @@ class RunExampleEncryption {
             val outputDir = "testOut/encrypt/RunExampleEncryption"
             val device = "device0"
 
-            val group = productionGroup()
-            val consumerIn = makeConsumer(group, inputDir)
+            val consumerIn = makeConsumer(inputDir)
             val initResult = consumerIn.readElectionInitialized()
             if (initResult is Err) {
                 println("readElectionInitialized error ${initResult.error}")
@@ -39,11 +37,10 @@ class RunExampleEncryption {
                 throw RuntimeException("ManifestInputValidation error $errors")
             }
 
-            val publisher = makePublisher(outputDir, true, consumerIn.isJson())
+            val publisher = makePublisher(outputDir, true)
             publisher.writeElectionInitialized(electionInit)
 
             val encryptor = AddEncryptedBallot(
-                group,
                 manifest,
                 electionInit.config.chainConfirmationCodes,
                 electionInit.config.configBaux0,
@@ -85,17 +82,18 @@ class RunExampleEncryption {
             encryptor.close()
 
             // verify
-            verifyOutput(group, outputDir, nballots, electionInit.config.chainConfirmationCodes)
+            verifyOutput(outputDir, nballots, electionInit.config.chainConfirmationCodes)
         }
 
-        fun verifyOutput(group: GroupContext, outputDir: String, expectedCount : Int, chained: Boolean = false) {
-            val consumer = makeConsumer(group, outputDir, false)
+        fun verifyOutput(outputDir: String, expectedCount : Int, chained: Boolean = false) {
+            val consumer = makeConsumer(outputDir)
             val count = consumer.iterateAllEncryptedBallots { true }.count()
             println("$count EncryptedBallots ok=${count == expectedCount}")
 
             val record = readElectionRecord(consumer)
             val verifier = VerifyEncryptedBallots(
-                group, record.manifest(),
+                consumer.group,
+                record.manifest(),
                 ElGamalPublicKey(record.jointPublicKey()!!),
                 record.extendedBaseHash()!!,
                 record.config(), 1

@@ -11,7 +11,7 @@ import io.kotest.property.checkAll
 import io.kotest.property.forAll
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
 
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 import kotlin.test.assertEquals
 
 private fun smallInts() = Arb.int(min = 0, max = 1000)

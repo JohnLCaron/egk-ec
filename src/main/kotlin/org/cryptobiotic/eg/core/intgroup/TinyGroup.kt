@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.core.intgroup
 
 import org.cryptobiotic.eg.core.*
+import java.math.BigInteger
 
 internal val tinyGroupContext =
     TinyGroupContext(
@@ -8,7 +9,7 @@ internal val tinyGroupContext =
         q = intTestQ.toUInt(),
         r = intTestR.toUInt(),
         g = intTestG.toUInt(),
-        name = "32-bit test group",
+        name = "Integer group, 32-bit (test only)",
     )
 
 /**
@@ -61,12 +62,11 @@ internal class TinyGroupContext(
 
     override fun isProductionStrength() = false
 
-    val groupConstants = GroupConstants(
-        name,
-        p.toByteArray(),
-        q.toByteArray(),
-        r.toByteArray(),
-        g.toByteArray(),
+    val groupConstants = GroupConstants(name,
+        BigInteger(1, p.toByteArray()),
+        BigInteger(1, q.toByteArray()),
+        BigInteger(1, r.toByteArray()),
+        BigInteger(1, g.toByteArray()),
     )
     override val constants = groupConstants.constants
 

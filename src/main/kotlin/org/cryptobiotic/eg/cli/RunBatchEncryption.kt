@@ -20,11 +20,10 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
-import kotlin.math.roundToInt
 import io.github.oshai.kotlinlogging.KotlinLogging
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.decrypt.DecryptBallotWithNonce
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.encrypt.Encryptor
@@ -33,7 +32,6 @@ import org.cryptobiotic.eg.input.BallotInputValidation
 import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.publish.EncryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.makeConsumer
-import org.cryptobiotic.eg.publish.makeInputBallotSource
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.verifier.VerifyEncryptedBallots
 import org.cryptobiotic.util.ErrorMessages
@@ -126,7 +124,6 @@ class RunBatchEncryption {
             )
 
             batchEncryption(
-                productionGroup(),
                 inputDir,
                 ballotDir,
                 device = device,
@@ -143,9 +140,8 @@ class RunBatchEncryption {
 
         enum class CheckType { None, Verify, EncryptTwice, DecryptNonce }
 
-        // encrypt ballots in inputDir
+        // encrypt ballots in ballotDir
         fun batchEncryption(
-            group: GroupContext,
             inputDir: String,
             ballotDir: String,
             device: String,
@@ -159,11 +155,11 @@ class RunBatchEncryption {
             anonymize: Boolean = false,
         ) {
             // ballots can be in either format
-            val ballotSource = makeInputBallotSource(ballotDir, group)
+            val comsumer = makeConsumer(inputDir)
 
             return batchEncryption(
-                group, inputDir,
-                ballotSource.iteratePlaintextBallots(ballotDir, null),
+                inputDir,
+                comsumer.iteratePlaintextBallots(ballotDir, null),
                 device = device,
                 outputDir, encryptDir, invalidDir,
                 nthreads, createdBy, check, cleanOutput, anonymize
@@ -172,7 +168,6 @@ class RunBatchEncryption {
 
         // encrypt the ballots in Iterable<PlaintextBallot>
         fun batchEncryption(
-            group: GroupContext,
             inputDir: String,
             ballots: Iterable<PlaintextBallot>,
             device: String,
@@ -186,7 +181,7 @@ class RunBatchEncryption {
             anonymize: Boolean = false,
         ) {
             count = 0 // start over each batch
-            val consumerIn = makeConsumer(group, inputDir)
+            val consumerIn = makeConsumer(inputDir)
             val initResult = consumerIn.readElectionInitialized()
             if (initResult is Err) {
                 println("readElectionInitialized error ${initResult.error}")
@@ -226,19 +221,19 @@ class RunBatchEncryption {
             val stopwatch = Stopwatch() // start timing here
 
             val encryptor = Encryptor(
-                group,
+                consumerIn.group,
                 manifest,
                 ElGamalPublicKey(electionInit.jointPublicKey),
                 electionInit.extendedBaseHash,
                 device,
             )
             val runEncryption = EncryptionRunner(
-                group, encryptor, manifest, electionInit.config,
+                consumerIn.group, encryptor, manifest, electionInit.config,
                 electionInit.jointPublicKey, electionInit.extendedBaseHash, check
             )
 
             // encryptDir is the exact encrypted ballot directory, outputDir is the election record topdir
-            val publisher = makePublisher(encryptDir ?: outputDir!!, cleanOutput, consumerIn.isJson())
+            val publisher = makePublisher(encryptDir ?: outputDir!!, cleanOutput)
             val sink: EncryptedBallotSinkIF =
                 if (encryptDir != null) publisher.encryptedBallotSink(null, true)
                 else publisher.encryptedBallotSink(device, true)

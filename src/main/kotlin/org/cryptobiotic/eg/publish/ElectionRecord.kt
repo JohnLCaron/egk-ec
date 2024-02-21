@@ -9,6 +9,7 @@ import org.cryptobiotic.util.ErrorMessages
 interface ElectionRecord {
     enum class Stage { CONFIG, INIT, ENCRYPTED, TALLIED, DECRYPTED, }
 
+    val group : GroupContext
     fun stage() : Stage
     fun topdir() : String
     fun isJson(): Boolean

@@ -17,6 +17,7 @@ private val logger = KotlinLogging.logger("Consumer")
 
 /** public API to read from the election record */
 interface Consumer {
+    val group : GroupContext
     fun topdir() : String
     fun isJson() : Boolean
 
@@ -56,13 +57,12 @@ interface Consumer {
 }
 
 fun makeConsumer(
-    group: GroupContext,
     topDir: String,
-    isJson: Boolean = true, // if not set, check if manifest.json file exists
 ): Consumer {
-    return ConsumerJson(topDir, group)
+    return ConsumerJson(topDir)
 }
 
+/*
 fun makeInputBallotSource(
     ballotDir: String,
     group: GroupContext,
@@ -79,12 +79,14 @@ fun makeTrusteeSource(
     return ConsumerJson(trusteeDir, group)
 }
 
+ */
+
 /**
  * Read the manifest and check that the file parses and validates.
  * @param manifestDirOrFile manifest filename, or the directory that its in. May be JSON or proto. If JSON, may be zipped
  * @return isJson, manifest, manifestBytes
  */
-fun readAndCheckManifest(group: GroupContext, manifestDirOrFile: String): Triple<Boolean, Manifest, ByteArray> {
+fun readAndCheckManifest(manifestDirOrFile: String): Triple<Boolean, Manifest, ByteArray> {
 
     val isZip = manifestDirOrFile.endsWith(".zip")
     val isDirectory = isDirectory(manifestDirOrFile)
@@ -108,7 +110,7 @@ fun readAndCheckManifest(group: GroupContext, manifestDirOrFile: String): Triple
         manifestDirOrFile.substringBeforeLast("/")
     }
 
-    val consumer =  ConsumerJson(manifestDir, group)
+    val consumer =  ConsumerJson(manifestDir)
 
     try {
         val manifestBytes = consumer.readManifestBytes(manifestFile)

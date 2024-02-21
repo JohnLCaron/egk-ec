@@ -191,7 +191,7 @@ class VecElementModP(
     }
 
     override fun toString(): String {
-        return "ECqPGroupElement(${x.toHex()}, ${y.toHex()})"
+        return "VecElementModP(${x.toHex()}, ${y.toHex()})"
     }
 
     override fun equals(other: Any?): Boolean {

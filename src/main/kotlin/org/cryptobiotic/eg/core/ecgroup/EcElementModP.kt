@@ -49,7 +49,7 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementModP): ElementM
     }
 
     override fun toStringShort(): String {
-        return "ECqPGroupElement(${ec.x.toStringShort()}, ${ec.y.toStringShort()})"
+        return "EcElementModP(${ec.x.toStringShort()}, ${ec.y.toStringShort()})"
     }
 
     override fun equals(other: Any?): Boolean {

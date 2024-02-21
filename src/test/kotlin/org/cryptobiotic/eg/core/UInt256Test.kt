@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import org.cryptobiotic.eg.core.Base16.fromHexSafe
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 
 class UInt256Test {
     @Test

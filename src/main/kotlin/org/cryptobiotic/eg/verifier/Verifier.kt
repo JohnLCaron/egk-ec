@@ -3,7 +3,7 @@ package org.cryptobiotic.eg.verifier
 import com.github.michaelbull.result.*
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.ElectionRecord
 import org.cryptobiotic.util.ErrorMessages

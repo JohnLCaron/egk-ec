@@ -1,7 +1,7 @@
 package org.cryptobiotic.eg.election
 
 import org.cryptobiotic.eg.core.Base16.toHex
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

@@ -4,7 +4,7 @@ import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.intgroup.productionGroup
+import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.encrypt.Encryptor
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.util.ErrorMessages

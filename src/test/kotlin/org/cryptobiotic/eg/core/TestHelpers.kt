@@ -56,6 +56,10 @@ fun generateSchnorrProof(context: GroupContext): SchnorrProof {
     )
 }
 
+fun generateHashedCiphertext(context: GroupContext): HashedElGamalCiphertext {
+    return HashedElGamalCiphertext(generateElementModP(context), "what".encodeToByteArray(), generateUInt256(context), 42)
+}
+
 fun generateCiphertext(context: GroupContext): ElGamalCiphertext {
     return ElGamalCiphertext(generateElementModP(context), generateElementModP(context))
 }

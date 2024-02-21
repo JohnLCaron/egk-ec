@@ -88,4 +88,19 @@ class EcGroupContext(val name: String): GroupContext {
         val sum = cues.fold(BigInteger.ZERO) { a, b -> a.plus((b as EcElementModQ).element) }
         return EcElementModQ( this, sum.mod(ecGroup.order))
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as EcGroupContext
+
+        return name == other.name
+    }
+
+    override fun hashCode(): Int {
+        return name.hashCode()
+    }
+
+
 }

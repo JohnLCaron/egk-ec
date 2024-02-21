@@ -4,7 +4,6 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.unwrap
 import org.cryptobiotic.eg.election.EncryptedTally
 import org.cryptobiotic.eg.election.TallyResult
-import org.cryptobiotic.eg.core.GroupContext
 import org.cryptobiotic.eg.core.getSystemDate
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
@@ -14,7 +13,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.required
-import org.cryptobiotic.eg.core.intgroup.productionGroup
 import org.cryptobiotic.util.Stopwatch
 
 /**
@@ -61,10 +59,8 @@ class RunAccumulateTally {
                     "   outputDir = $outputDir\n" +
                     "   encryptDir = $encryptDir")
 
-            val group = productionGroup()
             try {
                 runAccumulateBallots(
-                    group,
                     inputDir,
                     outputDir,
                     encryptDir,
@@ -78,7 +74,6 @@ class RunAccumulateTally {
         }
 
         fun runAccumulateBallots(
-            group: GroupContext,
             inputDir: String,
             outputDir: String,
             encryptDir: String?,
@@ -87,7 +82,7 @@ class RunAccumulateTally {
         ) {
             val stopwatch = Stopwatch()
 
-            val consumerIn = makeConsumer(group, inputDir)
+            val consumerIn = makeConsumer(inputDir)
             val initResult = consumerIn.readElectionInitialized()
             if (initResult is Err) {
                 println("readElectionInitialized error ${initResult.error}")
@@ -95,6 +90,7 @@ class RunAccumulateTally {
             }
             val electionInit = initResult.unwrap()
             val manifest = consumerIn.makeManifest(electionInit.config.manifestBytes)
+            val group = consumerIn.group
 
             var countBad = 0
             var countOk = 0
@@ -113,7 +109,7 @@ class RunAccumulateTally {
             }
             val tally: EncryptedTally = accumulator.build()
 
-            val publisher = makePublisher(outputDir, false, consumerIn.isJson())
+            val publisher = makePublisher(outputDir, false)
             publisher.writeTallyResult(
                 TallyResult(
                     electionInit, tally, listOf(name),

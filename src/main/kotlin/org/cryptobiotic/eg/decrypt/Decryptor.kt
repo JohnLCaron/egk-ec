@@ -39,6 +39,9 @@ class Decryptor(
             } else {
                 if (trustee.guardianPublicKey() != guardian.publicKey()) {
                     badTrustees.add(trustee.id())
+                    println("trustee = ${trustee.guardianPublicKey()}")
+                    println("guardian = ${guardian.publicKey()}")
+                    println("ok = ${trustee.guardianPublicKey().equals(guardian.publicKey())}")
                 }
             }
         }
