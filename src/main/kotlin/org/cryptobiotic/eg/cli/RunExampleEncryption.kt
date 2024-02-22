@@ -20,7 +20,7 @@ class RunExampleEncryption {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val inputDir = "src/commonTest/data/workflow/allAvailableJson"
+            val inputDir = "src/test/data/workflow/allAvailableEc"
             val outputDir = "testOut/encrypt/RunExampleEncryption"
             val device = "device0"
 

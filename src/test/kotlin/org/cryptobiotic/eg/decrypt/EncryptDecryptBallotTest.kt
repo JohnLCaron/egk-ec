@@ -20,7 +20,7 @@ import kotlin.test.*
 
 /** Test KeyCeremony Trustee generation and recovered decryption. */
 class EncryptDecryptBallotTest {
-    val configDir = "src/commonTest/data/startConfigJson"
+    val configDir = "src/test/data/startConfigEc"
     val outputDir = "testOut/RecoveredDecryptionTest"
     val trusteeDir = "$outputDir/private_data"
 
@@ -133,7 +133,7 @@ fun testEncryptDecryptVerify(
         val errs = ErrorMessages("testEncryptDecryptVerify")
         val decryptedBallot = decryptor.decryptBallot(encryptedBallot, errs)
         if (decryptedBallot == null) {
-            println("testEncryptDecryptVerify failedf errors = $errs")
+            println("testEncryptDecryptVerify failed errors = $errs")
             return
         }
         decryptTime += getSystemTimeInMillis() - startDecrypt

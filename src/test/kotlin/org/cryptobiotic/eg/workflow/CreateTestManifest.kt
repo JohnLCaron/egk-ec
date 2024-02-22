@@ -3,7 +3,7 @@ package org.cryptobiotic.eg.workflow
 import org.cryptobiotic.eg.cli.RunCreateTestManifest
 import kotlin.test.Test
 
-class RunCreateTestManifestTest {
+class CreateTestManifest {
 
     @Test
     fun runCreateTestManifest() {

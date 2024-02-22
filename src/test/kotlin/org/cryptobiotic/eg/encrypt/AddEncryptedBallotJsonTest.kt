@@ -9,7 +9,7 @@ import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
 
 class AddEncryptedBallotJsonTest {
-    val input = "src/commonTest/data/workflow/allAvailableJson"
+    val input = "src/test/data/workflow/allAvailableEc"
     val outputDirJson = "testOut/encrypt/addEncryptedBallotJson"
 
     val nballots = 4

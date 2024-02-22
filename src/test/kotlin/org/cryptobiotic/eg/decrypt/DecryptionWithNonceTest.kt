@@ -16,7 +16,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 
 class DecryptionWithNonceTest {
-    val input = "src/commonTest/data/workflow/allAvailableJson"
+    val input = "src/test/data/workflow/allAvailableEc"
     private val nballots = 20
 
     /** test DecryptionWithPrimaryNonce: encrypt ballot, decrypt with master nonce, check match. */

@@ -8,8 +8,8 @@ import kotlin.test.Test
 
 /** Generate fake ballots for testing. No actual testing here. */
 class GenerateFakeBallots {
-    val inputDir = "src/commonTest/data/startConfigJson"
-    val outputDirJson =  "testOut/fakeBallots/json"
+    val inputDir = "src/test/data/startConfigEc"
+    val outputDirJson =  "testOut/fakeBallots"
 
     @Test
     fun generateFakeBallotsJson() {

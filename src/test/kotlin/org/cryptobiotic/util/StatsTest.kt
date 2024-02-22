@@ -4,7 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class StatsTest {
-
+    val f = 1_000_000L // convert to nanosecs
     @Test
     fun testStatEmpty() {
         val stat = Stat("thing", "what")
@@ -14,9 +14,9 @@ class StatsTest {
     @Test
     fun testStat() {
         val stat = Stat("thing", "what")
-        stat.accum(99, 2)
-        stat.accum(101, 2)
-        stat.accum(15, 11)
+        stat.accum(99*f, 2)
+        stat.accum(101*f, 2)
+        stat.accum(15*f, 11)
         assertEquals("took 215 msecs = 14.33 msecs/thing (15 things) = 71.666 msecs/what for 3 whats", stat.show())
     }
 
@@ -42,9 +42,9 @@ class StatsTest {
     @Test
     fun testStats() {
         val stats = Stats()
-        stats.of("widgets").accum(15, 11)
-        stats.of("blivits").accum(11, 15)
-        stats.of("widgets").accum(7, 7)
+        stats.of("widgets").accum(15*f, 11)
+        stats.of("blivits").accum(11*f, 15)
+        stats.of("widgets").accum(7*f, 7)
 
         assertEquals(
             listOf(

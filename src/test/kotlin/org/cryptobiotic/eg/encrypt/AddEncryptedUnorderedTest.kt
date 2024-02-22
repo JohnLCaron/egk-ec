@@ -12,7 +12,7 @@ import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
 
 class AddEncryptedUnorderedTest {
-    val input = "src/commonTest/data/workflow/allAvailableJson"
+    val input = "src/test/data/workflow/allAvailableEc"
     val outputDirProto = "testOut/encrypt/AddEncryptedUnorderedTest"
 
     val nballots = 3

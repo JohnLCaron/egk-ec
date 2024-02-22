@@ -8,8 +8,8 @@ import kotlin.test.assertTrue
 import org.cryptobiotic.eg.cli.ManifestBuilder.Companion.electionScopeId
 
 class ConsumerJsonTest : FunSpec({
-    val inputIg = "src/test/data/testElectionRecord/convertJson"
-    val inputEc = "src/test/data/testElectionRecord/convertJsonEc"
+    val inputIg = "src/test/data/workflow/someAvailable"
+    val inputEc = "src/test/data/workflow/someAvailableEc"
     context("ConsumerJson tests") {
         withData(inputIg, inputEc) { topDir ->
             testElectionRecord(topDir)

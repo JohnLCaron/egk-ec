@@ -19,7 +19,7 @@ class RunDecryptBallotsJsonTest {
 
     @Test
     fun testDecryptBallotsAll() {
-        val inputDir = "src/commonTest/data/workflow/allAvailableJson"
+        val inputDir = "src/test/data/workflow/allAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "testOut/decrypt/testDecryptBallotsAllJson"
         println("\ntestDecryptBallotsAll")
@@ -35,7 +35,7 @@ class RunDecryptBallotsJsonTest {
 
     @Test
     fun testDecryptBallotsSome() {
-        val inputDir = "src/commonTest/data/workflow/someAvailableJson"
+        val inputDir = "src/test/workflow/someAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "testOut/decrypt/testDecryptBallotsSomeJson"
         println("\ntestDecryptBallotsAll")
@@ -51,7 +51,7 @@ class RunDecryptBallotsJsonTest {
 
     @Test
     fun testDecryptBallotsSomeFromList() {
-        val inputDir = "src/commonTest/data/workflow/someAvailableJson"
+        val inputDir = "src/test/data/workflow/someAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "testOut/decrypt/testDecryptBallotsSomeFromListJson"
         println("\ntestDecryptBallotsSomeFromList")
@@ -68,7 +68,7 @@ class RunDecryptBallotsJsonTest {
 
     @Test
     fun showBallotIds() {
-        val inputDir = "src/commonTest/data/workflow/someAvailableJson"
+        val inputDir = "src/test/data/workflow/someAvailableEc"
         val ballotDir = "$inputDir/private_data/input/"
         val consumerIn = makeConsumer(inputDir)
 

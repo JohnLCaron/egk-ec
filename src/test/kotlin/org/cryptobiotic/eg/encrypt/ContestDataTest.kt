@@ -1,11 +1,9 @@
-package org.cryptobiotic.eg.workflow
+package org.cryptobiotic.eg.encrypt
 
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.encrypt.Encryptor
-import org.cryptobiotic.eg.encrypt.cast
 import org.cryptobiotic.eg.input.BallotInputBuilder
 import org.cryptobiotic.eg.publish.decodeToContestData
 import org.cryptobiotic.eg.publish.makePublisher
@@ -17,7 +15,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class ContestDataTest {
-    val input = "src/commonTest/data/workflow/allAvailableJson"
+    val input = "src/test/data/workflow/allAvailableEc"
     val output = "testOut/contestData/testEncryptionWithWriteIn"
     val context = productionGroup()
     val keypair = elGamalKeyPairFromRandom(context)
@@ -82,7 +80,7 @@ class ContestDataTest {
             if (idx < ballot.contests.size) {
                 println(" ballot contest $idx = ${ballot.contests[idx]}")
             }
-            println(" contestDataRoundtrip = $contestDataRoundtrip \n")
+            // println(" contestDataRoundtrip = $contestDataRoundtrip \n")
             when (idx) {
                 0 -> {
                     assertEquals(ContestDataStatus.normal, contestDataRoundtrip.status)

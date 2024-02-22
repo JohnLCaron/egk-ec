@@ -20,7 +20,7 @@ class RunDecryptBallotsTest {
 
     @Test
     fun testDecryptBallotsAll() {
-        val inputDir = "src/commonTest/data/workflow/allAvailableJson"
+        val inputDir = "src/test/data/workflow/allAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "testOut/decrypt/testDecryptBallotsAll"
         println("\ntestDecryptBallotsAll")
@@ -36,7 +36,7 @@ class RunDecryptBallotsTest {
 
     @Test
     fun testDecryptBallotsSomeFromList() {
-        val inputDir = "src/commonTest/data/workflow/someAvailableJson"
+        val inputDir = "src/test/data/workflow/someAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "testOut/decrypt/testDecryptBallotsSomeFromList"
         println("\ntestDecryptBallotsSomeFromList")
@@ -52,7 +52,7 @@ class RunDecryptBallotsTest {
 
     @Test
     fun testDecryptBallotsSomeFromFile() {
-        val inputDir = "src/commonTest/data/workflow/someAvailableJson"
+        val inputDir = "src/test/data/workflow/someAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
         val wantBallots = "$inputDir/private_data/wantedBallots.txt"
         val outputDir = "testOut/decrypt/testDecryptBallotsSomeFromFile"
@@ -72,9 +72,9 @@ class RunDecryptBallotsTest {
         RunTrustedBallotDecryption.main(
             arrayOf(
                 "-in",
-                "src/commonTest/data/workflow/someAvailableJson",
+                "src/test/data/workflow/someAvailableEc",
                 "-trustees",
-                "src/commonTest/data/workflow/someAvailableJson/private_data/trustees",
+                "src/test/data/workflow/someAvailableEc/private_data/trustees",
                 "-out",
                 "testOut/decrypt/testDecryptBallotsMainMultiThreaded",
                 "-challenged",
@@ -92,9 +92,9 @@ class RunDecryptBallotsTest {
         RunTrustedBallotDecryption.main(
             arrayOf(
                 "-in",
-                "src/commonTest/data/workflow/someAvailableJson",
+                "src/test/data/workflow/someAvailableEc",
                 "-trustees",
-                "src/commonTest/data/workflow/someAvailableJson/private_data/trustees",
+                "src/test/data/workflow/someAvailableEc/private_data/trustees",
                 "-out",
                 "testOut/decrypt/testDecryptBallotsMarkedSpoiled",
                 "-nthreads",
@@ -105,7 +105,7 @@ class RunDecryptBallotsTest {
 
     @Test
     fun showBallotIds() {
-        val inputDir = "src/commonTest/data/workflow/someAvailableJson"
+        val inputDir = "src/test/data/workflow/someAvailableEc"
         val ballotDir = "$inputDir/private_data/input/"
         val consumerIn = makeConsumer(inputDir)
 

@@ -4,13 +4,13 @@ import org.cryptobiotic.eg.cli.RunCreateElectionConfig
 
 import kotlin.test.Test
 
-class RunCreateConfigTest {
+class CreateElectionConfig {
 
     @Test
     fun testCreateConfig() {
         RunCreateElectionConfig.main(
             arrayOf(
-                "-manifest", "src/test/data/startManifestJson/manifest.json",
+                "-manifest", "src/test/data/startManifest/manifest.json",
                 "-group", "Integer group",
                 "-nguardians", "3",
                 "-quorum", "3",
@@ -26,7 +26,7 @@ class RunCreateConfigTest {
     fun testCreateConfigEc() {
         RunCreateElectionConfig.main(
             arrayOf(
-                "-manifest", "src/test/data/startManifestJson/manifest.json",
+                "-manifest", "src/test/data/startManifest/manifest.json",
                 "-group", "P-256",
                 "-nguardians", "3",
                 "-quorum", "3",

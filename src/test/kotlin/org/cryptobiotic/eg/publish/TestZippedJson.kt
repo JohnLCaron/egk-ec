@@ -26,7 +26,7 @@ import org.cryptobiotic.util.ErrorMessages
 class TestZippedJson {
     val jsonReader = Json { explicitNulls = false; ignoreUnknownKeys = true; prettyPrint = true }
 
-    val inputDir = "src/commonTest/data/workflow/allAvailableJson"
+    val inputDir = "src/test/data/workflow/allAvailableEc"
     val zippedJson = "testOut/allAvailableJson.zip"
     val fs: FileSystem
     val fsp: FileSystemProvider

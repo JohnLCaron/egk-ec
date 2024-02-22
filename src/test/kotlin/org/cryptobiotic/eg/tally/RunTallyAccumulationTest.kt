@@ -15,7 +15,7 @@ class RunTallyAccumulationTest {
         RunAccumulateTally.main(
             arrayOf(
                 "-in",
-                "src/commonTest/data/workflow/someAvailableJson",
+                "src/test/data/workflow/someAvailableEc",
                 "-out",
                 "testOut/tally/testRunBatchEncryptionJson",
             )
@@ -23,25 +23,9 @@ class RunTallyAccumulationTest {
     }
 
     @Test
-    fun runTallyAccumulationTestProto() {
-        RunAccumulateTally.main(
-            arrayOf(
-                "-in",
-                "src/commonTest/data/workflow/someAvailableProto",
-                "-out",
-                "testOut/tally/runTallyAccumulationTestProto",
-                "-name",
-                "CountyCook-precinct079-device24358",
-                "-createdBy",
-                "runTallyAccumulationTestProto",
-            )
-        )
-    }
-
-    @Test
     fun runTallyAccumulationTestJsonNoBallots() {
         val group = productionGroup()
-        val consumerIn = makeConsumer("src/commonTest/data/workflow/someAvailableJson")
+        val consumerIn = makeConsumer("src/test/data/workflow/someAvailableEc")
         val initResult = consumerIn.readElectionInitialized()
         val electionInit = initResult.unwrap()
         val manifest = consumerIn.makeManifest(electionInit.config.manifestBytes)

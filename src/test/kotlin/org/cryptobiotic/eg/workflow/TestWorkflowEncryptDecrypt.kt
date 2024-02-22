@@ -14,7 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /** test basic workflow: encrypt, accumulate, decrypt */
-class WorkflowEncryptDecryptTest {
+class TestWorkflowEncryptDecrypt {
     @Test
     fun singleTrusteeZero() {
         runTest {

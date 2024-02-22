@@ -20,11 +20,11 @@ import kotlin.test.assertEquals
  * Run workflow with varying number of guardians, on the same ballots, and compare the results.
  * Also show operation Counts.
  */
-class TestNumGuardians {
+class TestNumGuardiansPresent {
     val group = productionGroup()
 
-    private val manifestJson = "src/commonTest/data/startManifestJson/manifest.json"
-    private val inputBallotDir = "src/commonTest/data/fakeBallots/json"
+    private val manifestJson = "src/test/data/startManifest/manifest.json"
+    private val inputBallotDir = "src/test/data/fakeBallots"
     val name1 = "runWorkflowOneGuardian"
     val name2 = "runWorkflowThreeGuardian"
     val name3 = "runWorkflow5of6Guardian"
@@ -63,6 +63,7 @@ class TestNumGuardians {
         RunCreateElectionConfig.main(
             arrayOf(
                 "-manifest", manifestJson,
+                "-group", group.constants.name,
                 "-nguardians", nguardians.toString(),
                 "-quorum", quorum.toString(),
                 "-out", workingDir,
@@ -85,7 +86,7 @@ class TestNumGuardians {
         runAccumulateBallots(workingDir, workingDir, null, "RunWorkflow", name1)
         println(group.showOpCountResults("----------- after tally"))
 
-        val dtrustees : List<DecryptingTrusteeIF> = readDecryptingTrustees(workingDir, trusteeDir, present.joinToString())
+        val dtrustees : List<DecryptingTrusteeIF> = readDecryptingTrustees(workingDir, trusteeDir, present.joinToString(","))
         runDecryptTally(workingDir, workingDir, dtrustees, name1)
         println(group.showOpCountResults("----------- after decrypt tally"))
 

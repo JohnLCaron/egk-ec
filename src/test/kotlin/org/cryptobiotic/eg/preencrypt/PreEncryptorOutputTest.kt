@@ -29,7 +29,7 @@ class PreEncryptorOutputTest {
             .build()
 
         runCompleteOutput(
-            "src/commonTest/data/workflow/allAvailableJson",
+            "src/test/data/workflow/allAvailableEc",
             "testOut/preencrypt/PreEncryptorOutputJson",
             "testPreencrypt",
             manifest,

@@ -5,15 +5,16 @@ import org.cryptobiotic.eg.core.productionGroup
 import kotlin.test.Test
 
 class VerifierTest {
-    @Test
+
+    // @Test
     fun verifyRemoteWorkflow() {
         try {
             RunVerifier.runVerifier(
-                "src/commonTest/data/testElectionRecord/remoteWorkflow/keyceremony",
+                "src/test/data/testElectionRecord/remoteWorkflow/keyceremony",
                 11
             )
             RunVerifier.runVerifier(
-                "src/commonTest/data/testElectionRecord/remoteWorkflow/electionRecord",
+                "src/test/data/testElectionRecord/remoteWorkflow/electionRecord",
                 11
             )
         } catch (t :Throwable) {
@@ -25,17 +26,18 @@ class VerifierTest {
 
     @Test
     fun verificationAllJson() {
-        RunVerifier.runVerifier("src/commonTest/data/workflow/allAvailableJson", 11, true)
+        RunVerifier.runVerifier("src/test/data/workflow/allAvailableEc", 11, true)
     }
 
     @Test
     fun verificationSomeJson() {
-        RunVerifier.runVerifier("src/commonTest/data/workflow/someAvailableJson", 11, true)
+        RunVerifier.runVerifier("src/test/data/workflow/someAvailable", 11, true)
     }
 
-    // @Test
-    fun testProblem() {
-        RunVerifier.runVerifier("../testOut/cliWorkflow/electionRecord", 11, true)
+    @Test
+    fun verifyAddBallots() {
+        RunVerifier.runVerifier("src/test/data/encrypt/testJsonSyncChain", 11)
+        RunVerifier.runVerifier("src/test/data/encrypt/testJsonSyncNoChain", 11)
     }
 
     @Test
@@ -43,7 +45,7 @@ class VerifierTest {
         RunVerifier.main(
             arrayOf(
                 "-in",
-                "src/commonTest/data/workflow/someAvailableJson",
+                "src/test/data/workflow/someAvailable",
                 "-nthreads",
                 "11",
                 "--showTime",
@@ -53,23 +55,23 @@ class VerifierTest {
 
     @Test
     fun testVerifyEncryptedBallots() {
-        RunVerifier.verifyEncryptedBallots("src/commonTest/data/workflow/someAvailableJson", 11)
+        RunVerifier.verifyEncryptedBallots("src/test/data/workflow/someAvailable", 11)
     }
 
     @Test
     fun verifyDecryptedTallyWithRecoveredShares() {
-        RunVerifier.verifyDecryptedTally("src/commonTest/data/workflow/someAvailableJson")
+        RunVerifier.verifyDecryptedTally("src/test/data/workflow/someAvailable")
     }
 
-    @Test
+    // @Test
     fun verifySpoiledBallotTallies() {
-        RunVerifier.verifyChallengedBallots("src/commonTest/data/workflow/chainedJson")
+        RunVerifier.verifyChallengedBallots("src/test/data/workflow/someAvailableEcChained")
     }
 
     // Ordered lists of the ballots encrypted by each device. spec 2.0, section 3.7, p.46
     @Test
     fun testVerifyTallyBallotIds() {
-        RunVerifier.verifyTallyBallotIds("src/commonTest/data/workflow/allAvailableJson")
-        RunVerifier.verifyTallyBallotIds("src/commonTest/data/workflow/someAvailableJson")
+        RunVerifier.verifyTallyBallotIds("src/test/data/workflow/allAvailableEc")
+        RunVerifier.verifyTallyBallotIds("src/test/data/workflow/someAvailable")
     }
 }

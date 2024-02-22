@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /** Run a fake KeyCeremony to generate an ElectionInitialized for workflow testing. */
-class RunFakeKeyCeremonyTest {
+class FakeKeyCeremonyTest {
 
     @Test
     fun runFakeKeyCeremonyAll() {
