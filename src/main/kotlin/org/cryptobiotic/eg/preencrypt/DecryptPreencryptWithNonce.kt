@@ -9,7 +9,6 @@ import com.github.michaelbull.result.unwrap
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.*
 
-
 /** Decryption of a preencrypted EncryptedBallot using the ballot nonce. */
 class DecryptPreencryptWithNonce(
     val group: GroupContext,

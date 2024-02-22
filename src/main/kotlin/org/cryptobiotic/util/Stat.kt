@@ -8,6 +8,7 @@ class Stat(val thing : String, val what: String) {
     var count : AtomicInteger = AtomicInteger(0)
     var nthings : AtomicInteger = AtomicInteger(0)
 
+    // amount = nanosecs
     fun accum(amount : Long, nthings : Int) {
         accum.addAndGet(amount)
         this.nthings.addAndGet(nthings)

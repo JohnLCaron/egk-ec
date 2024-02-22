@@ -3,7 +3,6 @@ package org.cryptobiotic.eg.cli
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.required
-import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readAndCheckManifest
 
@@ -31,8 +30,6 @@ class RunConvertManifest {
                         "   manifest= $electionManifest\n" +
                         "   output = $outputDir\n"
             )
-
-            val group = productionGroup()
 
             val (isJson, manifest, _) = readAndCheckManifest(electionManifest)
 

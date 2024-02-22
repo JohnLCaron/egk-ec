@@ -30,7 +30,7 @@ class TestWorkflow {
 
     @Test
     fun runWorkflow() {
-        // runWorkflow("src/test/data/startConfig", "testOut/workflow/allAvailable")
+        runWorkflow("src/test/data/startConfig", "testOut/workflow/allAvailable")
         runWorkflow("src/test/data/startConfigEc", "testOut/workflow/allAvailableEc")
     }
 

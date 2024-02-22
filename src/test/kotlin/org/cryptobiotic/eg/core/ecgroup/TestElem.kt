@@ -4,6 +4,7 @@ import org.cryptobiotic.eg.core.ecgroup.VecElementModP
 import org.cryptobiotic.eg.core.ecgroup.VecGroups
 import org.cryptobiotic.eg.core.normalize
 import org.cryptobiotic.eg.core.toHex
+import org.cryptobiotic.eg.publish.json.import
 import org.cryptobiotic.util.Stopwatch
 import java.math.BigInteger
 import kotlin.test.Test
@@ -99,6 +100,15 @@ class TestElem {
         }
         val took = stopwatch.stop()
         println(" timeExp took ${Stopwatch.perRow(took, n)}")
+    }
+
+    @Test
+    fun testOne() {
+        val ecGroup = VecGroups.getEcGroup("P-256")
+        val one = ecGroup.ONE
+        val oneb = one.toByteArray()
+        val roundtrip = ecGroup.elementFromByteArray(oneb)
+        assertEquals(one, roundtrip)
     }
 
 }
