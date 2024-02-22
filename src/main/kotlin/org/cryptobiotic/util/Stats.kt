@@ -52,9 +52,10 @@ class Stats {
 }
 
 fun Stat.show(len: Int = 3): String {
-    val perThing = if (nthings() == 0) 0.0 else accum().toDouble() / nthings()
-    val perWhat = if (count() == 0) 0.0 else accum().toDouble() / count()
-    return "took ${accum().pad(len)} msecs = ${perThing.sigfig(4)} msecs/${thing()} (${nthings()} ${thing()}s)" +
+    val accumMs = accum() / 1_000_000
+    val perThing = if (nthings() == 0) 0.0 else accum().toDouble() / nthings() / 1_000_000
+    val perWhat = if (count() == 0) 0.0 else accum().toDouble() / count()  / 1_000_000
+    return "took ${accumMs.pad(len)} msecs = ${perThing.sigfig(4)} msecs/${thing()} (${nthings()} ${thing()}s)" +
         " = ${perWhat.sigfig()} msecs/${what()} for ${count()} ${what()}s"
 }
 

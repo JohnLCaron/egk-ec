@@ -3,7 +3,6 @@ package org.cryptobiotic.eg.verifier
 import com.github.michaelbull.result.*
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.ElectionRecord
 import org.cryptobiotic.util.ErrorMessages
@@ -11,10 +10,10 @@ import org.cryptobiotic.util.Stats
 import org.cryptobiotic.util.Stopwatch
 
 class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
-    val group: GroupContext = productionGroup() // TODO
     val manifest: ManifestIF
     val jointPublicKey: ElGamalPublicKey
     val He: UInt256
+    val group = record.group
 
     init {
         manifest = record.manifest()

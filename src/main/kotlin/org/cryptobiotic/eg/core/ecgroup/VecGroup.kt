@@ -55,8 +55,11 @@ class VecGroup(
         )
     }
 
+    val ffbyte: Byte = (-1).toByte()
     fun elementFromByteArray(ba: ByteArray): VecElementModP? {
         if (ba.size != 2*pbyteLength) return null
+        val allff = ba.fold( true) { a, b -> a && (b == ffbyte) }
+        if (allff) return ONE
         val x = BigInteger(1, ByteArray(pbyteLength) { ba[it] })
         val y = BigInteger(1, ByteArray(pbyteLength) { ba[pbyteLength+it] })
         return VecElementModP(this, x, y)

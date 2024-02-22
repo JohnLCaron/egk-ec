@@ -18,6 +18,7 @@ class VecElementModP(
 
     init {
         if (!safe && !pGroup.isPointOnCurve(x, y)) {
+            pGroup.isPointOnCurve(x, y)
             throw RuntimeException("Given point is not on the described curve")
         }
     }

@@ -4,7 +4,6 @@ import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
 import kotlinx.cli.required
-import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.election.PlaintextBallot
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makePublisher
@@ -47,7 +46,6 @@ class RunCreateInputBallots {
                         "  isJson = '$isJson'\n"
             )
 
-            val group = productionGroup()
             val (manifestIsJson, manifest, _) = readAndCheckManifest(manifestDirOrFile)
             val useJson = isJson ?: manifestIsJson
             val publisher = makePublisher(outputDir, true)

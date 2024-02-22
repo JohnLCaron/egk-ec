@@ -35,6 +35,8 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementModP): ElementM
     }
 
     override fun powP(exp: ElementModQ): ElementModP {
+        if (!(exp is EcElementModQ))
+            println("HEY")
         require (exp is EcElementModQ)
         return EcElementModP(group, ec.exp(exp.element))
     }
