@@ -12,9 +12,9 @@ class RunTrustedTallyDecryptionTest {
         RunTrustedTallyDecryption.main(
             arrayOf(
                 "-in",
-                "src/commonTest/data/workflow/allAvailableJson",
+                "src/test/data/workflow/allAvailableEc",
                 "-trustees",
-                "src/commonTest/data/workflow/allAvailableJson/private_data/trustees",
+                "src/test/data/workflow/allAvailableEc/private_data/trustees",
                 "-out",
                 "testOut/decrypt/testDecryptionJson",
                 "-createdBy",
@@ -28,9 +28,9 @@ class RunTrustedTallyDecryptionTest {
         RunTrustedTallyDecryption.main(
             arrayOf(
                 "-in",
-                "src/commonTest/data/workflow/someAvailableJson",
+                "src/test/workflow/someAvailableEc",
                 "-trustees",
-                "src/commonTest/data/workflow/someAvailableJson/private_data/trustees",
+                "src/test/workflow/someAvailableEc/private_data/trustees",
                 "-out",
                 "testOut/decrypt/testDecryptionSome",
                 "-createdBy",

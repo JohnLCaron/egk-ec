@@ -9,7 +9,7 @@ import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readAndCheckManifest
 
-/** Run Create Election Configuration CLI. */
+/** Run Create Input Ballots CLI. */
 class RunCreateInputBallots {
 
     companion object {

@@ -11,7 +11,7 @@ class RunKeyCeremonyTest {
     fun testKeyCeremonyJson() {
         RunTrustedKeyCeremony.main(
             arrayOf(
-                "-in", "src/commonTest/data/startConfigJson",
+                "-in", "src/test/data/startConfigEc",
                 "-trustees", "testOut/keyceremony/testKeyCeremonyJson/private_data/trustees",
                 "-out", "testOut/keyceremony/testKeyCeremonyJson",
             )

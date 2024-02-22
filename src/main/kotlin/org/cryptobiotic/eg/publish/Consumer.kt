@@ -110,9 +110,10 @@ fun readAndCheckManifest(manifestDirOrFile: String): Triple<Boolean, Manifest, B
         manifestDirOrFile.substringBeforeLast("/")
     }
 
-    val consumer =  ConsumerJson(manifestDir)
 
     try {
+        // have to read manifest without using Consumer, since config may not exist
+        val consumer =  ConsumerJson(manifestDir, false)
         val manifestBytes = consumer.readManifestBytes(manifestFile)
         // make sure it parses
         val manifest = consumer.makeManifest(manifestBytes)

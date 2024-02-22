@@ -15,7 +15,7 @@ import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
 
 class AddEncryptedBallotTest {
-    val input = "src/commonTest/data/workflow/allAvailableJson"
+    val input = "src/test/data/workflow/allAvailableEc"
     val outputDir = "testOut/encrypt/addEncryptedBallot"
     val nballots = 4
 

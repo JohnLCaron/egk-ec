@@ -30,7 +30,7 @@ import kotlin.test.assertNotEquals
 */
 
 class AttackEncryptedBallotTest {
-    private val inputDir   = "src/commonTest/data/workflow/allAvailableProto"
+    private val inputDir   = "src/test/data/workflow/allAvailableEc"
     private val trusteeDir = "$inputDir/private_data/trustees"
     private val showCount = true
 

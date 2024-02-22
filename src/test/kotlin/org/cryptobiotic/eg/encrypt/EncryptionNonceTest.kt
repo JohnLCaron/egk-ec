@@ -13,7 +13,7 @@ import org.cryptobiotic.util.ErrorMessages
 
 /** Verify the embedded nonces in an Encrypted Ballot. */
 class EncryptionNonceTest {
-    val input = "src/commonTest/data/workflow/allAvailableJson"
+    val input = "src/test/data/workflow/allAvailableEc"
     val nballots = 11
 
     @Test

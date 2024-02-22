@@ -8,8 +8,8 @@ class RunCreateConfigTest {
     fun testCreateConfigJson() {
         RunCreateElectionConfig.main(
             arrayOf(
-                "-manifest",
-                "src/commonTest/data/startManifestJson/manifest.json",
+                "-manifest", "src/test/data/startManifest/manifest.json",
+                "-group", "P-256",
                 "-nguardians", "3",
                 "-quorum", "3",
                 "-out",
@@ -24,8 +24,8 @@ class RunCreateConfigTest {
     fun testCreateConfigDirectoryJson() {
         RunCreateElectionConfig.main(
             arrayOf(
-                "-manifest",
-                "src/commonTest/data/startManifestJson",
+                "-manifest", "src/test/data/startManifest",
+                "-group", "P-256",
                 "-nguardians", "3",
                 "-quorum", "3",
                 "-createdBy", "testCreateConfigDirectoryJson",

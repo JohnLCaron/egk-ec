@@ -23,8 +23,8 @@ class MontgomeryJVMTests {
         val context = tinyGroup()
 
         checkAll(validResiduesOfP(context), validResiduesOfP(context)) { a, b ->
-            val aVal = (a as ProductionElementModP).toMontgomeryElementModP() as TinyMontgomeryElementModP
-            val bVal = (b as ProductionElementModP).toMontgomeryElementModP() as TinyMontgomeryElementModP
+            val aVal = (a as TinyElementModP).toMontgomeryElementModP() as TinyMontgomeryElementModP
+            val bVal = (b as TinyElementModP).toMontgomeryElementModP() as TinyMontgomeryElementModP
             with (aVal) {
                 val twoPowPBits: ULong = 1UL shl context.NUM_P_BITS
                 assertEquals(element.toULong(), element.toULong().modI())

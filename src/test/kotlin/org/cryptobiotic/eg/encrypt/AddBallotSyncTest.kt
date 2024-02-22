@@ -8,7 +8,7 @@ import org.cryptobiotic.util.ErrorMessages
 import kotlin.test.*
 
 class AddBallotSyncTest {
-    val inputJson = "src/commonTest/data/workflow/allAvailableJson"
+    val inputJson = "src/test/data/workflow/allAvailableEc"
     val outputDirTop = "testOut/encrypt/AddBallotSyncTest"
     val nballots = 4
 

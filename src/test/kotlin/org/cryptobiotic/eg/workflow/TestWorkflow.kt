@@ -20,9 +20,8 @@ import kotlin.test.assertTrue
  * (See RunCreateTestManifestTest to regenerate Manifest)
  * (See RunCreateConfigTest/RunCreateElectionConfig to regenerate ElectionConfig)
  * Note that TestWorkflow uses RunFakeKeyCeremonyTest, not real KeyCeremony.
- *  1. The results can be copied to the test data sets "src/commonTest/data/workflow" whenever the
+ *  1. The results can be copied to the test data sets "src/test/data/workflow" whenever the
  *     election record changes.
- *  2. Now that we have fixed ballot ids, dont need to RunDecryptBallotsTest for more damn things to do.
  */
 class TestWorkflow {
     private val nballots = 11
@@ -30,17 +29,19 @@ class TestWorkflow {
 
     @Test
     fun runWorkflow() {
-        runWorkflow("src/test/data/startConfig", "testOut/workflow/allAvailable")
-        runWorkflow("src/test/data/startConfigEc", "testOut/workflow/allAvailableEc")
+        runWorkflow("src/test/data/startConfig", "testOut/workflow/allAvailable", false)
+        runWorkflow("src/test/data/startConfigEc", "testOut/workflow/allAvailableEc", false)
+        runWorkflow("src/test/data/startConfig", "testOut/workflow/someAvailable", true)
+        runWorkflow("src/test/data/startConfigEc", "testOut/workflow/someAvailableEc", true)
     }
 
-    fun runWorkflow(configDirJson: String, workingDir: String) {
+    fun runWorkflow(configDirJson: String, workingDir: String, onlySome: Boolean, chained: Boolean = false) {
         val privateDir = "$workingDir/private_data"
         val trusteeDir = "${privateDir}/trustees"
         val ballotsDir = "${privateDir}/input"
         val invalidDir = "${privateDir}/invalid"
 
-        val present = listOf(1, 2, 3) // all guardians present
+        val present = if (onlySome) listOf(1, 2, 5) else listOf(1, 2, 3)
         val nguardians = present.maxOf { it }.toInt()
         val quorum = present.count()
 
@@ -54,7 +55,7 @@ class TestWorkflow {
             trusteeDir,
             nguardians,
             quorum,
-            false
+            chained
         )
         println("FakeKeyCeremony created ElectionInitialized, guardians = $present")
 
@@ -67,7 +68,7 @@ class TestWorkflow {
 
         // encrypt
         batchEncryption(
-            inputDir = workingDir, ballotDir = ballotsDir, device = "runWorkflowAllAvailableJson",
+            inputDir = workingDir, ballotDir = ballotsDir, device = "runWorkflowDevice",
             outputDir = workingDir, null, invalidDir = invalidDir, nthreads, "createdBy"
         )
 
@@ -79,7 +80,7 @@ class TestWorkflow {
             workingDir,
             workingDir,
             readDecryptingTrustees(workingDir, trusteeDir, init, present),
-            "runWorkflowAllAvailableJson"
+            "runWorkflowCreator"
         )
 
         // verify

@@ -23,7 +23,7 @@ import kotlin.test.*
 private val random = Random
 
 class PreEncryptorTest {
-    val input = "src/commonTest/data/workflow/allAvailableJson"
+    val input = "src/test/data/workflow/allAvailableEc"
 
     // sanity check that PreEncryptor.preencrypt doesnt barf
     @Test
