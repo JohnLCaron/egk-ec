@@ -1,7 +1,5 @@
 package org.cryptobiotic.eg.core.ecgroup
 
-import org.cryptobiotic.eg.core.UInt256
-import org.cryptobiotic.eg.core.hashFunction
 import org.cryptobiotic.eg.election.ElectionConstants
 import org.cryptobiotic.eg.election.GroupType
 import java.math.BigInteger
@@ -16,11 +14,12 @@ import java.math.BigInteger
  * @param gx x-coordinate of the generator.
  * @param gy y-coordinate of the generator.
  * @throws RuntimeException If the input parameters are * inconsistent
+ * @throws RuntimeException If the input parameters are * inconsistentaqrt
  */
 
 // So far, I havent seen any use for order, buts its lurking underneath VCR ECqPGroup. ugh.
 // the order of G is the smallest positive number n such that ng = O (the point at infinity of the curve, and the identity element)
-class VecGroup(
+open class VecGroup(
     val curveName: String,
     val a: BigInteger,
     val b: BigInteger,
@@ -31,10 +30,10 @@ class VecGroup(
     val h: BigInteger
 ) {
     /** Standard group generator. */
-    val g: VecElementModP = VecElementModP(this, gx, gy)
+    val g: VecElementModP = makeVecModP(gx, gy)
 
     /** Group unit element. */
-    val ONE: VecElementModP = VecElementModP(this, MINUS_ONE, MINUS_ONE)
+    val ONE: VecElementModP = makeVecModP(MINUS_ONE, MINUS_ONE)
 
     val pbitLength: Int = primeModulus.bitLength()
     val pbyteLength = (pbitLength + 7) / 8
@@ -55,6 +54,9 @@ class VecGroup(
         )
     }
 
+    open fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean = false) = VecElementModP(this, x, y, safe)
+
+
     val ffbyte: Byte = (-1).toByte()
     fun elementFromByteArray(ba: ByteArray): VecElementModP? {
         if (ba.size != 2*pbyteLength) return null
@@ -62,7 +64,7 @@ class VecGroup(
         if (allff) return ONE
         val x = BigInteger(1, ByteArray(pbyteLength) { ba[it] })
         val y = BigInteger(1, ByteArray(pbyteLength) { ba[pbyteLength+it] })
-        return VecElementModP(this, x, y)
+        return makeVecModP(x, y)
     }
 
     fun randomElement(): VecElementModP {
@@ -74,7 +76,7 @@ class VecGroup(
 
                 if (jacobiSymbol(fx, primeModulus) == 1) {
                     val y2 = sqrt(fx)
-                    return VecElementModP(this, x, y2, true)
+                    return makeVecModP(x, y2, true)
                 }
             } catch (e: RuntimeException) {
                 throw RuntimeException("Unexpected format exception", e)
@@ -83,8 +85,96 @@ class VecGroup(
         throw RuntimeException("Failed to randomize a ro element")
     }
 
+    // TODO
+    //     // VECJ_BEGIN
+    //
+    //    /**
+    //     * Computes the square root of an integer modulo a prime employing
+    //     * the Shanks-Tonelli algorithm.
+    //     *
+    //     * @param a Integer of which the square root is computed.
+    //     * @return Square root of the integer modulo the order of the
+    //     * underlying field.
+    //     */
+    //    public LargeInteger sqrt(final LargeInteger a) {
+    //        final byte[] root = VEC.sqrt(a.toByteArray(), fieldOrdera);
+    //        return LargeInteger.toPositive(root);
+    //    }
+    //
+    //    // VECJ_END
+
+    //     // VECJ_BEGIN
+    //
+    //    @Override
+    //    public PGroupElement expProd(final PGroupElement[] bases,
+    //                                 final LargeInteger[] integers,
+    //                                 final int bitLength) {
+    //
+    //        if (bases.length != integers.length) {
+    //            throw new ArithmError("Different lengths of inputs!");
+    //        }
+    //
+    //        // We need to collect partial results from multiple threads in
+    //        // a thread-safe way.
+    //        final List<PGroupElement> parts =
+    //            Collections.synchronizedList(new LinkedList<PGroupElement>());
+    //
+    //        final ECqPGroup pGroup = this;
+    //
+    //        final ArrayWorker worker =
+    //            new ArrayWorker(bases.length) {
+    //                @Override
+    //                public boolean divide() {
+    //                    return bases.length > expThreadThreshold;
+    //                }
+    //                @Override
+    //                public void work(final int start, final int end) {
+    //
+    //                    int batchSize = end - start;
+    //
+    //                    byte[][] basesx = new byte[batchSize][];
+    //                    byte[][] basesy = new byte[batchSize][];
+    //                    byte[][] integerBytes = new byte[batchSize][];
+    //
+    //                    for (int i = 0, j = start; i < batchSize; i++, j++) {
+    //
+    //                        basesx[i] =
+    //                            ((ECqPGroupElement) bases[j]).x.toByteArray();
+    //                        basesy[i] =
+    //                            ((ECqPGroupElement) bases[j]).y.toByteArray();
+    //                        integerBytes[i] = integers[j].toByteArray();
+    //                    }
+    //
+    //                    byte[][] res = VEC.smul(nativePointer,
+    //                                            basesx,
+    //                                            basesy,
+    //                                            integerBytes);
+    //
+    //                    try {
+    //                        PGroupElement part =
+    //                            new ECqPGroupElement(pGroup,
+    //                                                 new LargeInteger(res[0]),
+    //                                                 new LargeInteger(res[1]));
+    //                        parts.add(part);
+    //
+    //                    } catch (ArithmFormatException afe) {
+    //                        throw new ArithmError("Unable to create point!", afe);
+    //                    }
+    //                }
+    //            };
+    //        worker.work();
+    //
+    //        PGroupElement res = getONE();
+    //        for (final PGroupElement part : parts) {
+    //            res = res.mul(part);
+    //        }
+    //        return res;
+    //    }
+    //
+    //    //VECJ_END
+
     // note this isnt == BigInteger.sqrt(). This is EC sqrt(), but we only need the x coordinate.
-    private fun sqrt(x: BigInteger): BigInteger {
+    open fun sqrt(x: BigInteger): BigInteger {
         val p: BigInteger = primeModulus
 
         val a: BigInteger = x.mod(p)

@@ -282,13 +282,13 @@ fun GroupContext.addQ(vararg elements: ElementModQ) = elements.asIterable().addQ
  */
 fun GroupContext.multP(vararg elements: ElementModP) = elements.asIterable().multP()
 
-fun productionGroup(groupName: String? = null): GroupContext {
+fun productionGroup(groupName: String? = null, useNative: Boolean = false): GroupContext {
     return if (groupName == null) org.cryptobiotic.eg.core.intgroup.productionIntGroup(
         PowRadixOption.LOW_MEMORY_USE,
         ProductionMode.Mode4096
     )
     else if (groupName.startsWith("Integer group")) org.cryptobiotic.eg.core.intgroup.productionIntGroup(groupName)
-    else org.cryptobiotic.eg.core.ecgroup.EcGroupContext(groupName)
+    else org.cryptobiotic.eg.core.ecgroup.EcGroupContext(groupName, useNative)
 }
 
 

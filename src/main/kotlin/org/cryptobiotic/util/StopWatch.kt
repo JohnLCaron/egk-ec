@@ -55,7 +55,6 @@ class Stopwatch(running: Boolean = true) {
     }
 
     companion object {
-
         fun took(took: Long): String {
             val tookMs = took / 1_000_000
             return "took ${tookMs} ms"
@@ -64,7 +63,7 @@ class Stopwatch(running: Boolean = true) {
         fun perRow(took: Long, nrows: Int, what: String="nrows"): String {
             val tookMs = took / 1_000_000
             val perRow = if (nrows == 0) 0.0 else tookMs.toDouble()  / nrows
-            return "took ${tookMs} ms for $nrows $what, ${perRow.sigfig(3)} ms per $what"
+            return "took ${tookMs} ms for $nrows $what, ${perRow.sigfig()} ms per $what"
         }
 
         // TODO units option
@@ -72,13 +71,13 @@ class Stopwatch(running: Boolean = true) {
             val ratio = num.toDouble() / den
             val numValue = num / 1_000_000
             val denValue = den / 1_000_000
-            return "$numValue / $denValue ms =  ${ratio.sigfig(3)}"
+            return "$numValue / $denValue ms =  ${ratio.sigfig()}"
         }
 
         fun perRow(num: Long, den: Long, nrows: Int): String {
             val numValue = num.toDouble() / nrows / 1_000_000
             val denValue = den.toDouble() / nrows / 1_000_000
-            return "${numValue.sigfig(2)} / ${denValue.sigfig(3)} ms per row"
+            return "${numValue.sigfig()} / ${denValue.sigfig()} ms per row"
         }
 
         fun ratioAndPer(num: Long, den: Long, nrows: Int): String {
