@@ -6,7 +6,7 @@ import org.cryptobiotic.eg.core.ecgroup.VecGroup.Companion.MINUS_ONE
 import java.math.BigInteger
 import java.util.*
 
-class VecElementModP(
+open class VecElementModP(
     val pGroup: VecGroup,
     val x: BigInteger,
     val y: BigInteger,
@@ -29,7 +29,7 @@ class VecElementModP(
     // while point addition costs 4 squarings, 12 multiplications and 7 linear operations.
 
     /** Compute the product of this element with other. */
-    fun mul(other: VecElementModP): VecElementModP {
+    open fun mul(other: VecElementModP): VecElementModP {
          if (pGroup != other.pGroup) {
             throw RuntimeException("Distinct groups!")
         }
@@ -65,7 +65,7 @@ class VecElementModP(
         // ry = -y - s(rx - x)
         val ry = y.negate().subtract(s.multiply(rx.subtract(this.x))).mod(modulus)
 
-        return VecElementModP(pGroup, rx, ry)
+        return pGroup.makeVecModP(rx, ry)
     }
 
     /** Compute the inverse of this element. */
@@ -81,15 +81,37 @@ class VecElementModP(
         }
 
         // Otherwise we mirror along the y-axis.
-        return VecElementModP(
-            pGroup,
+        return pGroup.makeVecModP(
             x,
             y.negate().mod(modulus)
         )
     }
 
+    //     // VECJ_PURE_JAVA_BEGIN
+    //
+    //    /**
+    //     * Compute the power of this element to the given exponent.
+    //     *
+    //     * @param exponent Exponent.
+    //     * @return Power of this element to the given exponent.
+    //     */
+    //    public PGroupElement exp(final LargeInteger exponent) {
+    //
+    //        PGroupElement res = getPGroup().getONE();
+    //
+    //        for (int i = exponent.bitLength(); i >= 0; i--) {
+    //            res = res.mul(res);
+    //            if (exponent.testBit(i)) {
+    //                res = mul(res);
+    //            }
+    //        }
+    //        return res;
+    //    }
+    //    // VECJ_PURE_JAVA_END
+
+
     /** Compute the power of this element to the given exponent. */
-    fun exp(exponent: BigInteger): VecElementModP {
+    open fun exp(exponent: BigInteger): VecElementModP {
         var res: VecElementModP = pGroup.ONE
 
         for (i in exponent.bitLength() downTo 0) {
@@ -100,6 +122,43 @@ class VecElementModP(
         }
         return res
     }
+
+    //
+    //    // VECJ_BEGIN
+    //
+    //    /**
+    //     * Compute the power of this element to the given exponent.
+    //     *
+    //     * @param exponent Exponent.
+    //     * @return Power of this element to the given exponent.
+    //     */
+    //    public PGroupElement exp(final LargeInteger exponent) {
+    //
+    //        final byte[] exponenta = exponent.toByteArray();
+    //
+    //        final byte[] xa = x.toByteArray();
+    //        final byte[] ya = y.toByteArray();
+    //
+    //        final ECqPGroup jECPGroup = (ECqPGroup) pGroup;
+    //
+    //        final byte[][] res =
+    //            VEC.mul(jECPGroup.nativePointer, xa, ya, exponenta);
+    //
+    //        try {
+    //            return new ECqPGroupElement(jECPGroup,
+    //                                        new LargeInteger(res[0]),
+    //                                        new LargeInteger(res[1]));
+    //        } catch (ArithmFormatException afe) {
+    //            throw new ArithmError("Unable to create elliptic curve point!",
+    //                                  afe);
+    //        }
+    //    }
+    //
+    //    /** * Compute the powers of this element to the given positive * integer exponents. */
+    //    public PGroupElement[] exp(final LargeInteger[] integers, final int bitLength) {
+    //    ...
+    //    }
+    //    // VECJ_END
 
     fun toByteArray(): ByteArray {
         val byteLength = (pGroup.pbitLength + 7) / 8
@@ -175,7 +234,7 @@ class VecElementModP(
         // ry = s(x - rx) - y
         val ry = s.multiply(x.subtract(rx)).subtract(y).mod(modulus)
 
-        return VecElementModP(pGroup, rx, ry)
+        return pGroup.makeVecModP(rx, ry)
     }
 
     fun compareTo(el: VecElementModP): Int {

@@ -14,6 +14,7 @@ repositories {
 }
 
 dependencies {
+    implementation(files("/home/stormy/dev/github/verificatum/verificatum-vecj/verificatum-vecj-2.2.0.jar"))
     implementation(libs.bundles.eglib)
     implementation(libs.bundles.logging)
     testImplementation(libs.bundles.egtest)
@@ -61,3 +62,22 @@ tasks {
         kotlinOptions.jvmTarget = "21"
     }
 }
+
+/*
+tasks.register("fatJar", Jar::class.java) {
+    archiveClassifier.set("all")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveBaseName = "egkec"
+
+    manifest {
+        attributes("Main-Class" to "org.cryptobiotic.eg.cli.RunShowSystem")
+    }
+    from(configurations.runtimeClasspath.get()
+        .onEach { println("add from runtimeClasspath: ${it.name}") }
+        .map { if (it.isDirectory) it else zipTree(it) })
+    val sourcesMain = sourceSets.main.get()
+    sourcesMain.allSource.forEach { println("add from sources: ${it.name}") }
+    from(sourcesMain.output)
+}
+
+ */

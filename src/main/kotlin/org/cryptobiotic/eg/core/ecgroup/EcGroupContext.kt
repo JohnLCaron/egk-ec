@@ -5,8 +5,8 @@ import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.intgroup.GroupConstants
 import java.math.BigInteger
 
-class EcGroupContext(val name: String): GroupContext {
-    val ecGroup: VecGroup = VecGroups.getEcGroup(name)
+class EcGroupContext(val name: String, useNative: Boolean = false): GroupContext {
+    val ecGroup: VecGroup = VecGroups.getEcGroup(name, useNative)
     val ONE = EcElementModP(this, ecGroup.ONE)
 
     override val GINV_MOD_P: ElementModP = EcElementModP(this, ecGroup.g.inv())

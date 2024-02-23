@@ -296,12 +296,16 @@ class VecGroups(
                 return res
             }
         
-        fun getEcGroup(name: String): VecGroup {
+        fun getEcGroup(name: String, useNative: Boolean = false): VecGroup {
             val params: VecGroups? = NAMED_PARAMS.get(name)
             if (params == null) {
                 throw RuntimeException("Unknown named curve! ($name)")
             } else {
-                return VecGroup(name, params.a, params.b, primeModulus = params.p, order = params.n, params.gx, params.gy, params.h)
+                return if (useNative)
+                    VecGroupNative(name, params.a, params.b, primeModulus = params.p, order = params.n, params.gx, params.gy, params.h)
+                else {
+                    VecGroup(name, params.a, params.b, primeModulus = params.p, order = params.n, params.gx, params.gy, params.h)
+                }
             }
         }
     }

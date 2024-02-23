@@ -140,7 +140,7 @@ fun Double.dfrac(fixedDecimals: Int = 2): String {
  * @param minSigfigs minimum significant figures
  * @return double formatted as a string
  */
-fun Double.sigfig(minSigfigs: Int = 5): String {
+fun Double.sigfig(minSigfigs: Int = 4): String {
     val s: String = this.toString()
 
     // extract the sign
