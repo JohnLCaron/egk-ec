@@ -1,5 +1,7 @@
 package org.cryptobiotic.eg.core.ecgroup
 
+import org.cryptobiotic.eg.core.ElementModP
+import org.cryptobiotic.eg.core.ElementModQ
 import org.cryptobiotic.eg.election.ElectionConstants
 import org.cryptobiotic.eg.election.GroupType
 import java.math.BigInteger
@@ -84,94 +86,6 @@ open class VecGroup(
         }
         throw RuntimeException("Failed to randomize a ro element")
     }
-
-    // TODO
-    //     // VECJ_BEGIN
-    //
-    //    /**
-    //     * Computes the square root of an integer modulo a prime employing
-    //     * the Shanks-Tonelli algorithm.
-    //     *
-    //     * @param a Integer of which the square root is computed.
-    //     * @return Square root of the integer modulo the order of the
-    //     * underlying field.
-    //     */
-    //    public LargeInteger sqrt(final LargeInteger a) {
-    //        final byte[] root = VEC.sqrt(a.toByteArray(), fieldOrdera);
-    //        return LargeInteger.toPositive(root);
-    //    }
-    //
-    //    // VECJ_END
-
-    //     // VECJ_BEGIN
-    //
-    //    @Override
-    //    public PGroupElement expProd(final PGroupElement[] bases,
-    //                                 final LargeInteger[] integers,
-    //                                 final int bitLength) {
-    //
-    //        if (bases.length != integers.length) {
-    //            throw new ArithmError("Different lengths of inputs!");
-    //        }
-    //
-    //        // We need to collect partial results from multiple threads in
-    //        // a thread-safe way.
-    //        final List<PGroupElement> parts =
-    //            Collections.synchronizedList(new LinkedList<PGroupElement>());
-    //
-    //        final ECqPGroup pGroup = this;
-    //
-    //        final ArrayWorker worker =
-    //            new ArrayWorker(bases.length) {
-    //                @Override
-    //                public boolean divide() {
-    //                    return bases.length > expThreadThreshold;
-    //                }
-    //                @Override
-    //                public void work(final int start, final int end) {
-    //
-    //                    int batchSize = end - start;
-    //
-    //                    byte[][] basesx = new byte[batchSize][];
-    //                    byte[][] basesy = new byte[batchSize][];
-    //                    byte[][] integerBytes = new byte[batchSize][];
-    //
-    //                    for (int i = 0, j = start; i < batchSize; i++, j++) {
-    //
-    //                        basesx[i] =
-    //                            ((ECqPGroupElement) bases[j]).x.toByteArray();
-    //                        basesy[i] =
-    //                            ((ECqPGroupElement) bases[j]).y.toByteArray();
-    //                        integerBytes[i] = integers[j].toByteArray();
-    //                    }
-    //
-    //                    byte[][] res = VEC.smul(nativePointer,
-    //                                            basesx,
-    //                                            basesy,
-    //                                            integerBytes);
-    //
-    //                    try {
-    //                        PGroupElement part =
-    //                            new ECqPGroupElement(pGroup,
-    //                                                 new LargeInteger(res[0]),
-    //                                                 new LargeInteger(res[1]));
-    //                        parts.add(part);
-    //
-    //                    } catch (ArithmFormatException afe) {
-    //                        throw new ArithmError("Unable to create point!", afe);
-    //                    }
-    //                }
-    //            };
-    //        worker.work();
-    //
-    //        PGroupElement res = getONE();
-    //        for (final PGroupElement part : parts) {
-    //            res = res.mul(part);
-    //        }
-    //        return res;
-    //    }
-    //
-    //    //VECJ_END
 
     // note this isnt == BigInteger.sqrt(). This is EC sqrt(), but we only need the x coordinate.
     open fun sqrt(x: BigInteger): BigInteger {
@@ -281,7 +195,22 @@ open class VecGroup(
             n = n.multiply(c).mod(p)
         }
         return r
-    } 
+    }
+
+    // Testing, in production we would thread
+    // compute Prod (col_i ^ exp_i)
+    open fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementModP {
+        // val pows = List( exps.size) { bases[it] powP exps[it] }
+        val pows = List( exps.size) {
+            val base = (bases[it] as EcElementModP).ec
+            val exp: BigInteger = (exps[it] as EcElementModQ).element
+            base.exp(exp)
+        }
+        if (pows.count() == 1) {
+            return pows[0]
+        }
+        return pows.reduce { a, b -> (a.mul(b)) }
+    }
 
     // Checks whether the point (x,y) is on the curve as defined by this group.
     // 4 mult, 3 add, 6 mod

@@ -8,14 +8,14 @@ class EcElementModQ(val group: EcGroupContext, val element: BigInteger): Element
 
     override fun byteArray(): ByteArray = element.toByteArray().normalize(32)
 
-    private fun BigInteger.modWrap(): ElementModQ = this.mod(group.ecGroup.order).wrap()
+    private fun BigInteger.modWrap(): ElementModQ = this.mod(group.vecGroup.order).wrap()
     private fun BigInteger.wrap(): ElementModQ = EcElementModQ(group, this)
 
     override fun isZero() = element == BigInteger.ZERO
     override val context: GroupContext
         get() = group
 
-    override fun inBounds() = element >= BigInteger.ZERO && element < group.ecGroup.order
+    override fun inBounds() = element >= BigInteger.ZERO && element < group.vecGroup.order
 
     override operator fun compareTo(other: ElementModQ): Int = element.compareTo(other.getCompat(group))
 
@@ -28,13 +28,13 @@ class EcElementModQ(val group: EcGroupContext, val element: BigInteger): Element
     override operator fun times(other: ElementModQ) =
         (this.element * other.getCompat(group)).modWrap()
 
-    override fun multInv(): ElementModQ = element.modInverse(group.ecGroup.order).wrap()
+    override fun multInv(): ElementModQ = element.modInverse(group.vecGroup.order).wrap()
 
     override operator fun unaryMinus(): ElementModQ =
         if (this == group.ZERO_MOD_Q)
             this
         else
-            (group.ecGroup.order - element).wrap()
+            (group.vecGroup.order - element).wrap()
 
     override infix operator fun div(denominator: ElementModQ): ElementModQ =
         this * denominator.multInv()

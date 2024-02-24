@@ -282,7 +282,7 @@ fun GroupContext.addQ(vararg elements: ElementModQ) = elements.asIterable().addQ
  */
 fun GroupContext.multP(vararg elements: ElementModP) = elements.asIterable().multP()
 
-fun productionGroup(groupName: String? = null, useNative: Boolean = false): GroupContext {
+fun productionGroup(groupName: String? = null, useNative: Boolean = true): GroupContext {
     return if (groupName == null) org.cryptobiotic.eg.core.intgroup.productionIntGroup(
         PowRadixOption.LOW_MEMORY_USE,
         ProductionMode.Mode4096

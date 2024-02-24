@@ -296,7 +296,7 @@ class VecGroups(
                 return res
             }
         
-        fun getEcGroup(name: String, useNative: Boolean = false): VecGroup {
+        fun getEcGroup(name: String, useNative: Boolean = true): VecGroup {
             val params: VecGroups? = NAMED_PARAMS.get(name)
             if (params == null) {
                 throw RuntimeException("Unknown named curve! ($name)")

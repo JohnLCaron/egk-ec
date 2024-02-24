@@ -21,9 +21,11 @@ class Stopwatch(running: Boolean = true) {
 
     // return elapsed nanoseconds
     fun stop(): Long {
-        val tick: Long = System.nanoTime()
-        isRunning = false
-        elapsedNanos += tick - startTick
+        if (isRunning) {
+            val tick: Long = System.nanoTime()
+            isRunning = false
+            elapsedNanos += tick - startTick
+        }
         return elapsedNanos
     }
 
