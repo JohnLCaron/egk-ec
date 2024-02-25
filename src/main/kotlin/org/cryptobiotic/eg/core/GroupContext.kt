@@ -2,6 +2,7 @@ package org.cryptobiotic.eg.core
 
 import org.cryptobiotic.eg.core.Base16.fromHex
 import org.cryptobiotic.eg.core.Base16.toHex
+import org.cryptobiotic.eg.core.ecgroup.EcElementModP
 import org.cryptobiotic.eg.core.ecgroup.VecGroup
 import org.cryptobiotic.eg.core.intgroup.PowRadixOption
 import org.cryptobiotic.eg.core.intgroup.ProductionMode
@@ -108,6 +109,16 @@ interface GroupContext {
 
     /** Computes G^e mod p, where G is our generator */
     fun gPowP(exp: ElementModQ): ElementModP
+
+    /** Standard algorithm for Product ( base_i^exp_i), to allow overrides. */
+    fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): ElementModP {
+        require(exps.size == bases.size)
+        if (bases.isEmpty()) {
+            return ONE_MOD_P
+        }
+        val pows = List( exps.size) { bases[it].powP(exps[it]) }
+        return pows.reduce { a, b -> (a * b) }
+    }
 
     /**
      * Given an element x for which there exists an e, such that g^e = x, this will find e,

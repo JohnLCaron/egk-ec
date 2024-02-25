@@ -197,8 +197,7 @@ open class VecGroup(
         return r
     }
 
-    // Testing, in production we would thread
-    // compute Prod (col_i ^ exp_i)
+    // TODO test if we should use (JVM) simultateous exponentiaton
     open fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementModP {
         // val pows = List( exps.size) { bases[it] powP exps[it] }
         val pows = List( exps.size) {

@@ -38,7 +38,7 @@ class VecGroupNative(
      */
 
     override fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementModP {
-        // i think this need to be broken into batches by threading. for now, just keep test = 100
+        // i think this needs to be broken into batches by threading. for now, just keep test = 100
 
         val basesx = Array(bases.size) { (bases[it] as EcElementModP).ec.x.toByteArray() }
         val basesy = Array(bases.size) { (bases[it] as EcElementModP).ec.y.toByteArray() }

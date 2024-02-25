@@ -101,11 +101,12 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
         return name.hashCode()
     }
 
-    fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): ElementModP {
+    override fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): ElementModP {
         require(exps.size == bases.size)
         if (bases.isEmpty()) {
             return ONE_MOD_P
         }
+        // TODO seems a bit awkward....
         val ec = vecGroup.prodPowers(bases, exps)
         return EcElementModP(this, ec)
     }
