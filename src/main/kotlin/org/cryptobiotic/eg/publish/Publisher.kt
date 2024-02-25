@@ -1,6 +1,5 @@
 package org.cryptobiotic.eg.publish
 
-import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import org.cryptobiotic.eg.publish.json.PublisherJson

@@ -35,7 +35,7 @@ class RunDecryptBallotsJsonTest {
 
     @Test
     fun testDecryptBallotsSome() {
-        val inputDir = "src/test/workflow/someAvailableEc"
+        val inputDir = "src/test/data/workflow/someAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "testOut/decrypt/testDecryptBallotsSomeJson"
         println("\ntestDecryptBallotsAll")
