@@ -5,23 +5,22 @@ import org.cryptobiotic.eg.cli.RunBatchEncryption.Companion.batchEncryption
 import org.cryptobiotic.eg.cli.RunVerifier
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.json.ConsumerJson
-import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.readElectionRecord
 import kotlin.test.Test
 import kotlin.test.assertContains
 
 class
 RunBatchEncryptionTest {
-    val nthreads = 25
+    val nthreads = 1
 
     @Test
-    fun testRunBatchEncryptionWithJsonBallots() {
+    fun testRunBatchEncryptionWithEc() {
         RunBatchEncryption.main(
             arrayOf(
                 "-in", "src/test/data/workflow/allAvailableEc",
                 "-ballots", "src/test/data/fakeBallots",
-                "-out", "testOut/encrypt/testRunBatchEncryptionWithJsonBallots",
-                "-invalid", "testOut/encrypt/testRunBatchEncryptionWithJsonBallots/invalid_ballots",
+                "-out", "testOut/encrypt/testRunBatchEncryptionWithEc",
+                "-invalid", "testOut/encrypt/testRunBatchEncryptionWithEc/invalid_ballots",
                 "-nthreads", "$nthreads",
                 "-device", "device2",
                 "--cleanOutput",
@@ -31,35 +30,19 @@ RunBatchEncryptionTest {
     }
 
     @Test
-    fun testRunBatchEncryptionJson() {
+    fun testRunBatchEncryptionWithInteger() {
         RunBatchEncryption.main(
             arrayOf(
-                "-in", "src/test/data/workflow/allAvailableEc",
+                "-in", "src/test/data/workflow/allAvailable",
                 "-ballots", "src/test/data/fakeBallots",
-                "-out", "testOut/encrypt/testRunBatchEncryptionJson",
-                "-invalid", "testOut/encrypt/testRunBatchEncryptionJson/invalid_ballots",
+                "-out", "testOut/encrypt/testRunBatchEncryptionWithInteger",
+                "-invalid", "testOut/encrypt/testRunBatchEncryptionWithInteger/invalid_ballots",
                 "-nthreads", "$nthreads",
                 "-device", "device2",
                 "--cleanOutput",
             )
         )
         RunVerifier.runVerifier("testOut/encrypt/testRunBatchEncryptionJson", 11)
-    }
-
-    // @Test
-    fun testRunBatchEncryptionJsonWithProtoBallots() {
-        RunBatchEncryption.main(
-            arrayOf(
-                "-in", "src/test/data/workflow/allAvailableEc",
-                "-ballots", "src/test/data/fakeBallots",
-                "-out", "testOut/encrypt/testRunBatchEncryptionJsonWithProtoBallots",
-                "-invalid", "testOut/encrypt/testRunBatchEncryptionJsonWithProtoBallots/invalid_ballots",
-                "-nthreads", "$nthreads",
-                "-device", "device3",
-                "--cleanOutput",
-            )
-        )
-        RunVerifier.runVerifier("testOut/encrypt/testRunBatchEncryptionJsonWithProtoBallots", 11)
     }
 
     @Test

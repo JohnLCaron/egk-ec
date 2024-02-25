@@ -119,7 +119,7 @@ class RunTrustedTallyDecryption {
             val trusteeNames = decryptingTrustees.map { it.id() }.toSet()
             val missingGuardians =
                 electionInit.guardians.filter { !trusteeNames.contains(it.guardianId) }.map { it.guardianId }
-            println("runDecryptTally present = $trusteeNames missing = $missingGuardians")
+            println("runDecryptTally ${outputDir} present = $trusteeNames missing = $missingGuardians")
 
             val guardians = Guardians(consumerIn.group, electionInit.guardians)
             val decryptor = Decryptor(

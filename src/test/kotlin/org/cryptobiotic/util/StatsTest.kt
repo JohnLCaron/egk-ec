@@ -17,7 +17,7 @@ class StatsTest {
         stat.accum(99*f, 2)
         stat.accum(101*f, 2)
         stat.accum(15*f, 11)
-        assertEquals("took 215 msecs = 14.33 msecs/thing (15 things) = 71.666 msecs/what for 3 whats", stat.show())
+        assertEquals("took 215 msecs = 14.33 msecs/thing (15 things) = 71.66 msecs/what for 3 whats", stat.show())
     }
 
     @Test

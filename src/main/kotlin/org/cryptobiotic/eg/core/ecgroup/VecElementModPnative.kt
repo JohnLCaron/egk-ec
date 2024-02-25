@@ -55,21 +55,18 @@ class VecElementModPnative(
     }
 }
 
-//     fun testVecDirectExp(group: EcGroupContext, curvePtr: ByteArray, n:Int) {
-//        val nonces = List(n) { group.randomElementModQ() }
-//        val h = group.gPowP(group.randomElementModQ()) as EcElementModP
-//        val hx = h.ec.x
-//        val hy = h.ec.y
+// TODO
+// Also have this from ECqPGroupElement, which is maybe acc exponetiations, but it seems to calculate the tables each time.
+// Could be a problem with native memory leaks?
 //
-//        //     public static BigInteger[] mul(final byte[] curve_ptr,
-//        //                                   final BigInteger x,
-//        //                                   final BigInteger y,
-//        //                                   final BigInteger scalar) {
-//        var stopwatch = Stopwatch()
-//        nonces.forEach {
-//            val scalar = (it as EcElementModQ).element
-//            val result: Array<BigInteger> = VEC.mul(curvePtr, hx, hy, scalar)
-//            val resultElem = EcElementModP(group, VecElementModP(group.ecGroup, result[0], result[1]))
-//        }
-//        println("testVecDirectExp ${stopwatch.tookPer(n, "VEC.mul")}")
-//    }
+//     public PGroupElement[] exp(final LargeInteger[] integers,
+//                               final int bitLength) {
+//
+//        final ECqPGroup jECPGroup = (ECqPGroup) pGroup;
+//
+//        // Perform precomputation.
+//        final byte[] tablePtr =
+//            VEC.fmul_precompute(jECPGroup.nativePointer,
+//                                x.toByteArray(),
+//                                y.toByteArray(),
+//                                integers.length);

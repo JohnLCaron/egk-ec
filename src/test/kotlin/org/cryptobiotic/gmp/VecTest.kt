@@ -6,6 +6,7 @@ import org.cryptobiotic.eg.core.GroupContext
 import org.cryptobiotic.eg.core.ecgroup.*
 import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.util.Stopwatch
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.math.BigInteger
 import kotlin.test.Test
@@ -93,14 +94,14 @@ class VecTest {
         nonces.forEach {
             val scalar = (it as EcElementModQ).element
             val result: Array<BigInteger> = VEC.mul(curvePtr, hx, hy, scalar)
-            val resultElem = EcElementModP(group, VecElementModP(group.ecGroup, result[0], result[1]))
+            val resultElem = EcElementModP(group, VecElementModP(group.vecGroup, result[0], result[1]))
         }
         println("testVecDirectExp ${stopwatch.tookPer(n, "VEC.mul")}")
     }
 
     @Test
-    // time java ec exp
-    fun compareVecExp() {
+    // test java vs native agreement
+    fun testAgreePowp() {
         val group = productionGroup("P-256", false)
         val groupN = productionGroup("P-256", true)
         val n = 100
@@ -117,5 +118,48 @@ class VecTest {
         val prodpow : ElementModP = nonces.map { h powP it }.reduce{ a, b -> a * b }
         val prodpowN : ElementModP = nonces.map { hn powP it }.reduce{ a, b -> a * b }
         assertTrue (prodpow.byteArray().contentEquals(prodpowN.byteArray()))
+    }
+
+    @Test
+    fun testProdPowers() {
+        val groupN = productionGroup("P-256", false) as EcGroupContext
+        val n = 100
+        val bases = List(n) { groupN.randomElementModP() }
+        val nonces = List(n) { groupN.randomElementModQ() }
+
+        var stopwatch = Stopwatch()
+        val prodpow : ElementModP = groupN.prodPowers(bases, nonces)
+        println("testProdPowers ${stopwatch.tookPer(n, "exps")}")
+    }
+
+    @Test
+    fun testProdPowersN() {
+        val groupN = productionGroup("P-256", true) as EcGroupContext
+        val n = 100
+        val bases = List(n) { groupN.randomElementModP() }
+        val nonces = List(n) { groupN.randomElementModQ() }
+
+        var stopwatch = Stopwatch()
+        val prodPowers : ElementModP = groupN.prodPowers(bases, nonces)
+        val prodPowerTime = stopwatch.stop()
+        //println("prodPowerTime ${Stopwatch.perRow(prodPowerTime, n)}")
+
+        // call for each exp separately but use native
+        stopwatch.start()
+        val pows = List( nonces.size) { bases[it].powP(nonces[it]) }
+        val prodPow = pows.reduce { a, b -> (a * b) }
+        val prodPowTime = stopwatch.stop()
+        //println("prodPowTime ${Stopwatch.perRow(prodPowTime, n)}")
+
+        println("testProdPowersN ${Stopwatch.ratioAndPer(prodPowTime, prodPowerTime, n)}")
+
+        assertEquals(prodPowers, prodPow)
+
+        // prodPowerTime took 6 ms for 100 nrows, .06 ms per nrows
+        // prodPowTime took 22 ms for 100 nrows, .22 ms per nrows
+        // testProdPowersN 22 / 6 ms =  3.228;  .2252 / .06976 ms per row
+
+        // outlier? warmup?
+        // testProdPowN 30 / 14 ms =  2.182;  .3089 / .1415 ms per row
     }
 }

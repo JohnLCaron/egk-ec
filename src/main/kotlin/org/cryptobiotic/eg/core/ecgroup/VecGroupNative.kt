@@ -1,6 +1,9 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import com.verificatum.vecj.VEC
+import org.cryptobiotic.eg.core.ElementModP
+import org.cryptobiotic.eg.core.ElementModQ
+import org.cryptobiotic.eg.core.normalize
 import java.math.BigInteger
 
 class VecGroupNative(
@@ -14,25 +17,60 @@ class VecGroupNative(
     h: BigInteger
 ) : VecGroup(curveName, a, b, primeModulus, order, gx, gy, h) {
 
-    /** Pointer to field order in native space. LOOK */
-    val fieldOrdera: ByteArray = order.toByteArray()
-
     /** Pointer to curve parameters in native space. */
     val nativePointer: ByteArray = VEC.getCurve("P-256")
+    val curveParams: Array<BigInteger> = VEC.getCurveParams(nativePointer)
+    val orderBytes = order.toByteArray().normalize(32)
 
     override fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean) = VecElementModPnative(this, x, y, safe)
 
+    // for some reason this gets a SIGFPE. removing for now
     /*
     override fun sqrt(a: BigInteger): BigInteger {
-        val root: ByteArray = VEC.sqrt(a.toByteArray(), fieldOrdera)
-        return BigInteger(1, root)
-    }
+        require (order == curveParams[5])
+        require (a < order)
+        require (a > BigInteger.ZERO)
 
+        val abytes = a.toByteArray().normalize(32)
+        val rbytes = VEC.sqrt(abytes, orderBytes)
+        return BigInteger(1, rbytes)
+    }
      */
 
+    override fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementModP {
+        // i think this needs to be broken into batches by threading. for now, just keep test = 100
+
+        val basesx = Array(bases.size) { (bases[it] as EcElementModP).ec.x.toByteArray() }
+        val basesy = Array(bases.size) { (bases[it] as EcElementModP).ec.y.toByteArray() }
+        val scalars = Array(exps.size) { (exps[it] as EcElementModQ).element.toByteArray() }
+
+            //     public static native byte[][] smul(final byte[] curve_ptr,
+            //                                       final byte[][] basesx,
+            //                                       final byte[][] basesy,
+            //                                       final byte[][] scalars);
+        val result: Array<ByteArray> = VEC.smul(nativePointer, basesx, basesy, scalars)
+
+        return makeVecModP( BigInteger(1, result[0]), BigInteger(1, result[1]))
+    }
+
+    // i think this is prodPow, needed only? by the mixnet. Implemented in Java by
+    //     public PPGroupElement expProd(final PGroupElement[] bases,
+    //                                  final PRingElement[] exponents) {
     // TODO
-    //     // VECJ_BEGIN
+    //     /**
+    //     * Returns the product of all elements in <code>bases</code> to
+    //     * the respective powers in <code>exponents</code>. This uses
+    //     * simultaneous exponentiation and threading.
+    //     *
+    //     * @param bases Bases to be exponentiated.
+    //     * @param exponents Powers to be taken.
+    //     * @return Product of all bases to the powers of the given
+    //     * exponents.
+    //     */
+    //    public abstract PGroupElement expProd(final PGroupElement[] bases,
+    //                                          final PRingElement[] exponents);
     //
+    //     // VECJ_BEGIN
     //    @Override
     //    public PGroupElement expProd(final PGroupElement[] bases,
     //                                 final LargeInteger[] integers,

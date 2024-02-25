@@ -1,10 +1,7 @@
 package org.cryptobiotic.eg.core.ecgroup
 
-import org.cryptobiotic.eg.core.ecgroup.VecElementModP
-import org.cryptobiotic.eg.core.ecgroup.VecGroups
 import org.cryptobiotic.eg.core.normalize
 import org.cryptobiotic.eg.core.toHex
-import org.cryptobiotic.eg.publish.json.import
 import org.cryptobiotic.util.Stopwatch
 import java.math.BigInteger
 import kotlin.test.Test

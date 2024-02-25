@@ -1,7 +1,6 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.*
-import java.math.BigInteger
 
 class EcElementModP(val group: EcGroupContext, val ec: VecElementModP): ElementModP {
     override val context: GroupContext = group
@@ -27,7 +26,7 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementModP): ElementM
     override fun inBounds(): Boolean = true // TODO("Not yet implemented")
 
     override fun isValidResidue(): Boolean {
-        return group.ecGroup.isPointOnCurve(this.ec.x, this.ec.y)
+        return group.vecGroup.isPointOnCurve(this.ec.x, this.ec.y)
     }
 
     override fun multInv(): ElementModP {

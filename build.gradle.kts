@@ -7,14 +7,14 @@ plugins {
 }
 
 group = "org.cryptobiotic"
-version = "0.1-SNAPSHOT"
+version = "2.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation(files("/home/stormy/dev/github/verificatum/verificatum-vecj/verificatum-vecj-2.2.0.jar"))
+    implementation(files("libs/verificatum-vecj-2.2.0.jar"))
     implementation(libs.bundles.eglib)
     implementation(libs.bundles.logging)
     testImplementation(libs.bundles.egtest)
@@ -63,7 +63,6 @@ tasks {
     }
 }
 
-/*
 tasks.register("fatJar", Jar::class.java) {
     archiveClassifier.set("all")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -79,5 +78,3 @@ tasks.register("fatJar", Jar::class.java) {
     sourcesMain.allSource.forEach { println("add from sources: ${it.name}") }
     from(sourcesMain.output)
 }
-
- */
