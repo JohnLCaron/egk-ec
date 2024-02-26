@@ -1,6 +1,6 @@
 # ElectionGuard-Kotlin
 
-_last update 02/25/2024_
+_last update 02/26/2024_
 
 ElectionGuard-Kotlin (EGK) is an experimental implementation of [ElectionGuard](https://github.com/microsoft/electionguard), [version 2.0.0](https://github.com/microsoft/electionguard/releases/download/v2.0/EG_Spec_2_0.pdf), 
 available under an MIT-style open source [License](LICENSE). 
@@ -16,20 +16,6 @@ version EGK 2.1, which uses the ElectionGuard 2.0 specification on top of ellipt
 This library also can use the Electionguard Integer Group, and so can also be used for Electionguard 2.0 compliant applications.
 
 See [EGK EC mixnet](https://github.com/JohnLCaron/egk-ec-mixnet) for an implementation of a mixnet using this library with Elliptic Curves.
-
-*Table of contents*:
-<!-- TOC -->
-* [ElectionGuard-Kotlin-Multiplatform](#electionguard-kotlin-multiplatform)
-  * [Getting Started](#getting-started)
-  * [Workflow and Command Line Programs](#workflow-and-command-line-programs)
-  * [Serialization](#serialization)
-    * [JSON Serialization specification](#json-serialization-specification)
-  * [Validation](#validation)
-  * [Verification](#verification)
-  * [Test Vectors](#test-vectors)
-  * [Implementation Notes](#implementation-notes)
-  * [Authors](#authors)
-<!-- TOC -->
 
 ## Getting Started
 * [Getting Started](docs/GettingStarted.md)

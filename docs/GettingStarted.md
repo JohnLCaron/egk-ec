@@ -3,10 +3,13 @@
 _last update 02/25/2024_
 
 <!-- TOC -->
-* [ElectionGuard-Kotlin-Multiplatform Getting Started](#egk-ec-getting-started)
+* [ElectionGuard-Kotlin Getting Started](#electionguard-kotlin-getting-started)
   * [Requirements](#requirements)
-  * [Building the library](#building-the-library)
-  * [Using the egk library in your own jvm-based project](#using-the-egk-library-in-your-own-jvm-based-project)
+  * [Building the egk-ec library](#building-the-egk-ec-library)
+  * [Using the Verificatum library (optional)](#using-the-verificatum-library-optional)
+    * [Installing or Building the GMP library](#installing-or-building-the-gmp-library)
+    * [Building the Verificatum Elliptic Curve library](#building-the-verificatum-elliptic-curve-library)
+  * [Using the egk-ec library in your own project](#using-the-egk-ec-library-in-your-own-project)
   * [Building a library with all dependencies ("fat jar")](#building-a-library-with-all-dependencies-fat-jar)
 <!-- TOC -->
 
