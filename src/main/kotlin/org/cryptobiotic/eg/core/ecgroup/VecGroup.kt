@@ -58,7 +58,6 @@ open class VecGroup(
 
     open fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean = false) = VecElementModP(this, x, y, safe)
 
-
     val ffbyte: Byte = (-1).toByte()
     fun elementFromByteArray(ba: ByteArray): VecElementModP? {
         if (ba.size != 2*pbyteLength) return null
@@ -66,6 +65,15 @@ open class VecGroup(
         if (allff) return ONE
         val x = BigInteger(1, ByteArray(pbyteLength) { ba[it] })
         val y = BigInteger(1, ByteArray(pbyteLength) { ba[pbyteLength+it] })
+        return makeVecModP(x, y)
+    }
+
+    fun elementFromByteArray1(ba: ByteArray): VecElementModP? {
+        if (ba.size != 2*pbyteLength) return null
+        val allff = ba.fold( true) { a, b -> a && (b == ffbyte) }
+        if (allff) return ONE
+        val x = BigInteger(1, ByteArray(pbyteLength) { ba[it] })
+        val y = calcYfromX(x)
         return makeVecModP(x, y)
     }
 
@@ -227,6 +235,11 @@ open class VecGroup(
 
         val left = y.multiply(y).mod(primeModulus)
         return right == left
+    }
+
+    fun calcYfromX(x: BigInteger): BigInteger {
+        val fx = equationf(x)
+        return sqrt(fx)
     }
 
     // Applies the curve's formula f(x) = x^3 + ax + b on the given parameter.
