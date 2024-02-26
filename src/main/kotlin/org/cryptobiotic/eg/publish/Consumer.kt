@@ -58,8 +58,9 @@ interface Consumer {
 
 fun makeConsumer(
     topDir: String,
+    usegroup: GroupContext? = null
 ): Consumer {
-    return ConsumerJson(topDir)
+    return ConsumerJson(topDir, usegroup)
 }
 
 /*
@@ -110,10 +111,9 @@ fun readAndCheckManifest(manifestDirOrFile: String): Triple<Boolean, Manifest, B
         manifestDirOrFile.substringBeforeLast("/")
     }
 
-
     try {
         // have to read manifest without using Consumer, since config may not exist
-        val consumer =  ConsumerJson(manifestDir, false)
+        val consumer =  ConsumerJson(manifestDir, productionGroup()) // production group wont get used
         val manifestBytes = consumer.readManifestBytes(manifestFile)
         // make sure it parses
         val manifest = consumer.makeManifest(manifestBytes)

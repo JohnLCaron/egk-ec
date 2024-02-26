@@ -3,11 +3,15 @@ package org.cryptobiotic.eg.cli
 import com.verificatum.vecj.VEC
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
+import org.cryptobiotic.eg.core.ecgroup.EcElementModP
+import org.cryptobiotic.eg.core.ecgroup.EcElementModQ
+import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
+import org.cryptobiotic.eg.core.productionGroup
 
 /*
  java -jar build/libs/egkec-0.1-SNAPSHOT-all.jar \
     -set "/usr/local/lib:/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib" \
-    -show "properties,eclib"
+    -show "properties,eclib,hasVEC"
  */
 class RunShowSystem {
 
@@ -18,7 +22,7 @@ class RunShowSystem {
             val show by parser.option(
                 ArgType.String,
                 shortName = "show",
-                description = "[eclib,properties,java.library.path]"
+                description = "[eclib,properties,java.library.path,hasVEC]"
             )
             val setPath by parser.option(
                 ArgType.String,
@@ -71,6 +75,27 @@ class RunShowSystem {
                 } catch (e: Exception) {
                     println(" VEC.getCurveNames() failed = ${e.message}")
                 }
+            }
+            if (showSet.has("hasVEC")) {
+                testVecDirectExp()
+            }
+        }
+
+        fun testVecDirectExp(): Boolean {
+            val group = productionGroup("P-256") as EcGroupContext
+            val curvePtr: ByteArray = VEC.getCurve("P-256")
+            val nonce = group.randomElementModQ()
+            val h = group.gPowP(group.randomElementModQ()) as EcElementModP
+            val hx = h.ec.x
+            val hy = h.ec.y
+            val scalar = (nonce as EcElementModQ).element
+            try {
+                VEC.mul(curvePtr, hx, hy, scalar)
+                println("VEC and GMP are installed")
+                return true
+            } catch (t: Exception) {
+                println("testVecDirectExp failed with message ${t.message}")
+                return false
             }
         }
     }

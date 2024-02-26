@@ -9,8 +9,8 @@ class RunCreateTestManifestTest {
     fun runCreateTestManifest() {
         RunCreateTestManifest.main(
             arrayOf(
-                "-ncontests", "20",
-                "-nselections", "5",
+                "-ncontests", "11",
+                "-nselections", "3",
                 "-out", "testOut/manifest/runCreateTestManifest",
             )
         )

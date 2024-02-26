@@ -20,13 +20,12 @@ import org.cryptobiotic.eg.core.GroupContext
 import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.publish.Consumer
-import org.cryptobiotic.eg.publish.ElectionRecord
 import org.cryptobiotic.util.ErrorMessages
 
 private val logger = KotlinLogging.logger("ConsumerJsonJvm")
 
 /** Can read both zipped and unzipped JSON election record */
-class ConsumerJson(val topDir: String, needsConfig: Boolean = true) : Consumer {
+class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consumer {
     var fileSystem : FileSystem = FileSystems.getDefault()
     var fileSystemProvider : FileSystemProvider = fileSystem.provider()
     var jsonPaths = ElectionRecordJsonPaths(topDir)
@@ -53,10 +52,11 @@ class ConsumerJson(val topDir: String, needsConfig: Boolean = true) : Consumer {
             val config = readConfigResult.value
             val constants = config.constants
             group = productionGroup(constants.name)
-        } else if (needsConfig) {
-            throw RuntimeException("Configuration and constants not found in $topDir")
+        } else if (usegroup != null) {
+            group = usegroup
         } else {
-            group = productionGroup() // fake - to read manifest when config not yet created
+            throw RuntimeException("Configuration and constants not found in $topDir")
+
         }
     }
 

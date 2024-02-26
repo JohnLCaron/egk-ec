@@ -27,8 +27,8 @@ last update 02/25/2024
    2. Create a manifest in code with the _org.cryptobiotic.eg.election.Manifest_ classes, and write it out
           with a Publisher. 
    3. Create a fake manifest for testing with [_RunCreateTestManifest_ CLI](#create-a-fake-election-manifest).
-   4. Use an existing fake manifest for testing in _egklib/src/commonTest/data/startManifestJson/manifest.json_ or
-      _egklib/src/commonTest/data/startManifestProto/manifest.protobuf_.
+   4. Use an existing fake manifest for testing in _src/commonTest/data/startManifest/manifest.json_ or
+      _src/commonTest/data/startManifestProto/manifest.protobuf_.
 
 2. **Create an ElectionConfig record**
    1. Create an ElectionConfig record from a Manifest and configuration values using [_RunCreateElectionConfig_ CLI](#create-an-election-configuration)
@@ -41,7 +41,7 @@ last update 02/25/2024
 4. **Create test input plaintext ballots**
    1. Create fake input ballots for testing with [_RunCreateInputBallots_ CLI](#create-fake-input-ballots).
    1. _org.cryptobiotic.eg.workflow.GenerateFakeBallots_ (in the test code) generates random test ballots.
-   2. Use existing fake ballots for testing in _egklib/src/commonTest/data/fakeBallots_.
+   2. Use existing fake ballots for testing in _src/test/data/fakeBallots_.
 
 5. **Batch Encryption**. 
    1. The [_RunBatchEncryption_ CLI](#run-batch-encryption) reads an ElectionInitialized record and input plaintext
@@ -88,7 +88,7 @@ Options:
 Example:
 
 ````
-/usr/lib/jvm/jdk-21/bin/java \
+/usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunCreateTestManifest \
     -ncontests 3 \
@@ -102,6 +102,7 @@ Example:
 Usage: RunCreateElectionConfig options_list
 Options: 
     --electionManifest, -manifest -> Manifest file or directory (json or protobuf) (always required) { String }
+    --groupName, -group -> Group name  ('P-256' or 'Integer') (always required) { String }
     --nguardians, -nguardians -> number of guardians (always required) { Int }
     --quorum, -quorum -> quorum size (always required) { Int }
     --outputDir, -out -> Directory to write output ElectionInitialized record (always required) { String }
@@ -114,10 +115,11 @@ Options:
 Example:
 
 ````
-/usr/lib/jvm/jdk-21/bin/java \
+/usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunCreateElectionConfig \
-    -manifest egklib/src/commonTest/data/startManifestJson \
+    -manifest src/test/data/startManifest \
+    -group P-256 \
     -nguardians 3 \
     -quorum 3 \
     -out testOut/cliWorkflow/config \
@@ -143,7 +145,7 @@ Options:
 Example:
 
 ````
-/usr/lib/jvm/jdk-21/bin/java \
+/usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunTrustedKeyCeremony \
     -in testOut/cliWorkflow/config \
@@ -166,10 +168,10 @@ Options:
 Example:
 
 ````
-/usr/lib/jvm/jdk-21/bin/java \
+/usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunCreateInputBallots \
-    -manifest egklib/src/commonTest/data/startManifestJson \
+    -manifest src/test/data/startManifest \
     -out testOut/generateInputBallots \
     -n 23 \
     -json
@@ -200,11 +202,11 @@ The latter writes just the encrypted ballots to the specified directory.
 Example:
 
 ````
-/usr/lib/jvm/jdk-21/bin/java \
+/usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunBatchEncryption \
     -in testOut/cliWorkflow/keyceremony \
-    -ballots egklib/src/commonTest/data/fakeBallots/json \
+    -ballots src/test/data/fakeBallots/json \
     -out testOut/cliWorkflow/electionRecord \
     -device device42 \
     --cleanOutput
@@ -227,7 +229,7 @@ Options:
 Example:
 
 ````
-/usr/lib/jvm/jdk-21/bin/java \
+/usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunAccumulateTally \
     -in testOut/cliWorkflow/electionRecord \
@@ -261,7 +263,7 @@ Options:
 Example:
 
 ````
-/usr/lib/jvm/jdk-21/bin/java \
+/usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunTrustedTallyDecryption \
     -in testOut/cliWorkflow/electionRecord \
@@ -299,7 +301,7 @@ The decryptSpoiledList may be:
 Example:
 
 ````
-/usr/lib/jvm/jdk-21/bin/java \
+/usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunTrustedBallotDecryption \
     -in testOut/cliWorkflow/electionRecord \
@@ -327,7 +329,7 @@ Options:
 Example:
 
 ````
-/usr/lib/jvm/jdk-21/bin/java \
+/usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunVerifier \
   -in testOut/cliWorkflow/electionRecord 

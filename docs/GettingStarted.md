@@ -12,7 +12,7 @@ _last update 02/25/2024_
 
 ## Requirements
 
-1. Clone the electionguard-kotlin (egk) Elliptic Curve repo
+1. Clone the egk Elliptic Curve repo
 
 ```
   cd devhome
@@ -45,7 +45,7 @@ Do steps 1 and 2 above. Then, in the IDE top menu:
 IntelliJ will create and populate an IntelliJ project with the egk-ec sources. There's
 lots of online help for using IntelliJ. Recommended if you plan on doing a good amount of Java/Kotlin coding.
 
-## Building the library
+## Building the egk-ec library
 
 To build the complete library and run the standard tests:
 
@@ -66,7 +66,55 @@ You should find that the library jar file is placed into:
 `build/libs/egk-ec-2.1-SNAPSHOT.jar
 `
 
-## Using the egk library in your own jvm-based project
+## Using the Verificatum library (optional)
+
+### Installing or Building the GMP library
+
+1. You can check to see if there is a pre-built gmp library available for your machine.
+
+2. Otherwise download and build the latest GMP release from https://gmplib.org/. We are using GMP 6.3.0, but an older 
+version is probably fine.
+
+3. Install into one of the library paths, usually /usr/lib.
+
+
+### Building the Verificatum Elliptic Curve library
+
+```
+  cd devhome
+  git clone https://github.com/verificatum/verificatum-vec.git
+  cd verificatum-vec
+  make -f Makefile.build
+  ./configure
+  make
+```
+
+Install into one of the library paths, usually _/usr/lib_. You can also use
+
+```
+sudo make install
+```
+
+which will install into _/usr/local/lib_. Make sure that directory is in your library paths, for example add this to 
+~/.bashrc :
+
+```
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+```
+
+While VEC and GMP are optional, they are needed for good performance. If the libraries are available on the load path, 
+they will automatically be used. To check, build the fat jar (below) then run:
+
+```
+/usr/bin/java \
+  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  org.cryptobiotic.eg.cli.RunShowSystem \
+  -show hasVEC
+```
+If successful, you will see the message "VEC and GMP are installed".
+
+
+## Using the egk-ec library in your own project
 
 We do not yet have egk uploaded to Maven Central, which is the standard way to distribute JVM libraries.
 
@@ -102,7 +150,7 @@ You should find that the fat jar file is placed into:
 `build/libs/egkec-2.1-SNAPSHOT-all.jar
 `
 
-You can put this jar into your build like
+You can put this jar into your own gradle build like
 
 ```
   dependencies {
@@ -114,11 +162,11 @@ You can put this jar into your build like
 And you can add it to your classpath to execute [command line programs](CommandLineInterface.md):
 
 ```
-/usr/lib/jvm/jdk-21/bin/java \
+/usr/bin/java \
     -classpath /egkhome/build/libs/egkec-2.1-SNAPSHOT-all.jar \
     org.cryptobiotic.eg.cli.RunVerifier \
     -in /path/to/election_record
 ```
 
-This also includes logback as a logging implementation. The included libraries are described
+The fat jar includes logback as a logging implementation. The full set of included libraries are described
 [here](../dependencies.txt).

@@ -115,7 +115,7 @@ RunBatchEncryptionTest {
             "testInvalidBallot",
         )
 
-        val consumerOut = ConsumerJson(invalidDir, false)
+        val consumerOut = ConsumerJson(invalidDir, electionRecord.group)
         consumerOut.iteratePlaintextBallots(invalidDir, null).forEach {
             println("${it.errors}")
             assertContains(it.errors.toString(), "Ballot.A.1 Ballot Style 'badStyleId' does not exist in election")

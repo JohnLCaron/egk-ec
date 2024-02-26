@@ -12,7 +12,7 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
     override val G_MOD_P: ElementModP = EcElementModP(this, vecGroup.g)
     override val G_SQUARED_MOD_P: ElementModP = EcElementModP(this, vecGroup.g.square())
     override val NUM_P_BITS: Int = vecGroup.pbitLength
-    override val MAX_BYTES_P: Int = vecGroup.pbyteLength
+    override val MAX_BYTES_P: Int = vecGroup.pbyteLength // TODO assumes bytes for one element
     override val ONE_MOD_P: ElementModP = this.ONE
 
     override val MAX_BYTES_Q: Int = vecGroup.qbyteLength
