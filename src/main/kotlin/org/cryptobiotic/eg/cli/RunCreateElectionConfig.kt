@@ -25,7 +25,7 @@ class RunCreateElectionConfig {
             val groupName by parser.option(
                 ArgType.String,
                 shortName = "group",
-                description = "Group name"
+                description = "Group name ('P-256' or 'Integer')"
             ).required()
             val nguardians by parser.option(
                 ArgType.Int,
