@@ -94,7 +94,7 @@ class VecTest {
         nonces.forEach {
             val scalar = (it as EcElementModQ).element
             val result: Array<BigInteger> = VEC.mul(curvePtr, hx, hy, scalar)
-            val resultElem = EcElementModP(group, VecElementModP(group.vecGroup, result[0], result[1]))
+            val resultElem = EcElementModP(group, VecElementP(group.vecGroup, result[0], result[1]))
         }
         println("testVecDirectExp ${stopwatch.tookPer(n, "VEC.mul")}")
     }
@@ -112,8 +112,8 @@ class VecTest {
 
         assertTrue(h is EcElementModP)
         assertTrue(hn is EcElementModP)
-        assertTrue((h as EcElementModP).ec is VecElementModP)
-        assertTrue((hn as EcElementModP).ec is VecElementModPnative)
+        assertTrue((h as EcElementModP).ec is VecElementP)
+        assertTrue((hn as EcElementModP).ec is VecElementPnative)
 
         val prodpow : ElementModP = nonces.map { h powP it }.reduce{ a, b -> a * b }
         val prodpowN : ElementModP = nonces.map { hn powP it }.reduce{ a, b -> a * b }

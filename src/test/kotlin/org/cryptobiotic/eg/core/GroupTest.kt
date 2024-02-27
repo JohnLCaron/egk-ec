@@ -5,8 +5,6 @@ import io.kotest.property.arbitrary.int
 import io.kotest.property.checkAll
 import io.kotest.property.forAll
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
-import org.cryptobiotic.eg.core.intgroup.ProductionMode
-import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.core.intgroup.tinyGroup
 import kotlin.test.*
 

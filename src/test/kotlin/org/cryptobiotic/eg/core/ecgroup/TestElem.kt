@@ -27,11 +27,11 @@ class TestElem {
         val group = VecGroups.getEcGroup("P-256")
         println("ECqPGroupParams = $group nbits = ${group.pbitLength}")
 
-        val fx = VecElementModP(group,
+        val fx = VecElementP(group,
             BigInteger("3ee3f1b3ddd8e71d9a68f44406354cc0592d8f2d0d7298b31f3f04d6f1289dfe", 16),
             BigInteger("ae1cebf4f07c1ce434ce91c0bddfa238070ad8cb18a5ff88d6a10caaba0b961c", 16))
 
-        val fy = VecElementModP(group,
+        val fy = VecElementP(group,
             BigInteger("874635006413f68e759dee4da57a1a1748f7ccf94f01ea5ac8e20f9093d6f32e", 16),
             BigInteger("d7f4851ace06186c929cdaf7e914c2926f83b4c4061a092486da83c762c96ca6", 16))
 
@@ -60,20 +60,20 @@ class TestElem {
         val group = VecGroups.getEcGroup("P-256")
         println("ECqPGroupParams = $group nbits = ${group.pbitLength}")
 
-        val fx = VecElementModP(group, "31e8a3d9b4574d962d95c901af12a30e1ceb1edcf6a81ab10588ca471c117e5b", "cea172df46a09fdfd202e670b5d56ff50ceaa53e28d0ab81f5e94cde445790dc")
-        val fy = VecElementModP(group, "66dcdaefb7258538bd56975eb58b21ce156a20976efdd519b011f5a459b5da91", "7df3e421431dd0b8c9bda4f4e9e78448042c61bcad6dd0d1f8e1e4310587cb50")
+        val fx = VecElementP(group, "31e8a3d9b4574d962d95c901af12a30e1ceb1edcf6a81ab10588ca471c117e5b", "cea172df46a09fdfd202e670b5d56ff50ceaa53e28d0ab81f5e94cde445790dc")
+        val fy = VecElementP(group, "66dcdaefb7258538bd56975eb58b21ce156a20976efdd519b011f5a459b5da91", "7df3e421431dd0b8c9bda4f4e9e78448042c61bcad6dd0d1f8e1e4310587cb50")
 
         System.out.printf(" rx.inv() = %s%n", fx.inv())
         System.out.printf(" rx.exp(ry.x) = %s%n", fx.exp(fy.x))
         System.out.printf(" rx.exp(ry.y) = %s%n", fx.exp(fy.y))
 
-        val inv = VecElementModP(group, "31e8a3d9b4574d962d95c901af12a30e1ceb1edcf6a81ab10588ca471c117e5b", "315e8d1fb95f60212dfd198f4a2a900af3155ac2d72f547e0a16b321bba86f23")
+        val inv = VecElementP(group, "31e8a3d9b4574d962d95c901af12a30e1ceb1edcf6a81ab10588ca471c117e5b", "315e8d1fb95f60212dfd198f4a2a900af3155ac2d72f547e0a16b321bba86f23")
         assertEquals(inv, fx.inv())
 
-        val fxx = VecElementModP(group, "b121949d3d8e391812e6d11a5eeba9afe492b47e6185328e66fa29901d7b56", "696d3a5e2a090ff25d4dcec59b68ba3772d2d06f8553a2712ac5616b4fc044c4")
+        val fxx = VecElementP(group, "b121949d3d8e391812e6d11a5eeba9afe492b47e6185328e66fa29901d7b56", "696d3a5e2a090ff25d4dcec59b68ba3772d2d06f8553a2712ac5616b4fc044c4")
         assertEquals(fxx, fx.exp(fy.x))
 
-        val fxy = VecElementModP(group, "64fa3cf26fa6ed29c86e6e8c6a2253d07041a4bda1beec118a651c0ced9e686f", "a7ddec45c9d5dcdf805930f0405d03f57b1304115c596e5052e57f88888571d5")
+        val fxy = VecElementP(group, "64fa3cf26fa6ed29c86e6e8c6a2253d07041a4bda1beec118a651c0ced9e686f", "a7ddec45c9d5dcdf805930f0405d03f57b1304115c596e5052e57f88888571d5")
         assertEquals(fxy, fx.exp(fy.y))
     }
     // ECqPGroupParams = ECqPGroup(P-256)

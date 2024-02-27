@@ -32,10 +32,10 @@ open class VecGroup(
     val h: BigInteger
 ) {
     /** Standard group generator. */
-    val g: VecElementModP = makeVecModP(gx, gy)
+    val g: VecElementP = makeVecModP(gx, gy).acceleratePow()
 
     /** Group unit element. */
-    val ONE: VecElementModP = makeVecModP(MINUS_ONE, MINUS_ONE)
+    val ONE: VecElementP = makeVecModP(MINUS_ONE, MINUS_ONE)
 
     val pbitLength: Int = primeModulus.bitLength()
     val pbyteLength = (pbitLength + 7) / 8
@@ -56,10 +56,10 @@ open class VecGroup(
         )
     }
 
-    open fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean = false) = VecElementModP(this, x, y, safe)
+    open fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean = false) = VecElementP(this, x, y, safe)
 
     val ffbyte: Byte = (-1).toByte()
-    fun elementFromByteArray(ba: ByteArray): VecElementModP? {
+    fun elementFromByteArray(ba: ByteArray): VecElementP? {
         if (ba.size != 2*pbyteLength) return null
         val allff = ba.fold( true) { a, b -> a && (b == ffbyte) }
         if (allff) return ONE
@@ -68,7 +68,7 @@ open class VecGroup(
         return makeVecModP(x, y)
     }
 
-    fun elementFromByteArray1(ba: ByteArray): VecElementModP? {
+    fun elementFromByteArray1(ba: ByteArray): VecElementP? {
         if (ba.size != 2*pbyteLength) return null
         val allff = ba.fold( true) { a, b -> a && (b == ffbyte) }
         if (allff) return ONE
@@ -77,7 +77,7 @@ open class VecGroup(
         return makeVecModP(x, y)
     }
 
-    fun randomElement(): VecElementModP {
+    fun randomElement(): VecElementP {
         val r = java.util.Random()
         for (j in 0 until 1000) { // limited in case theres a bug
             try {
@@ -206,7 +206,7 @@ open class VecGroup(
     }
 
     // TODO test if we should use (JVM) simultateous exponentiaton
-    open fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementModP {
+    open fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementP {
         // val pows = List( exps.size) { bases[it] powP exps[it] }
         val pows = List( exps.size) {
             val base = (bases[it] as EcElementModP).ec
