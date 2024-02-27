@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.normalize
+import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.core.toHex
 import org.cryptobiotic.util.Stopwatch
 import java.math.BigInteger
@@ -74,7 +75,6 @@ class TestElem {
 
         val fxy = VecElementModP(group, "64fa3cf26fa6ed29c86e6e8c6a2253d07041a4bda1beec118a651c0ced9e686f", "a7ddec45c9d5dcdf805930f0405d03f57b1304115c596e5052e57f88888571d5")
         assertEquals(fxy, fx.exp(fy.y))
-
     }
     // ECqPGroupParams = ECqPGroup(P-256)
     //rx = (31e8a3d9b4574d962d95c901af12a30e1ceb1edcf6a81ab10588ca471c117e5b, cea172df46a09fdfd202e670b5d56ff50ceaa53e28d0ab81f5e94cde445790dc) bitLength=254
@@ -106,6 +106,24 @@ class TestElem {
         val oneb = one.toByteArray()
         val roundtrip = ecGroup.elementFromByteArray(oneb)
         assertEquals(one, roundtrip)
+    }
+
+    @Test
+    fun testSqrt() {
+        val group = productionGroup("P-256") as EcGroupContext
+        val vecGroupN = group.vecGroup as VecGroupNative
+
+        repeat (100) {
+            val elemP = group.randomElementModP(2).ec
+            val elemPx = elemP.x
+            val elemPy2 = vecGroupN.equationf(elemPx)
+
+            val elemPy = vecGroupN.sqrt(elemPy2)
+            assertEquals(elemP.y, elemPy)
+
+            val elemPyt = vecGroupN.sqrt(elemPy2)
+            assertEquals(elemP.y, elemPyt)
+        }
     }
 
 }

@@ -244,7 +244,7 @@ open class VecGroup(
 
     // Applies the curve's formula f(x) = x^3 + ax + b on the given parameter.
     // 3 mult, 2 add, 5 mod
-    private fun equationf(x: BigInteger): BigInteger {
+    fun equationf(x: BigInteger): BigInteger {
         var right = x.multiply(x).mod(primeModulus) // TODO  can skip primeModulus on some intermediate terms ?
         right = right.multiply(x).mod(primeModulus)
         val aterm = x.multiply(a).mod(primeModulus)
