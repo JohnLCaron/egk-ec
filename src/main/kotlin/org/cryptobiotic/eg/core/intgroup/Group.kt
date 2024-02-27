@@ -325,7 +325,6 @@ open class ProductionElementModP(internal val element: BigInteger, val groupCont
 
 class AcceleratedElementModP(p: ProductionElementModP) : ProductionElementModP(p.element, p.groupContext) {
     // Laziness to delay computation of the table until its first use; saves space
-    // for PowModOptions that are never used.
 
     val powRadix by lazy { PowRadix(p, p.groupContext.powRadixOption) }
 

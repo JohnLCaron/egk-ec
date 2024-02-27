@@ -3,7 +3,6 @@ package org.cryptobiotic.eg.core.ecgroup
 import com.verificatum.vecj.VEC
 import org.cryptobiotic.eg.core.ElementModP
 import org.cryptobiotic.eg.core.ElementModQ
-import org.cryptobiotic.eg.core.normalize
 import java.math.BigInteger
 
 class VecGroupNative(
@@ -20,13 +19,13 @@ class VecGroupNative(
     /** Pointer to curve parameters in native space. */
     val nativePointer: ByteArray = VEC.getCurve("P-256")
 
-    override fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean) = VecElementModPnative(this, x, y, safe)
+    override fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean) = VecElementPnative(this, x, y, safe)
 
     override fun sqrt(a: BigInteger): BigInteger {
        return VEC.sqrt(a, primeModulus)
     }
 
-    override fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementModP {
+    override fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementP {
         val basesx = Array(bases.size) { (bases[it] as EcElementModP).ec.x.toByteArray() }
         val basesy = Array(bases.size) { (bases[it] as EcElementModP).ec.y.toByteArray() }
         val scalars = Array(exps.size) { (exps[it] as EcElementModQ).element.toByteArray() }

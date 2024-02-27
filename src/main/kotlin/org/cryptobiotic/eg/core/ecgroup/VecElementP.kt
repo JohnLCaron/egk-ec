@@ -6,7 +6,7 @@ import org.cryptobiotic.eg.core.ecgroup.VecGroup.Companion.MINUS_ONE
 import java.math.BigInteger
 import java.util.*
 
-open class VecElementModP(
+open class VecElementP(
     val pGroup: VecGroup,
     val x: BigInteger,
     val y: BigInteger,
@@ -23,13 +23,17 @@ open class VecElementModP(
         }
     }
 
+    open fun acceleratePow(): VecElementP {
+        return this
+    }
+
     // For elliptic curve group operations, we use the well-known formulae in Jacobian projective coordinates:
     // point doubling in projective coordinates costs 5 field squarings, 3 field multiplication, and 12 linear
     // operations (additions, subtractions, scalar multiplications),
     // while point addition costs 4 squarings, 12 multiplications and 7 linear operations.
 
     /** Compute the product of this element with other. */
-    open fun mul(other: VecElementModP): VecElementModP {
+    open fun mul(other: VecElementP): VecElementP {
          if (pGroup != other.pGroup) {
             throw RuntimeException("Distinct groups!")
         }
@@ -69,7 +73,7 @@ open class VecElementModP(
     }
 
     /** Compute the inverse of this element. */
-    fun inv(): VecElementModP {
+    fun inv(): VecElementP {
         // If this is the unit element, then we return this element.
         if (x == MINUS_ONE) {
             return this
@@ -111,8 +115,8 @@ open class VecElementModP(
 
 
     /** Compute the power of this element to the given exponent. */
-    open fun exp(exponent: BigInteger): VecElementModP {
-        var res: VecElementModP = pGroup.ONE
+    open fun exp(exponent: BigInteger): VecElementP {
+        var res: VecElementP = pGroup.ONE
 
         for (i in exponent.bitLength() downTo 0) {
             res = res.mul(res) // why not square ??
@@ -207,7 +211,7 @@ open class VecElementModP(
      *
      * @return Square of this element.
      */
-    fun square(): VecElementModP {
+    fun square(): VecElementP {
         // If this element is the unit element, then we return the unit element.
         if (x == MINUS_ONE) {
             return pGroup.ONE
@@ -237,7 +241,7 @@ open class VecElementModP(
         return pGroup.makeVecModP(rx, ry)
     }
 
-    fun compareTo(el: VecElementModP): Int {
+    fun compareTo(el: VecElementP): Int {
         if (pGroup == el.pGroup) {
             val cmp = x.compareTo(el.x)
             return if (cmp == 0) {
@@ -256,7 +260,7 @@ open class VecElementModP(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is VecElementModP) return false
+        if (other !is VecElementP) return false
 
         if (x != other.x) return false
         if (y != other.y) return false

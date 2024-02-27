@@ -228,9 +228,8 @@ interface ElementModP : Element, Comparable<ElementModP> {
     override operator fun compareTo(other: ElementModP): Int
 
     /**
-     * Creates a new instance of this element where the `powP` function will use the acceleration
-     * possible with `PowRadix` to run faster. The `PowRadixOption` for this instance is taken from
-     * the `GroupContext`.
+     * Creates a new instance of this element where the `powP` function will acceleration
+     * if possible to run faster.
      */
     fun acceleratePow(): ElementModP
 

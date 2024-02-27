@@ -2,11 +2,11 @@ package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.*
 
-class EcElementModP(val group: EcGroupContext, val ec: VecElementModP): ElementModP {
+class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP {
     override val context: GroupContext = group
 
     override fun acceleratePow(): ElementModP {
-        return this
+        return EcElementModP(this.group, this.ec.acceleratePow())
     }
 
     override fun byteArray() = ec.toByteArray()
