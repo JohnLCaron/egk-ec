@@ -19,27 +19,14 @@ class VecGroupNative(
 
     /** Pointer to curve parameters in native space. */
     val nativePointer: ByteArray = VEC.getCurve("P-256")
-    val curveParams: Array<BigInteger> = VEC.getCurveParams(nativePointer)
-    val orderBytes = order.toByteArray().normalize(32)
 
     override fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean) = VecElementModPnative(this, x, y, safe)
 
-    // for some reason this gets a SIGFPE. removing for now
-    /*
     override fun sqrt(a: BigInteger): BigInteger {
-        require (order == curveParams[5])
-        require (a < order)
-        require (a > BigInteger.ZERO)
-
-        val abytes = a.toByteArray().normalize(32)
-        val rbytes = VEC.sqrt(abytes, orderBytes)
-        return BigInteger(1, rbytes)
+       return VEC.sqrt(a, primeModulus)
     }
-     */
 
     override fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementModP {
-        // i think this needs to be broken into batches by threading. for now, just keep test = 100
-
         val basesx = Array(bases.size) { (bases[it] as EcElementModP).ec.x.toByteArray() }
         val basesy = Array(bases.size) { (bases[it] as EcElementModP).ec.y.toByteArray() }
         val scalars = Array(exps.size) { (exps[it] as EcElementModQ).element.toByteArray() }

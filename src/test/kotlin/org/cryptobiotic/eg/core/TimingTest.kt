@@ -2,6 +2,7 @@ package org.cryptobiotic.eg.core
 
 import org.cryptobiotic.util.Stopwatch
 import org.cryptobiotic.util.sigfig
+import kotlin.random.Random
 import kotlin.test.Test
 
 class TimingTest {
@@ -27,7 +28,7 @@ class TimingTest {
         for (nrows in listOf(29411)) {
             for (width in listOf(34)) {
                 for (psize in listOf(512, 32)) {
-                    val proofSizeBytes = TWproofPelems(nrows, width)*psize + TWproofQelems(nrows, width)*32
+                    val proofSizeBytes = TWproofPelems(nrows, width) * psize + TWproofQelems(nrows, width) * 32
                     val textSizeBytes = CiphertextPelems(nrows, width) * psize
                     println(" nrows=$nrows width=$width psize=$psize")
                     println("     Ciphertext pelems= ${CiphertextPelems(nrows, width)} elements")
@@ -56,19 +57,28 @@ class TimingTest {
     }
 
     @Test
-    // compare exp vs acc
-    fun testExp() {
-        val group = productionGroup()
-        warmup(group, 100)
-        compareExp(group,100)
+    fun timeCiphertext() {
+        timeCiphertext(100, 60)
+        timeCiphertext(100, 60)
     }
 
-    fun warmup(group:GroupContext, n:Int) {
-        repeat(n) { group.gPowP(group.randomElementModQ()) }
-        println("warmup with $n")
+    fun timeCiphertext(nrows: Int, width: Int) {
+        val stopwatch = Stopwatch()
+        val keypair = elGamalKeyPairFromRandom(group)
+        val ballots: List<List<ElGamalCiphertext>> = List(nrows) {
+            List(width) { Random.nextInt(11).encrypt(keypair) }
+        }
+        println("timeCiphertext width=$width ${stopwatch.tookPer(nrows, "ballot")}")
     }
 
-    fun compareExp(group:GroupContext, n:Int) {
+
+    @Test
+    fun compareExpVsAcc() {
+        repeat(100) { group.gPowP(group.randomElementModQ()) }
+        compareExpVsAcc(group,100)
+    }
+
+    fun compareExpVsAcc(group:GroupContext, n:Int) {
         val nonces = List(n) { group.randomElementModQ() }
         val h = group.gPowP(group.randomElementModQ())
 
