@@ -33,8 +33,8 @@ inline fun <reified T> jsonRoundTripWithStringPrimitive(value: T): T {
 class ElementsTest {
     val groups = listOf(
         tinyGroup(),
-        productionGroup("Integer group 3072"),
-        productionGroup("Integer group 4096"),
+        productionGroup("Integer3072"),
+        productionGroup("Integer4096"),
         EcGroupContext("P-256")
     )
 

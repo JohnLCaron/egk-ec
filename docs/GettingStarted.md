@@ -22,11 +22,12 @@ _last update 02/25/2024_
   git clone https://github.com/JohnLCaron/egk-ec.git
 ```
 
-2. **Java 21**. Install as needed, and make it your default Java when working with egk.
+2. **Java 17+**. Install as needed, and make it your default Java when working with egk.
 
     _In general, we will use the latest version of the JVM with long-term-support (aka LTS). 
     This is the "language level" or bytecode version, along with the library API's, that our code assumes. 
     Since new Java version are backwards compatible, you can use any version of the JVM greater than or equal to 17._
+    We anticipate eventually using java.lang.foreign from Java 21 or 22+.
 
 3. **Gradle 8.6**. The correct version of gradle will be installed when you invoke a gradle command. 
    To do so explicitly, you can do:

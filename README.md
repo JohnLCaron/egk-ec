@@ -1,14 +1,16 @@
-# ElectionGuard-Kotlin
+# ElectionGuard-Kotlin Elliptic Curve
 
-_last update 02/26/2024_
+_last update 02/28/2024_
 
-ElectionGuard-Kotlin (EGK) is an experimental implementation of [ElectionGuard](https://github.com/microsoft/electionguard), [version 2.0.0](https://github.com/microsoft/electionguard/releases/download/v2.0/EG_Spec_2_0.pdf), 
-available under an MIT-style open source [License](LICENSE). 
+ElectionGuard-Kotlin Elliptic Curve (egk-ec) is an experimental implementation of [ElectionGuard](https://github.com/microsoft/electionguard), 
+[version 2.0.0](https://github.com/microsoft/electionguard/releases/download/v2.0/EG_Spec_2_0.pdf), 
+available under an MIT-style open source [License](LICENSE.txt). 
 
 This version adds the option to use [Elliptical Curves](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography) 
 for the cryptography. This is a prototype feature and is not part of the ElectionGuard specification.
 The implementation for Elliptical Curves (EC) is taken largely from the [Verificatum library](https://www.verificatum.org/,
-including the option to use the Verificatum C library. The EC implementation is not stable and will change in the future.
+including the option to use the Verificatum C library. See [VCR License](LICENSE_VCR.txt) for the license for this part of
+the library.
 
 Switching to Elliptical Curves is mostly transparent to most of the ElectionGuard specification, so we are calling this
 version EGK 2.1, which uses the ElectionGuard 2.0 specification on top of elliptic curves.

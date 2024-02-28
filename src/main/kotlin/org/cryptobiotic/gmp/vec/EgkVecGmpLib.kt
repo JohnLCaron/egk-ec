@@ -1,11 +1,10 @@
 package org.cryptobiotic.gmp.vec
 
+/*
 import java.lang.foreign.Arena
 import java.lang.foreign.MemorySegment
 import java.lang.foreign.ValueLayout.ADDRESS
 import java.lang.foreign.ValueLayout.JAVA_BYTE
-
-/*
 
 cd ~/install/jextract-21/bin
 
@@ -26,7 +25,6 @@ cd ~/install/jextract-21/bin
     --output /home/stormy/dev/github/egk-ec/src/main/java \
     /home/stormy/dev/github/verificatum/verificatum-vec/vec.h
 
- */
 
 // These are covers of GMP methods for testing using Bytearrays.
 // NEW WAY pass in the byte arrays, let c library do the import/export

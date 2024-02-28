@@ -71,7 +71,6 @@ class TimingTest {
         println("timeCiphertext width=$width ${stopwatch.tookPer(nrows, "ballot")}")
     }
 
-
     @Test
     fun compareExpVsAcc() {
         repeat(100) { group.gPowP(group.randomElementModQ()) }
