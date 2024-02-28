@@ -14,8 +14,8 @@ import kotlin.test.*
 class ElGamalTest {
     val groups = listOf(
         tinyGroup(),
-        productionGroup("Integer group 3072"),
-        productionGroup("Integer group 4096"),
+        productionGroup("Integer3072"),
+        productionGroup("Integer4096"),
         EcGroupContext("P-256")
     )
 

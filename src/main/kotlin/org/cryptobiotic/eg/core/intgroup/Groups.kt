@@ -63,7 +63,7 @@ private val productionGroups4096 : Map<PowRadixOption, ProductionGroupContext> =
             montIMinus1Bytes = (montgomeryI4096 - BigInteger.ONE).toByteArray(),
             montIPrimeBytes = (montgomeryI4096.modPow(p4096 - BigInteger.TWO, p4096)).toByteArray(),
             montPPrimeBytes = ((montgomeryI4096 - p4096).modInverse(montgomeryI4096)).toByteArray(),
-            name = "Integer group 4096 bits (${it.description})",
+            name = "Integer4096 (${it.description})",
             powRadixOption = it,
             productionMode = ProductionMode.Mode4096,
             numPBits = Primes4096.nbits
@@ -83,7 +83,7 @@ private val productionGroups3072 : Map<PowRadixOption, ProductionGroupContext> =
             montIMinus1Bytes = (montgomeryI3072 - BigInteger.ONE).toByteArray(),
             montIPrimeBytes = (montgomeryI3072.modPow(p3072 - BigInteger.TWO, p3072)).toByteArray(),
             montPPrimeBytes = ((montgomeryI3072 - p3072).modInverse(montgomeryI3072)).toByteArray(),
-            name = "Integer group 3072 bits (${it.description})",
+            name = "Integer3072 (${it.description})",
             powRadixOption = it,
             productionMode = ProductionMode.Mode3072,
             numPBits = Primes3072.nbits
@@ -92,7 +92,7 @@ private val productionGroups3072 : Map<PowRadixOption, ProductionGroupContext> =
 
 fun productionIntGroup(groupName: String): GroupContext {
     // could also parse the PowRadix
-    return if (groupName.startsWith("Integer group 3072")) productionIntGroup(mode = ProductionMode.Mode3072)
+    return if (groupName.startsWith("Integer3072")) productionIntGroup(mode = ProductionMode.Mode3072)
     else productionIntGroup(mode = ProductionMode.Mode4096)
 }
 

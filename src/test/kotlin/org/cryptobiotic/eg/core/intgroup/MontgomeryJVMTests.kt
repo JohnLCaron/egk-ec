@@ -12,11 +12,11 @@ import kotlin.test.Test
 class MontgomeryJVMTests {
     @Test
     fun shiftyModAndDiv4096() =
-        shiftyModAndDiv { productionGroup("Integer group 4096") }
+        shiftyModAndDiv { productionGroup("Integer4096") }
 
     @Test
     fun shiftyModAndDiv3072() =
-        shiftyModAndDiv { productionGroup("Integer group 3072") }
+        shiftyModAndDiv { productionGroup("Integer3072") }
 
     @Test
     fun shiftyModAndDivTiny() = runTest {
@@ -70,7 +70,7 @@ class MontgomeryJVMTests {
     @Test
     fun relationshipsIAndPProduction() {
         runTest {
-            listOf(productionGroup("Integer group 4096"), productionGroup("Integer group 3072"))
+            listOf(productionGroup("Integer4096"), productionGroup("Integer3072"))
                 .forEach { context ->
                     val pContext = context as ProductionGroupContext
                     val pPrime = pContext.montgomeryPPrime

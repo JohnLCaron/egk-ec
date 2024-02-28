@@ -16,8 +16,8 @@ import org.cryptobiotic.eg.core.intgroup.tinyGroup
 
 class SchnorrProofTest {
     val groups = listOf(
-        productionGroup("Integer group 3072"),
-        productionGroup("Integer group 4096"),
+        productionGroup("Integer3072"),
+        productionGroup("Integer4096"),
         EcGroupContext("P-256"),
         tinyGroup(),
     )

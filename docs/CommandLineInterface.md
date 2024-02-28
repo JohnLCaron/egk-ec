@@ -102,7 +102,7 @@ Example:
 Usage: RunCreateElectionConfig options_list
 Options: 
     --electionManifest, -manifest -> Manifest file or directory (json or protobuf) (always required) { String }
-    --groupName, -group -> Group name  ('P-256' or 'Integer') (always required) { String }
+    --groupName, -group -> Group name  ('P-256' or 'Integer4096') (always required) { String }
     --nguardians, -nguardians -> number of guardians (always required) { Int }
     --quorum, -quorum -> quorum size (always required) { Int }
     --outputDir, -out -> Directory to write output ElectionInitialized record (always required) { String }
@@ -122,9 +122,8 @@ Example:
     -group P-256 \
     -nguardians 3 \
     -quorum 3 \
-    -out testOut/cliWorkflow/config \
-    --baux0 device42 \
-    --chainCodes
+    -out testOut/cliWorkflow/configEc \
+    --baux0 device42
 ````
 
 ## Run trusted KeyCeremony
@@ -148,9 +147,9 @@ Example:
 /usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunTrustedKeyCeremony \
-    -in testOut/cliWorkflow/config \
-    -trustees testOut/cliWorkflow/keyceremony/trustees \
-    -out testOut/cliWorkflow/keyceremony 
+    -in testOut/cliWorkflow/configEc \
+    -trustees testOut/cliWorkflow/keyceremonyEc/trustees \
+    -out testOut/cliWorkflow/keyceremonyEc
 ````
 
 ## Create fake input ballots
@@ -173,7 +172,7 @@ Example:
   org.cryptobiotic.eg.cli.RunCreateInputBallots \
     -manifest src/test/data/startManifest \
     -out testOut/generateInputBallots \
-    -n 23 \
+    -n 100 \
     -json
 ````
 
@@ -205,9 +204,9 @@ Example:
 /usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunBatchEncryption \
-    -in testOut/cliWorkflow/keyceremony \
-    -ballots src/test/data/fakeBallots/json \
-    -out testOut/cliWorkflow/electionRecord \
+    -in testOut/cliWorkflow/keyceremonyEc \
+    -ballots src/test/data/fakeBallots \
+    -out testOut/cliWorkflow/electionRecordEc \
     -device device42 \
     --cleanOutput
 ````
@@ -232,8 +231,8 @@ Example:
 /usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunAccumulateTally \
-    -in testOut/cliWorkflow/electionRecord \
-    -out testOut/cliWorkflow/electionRecord 
+    -in testOut/cliWorkflow/electionRecordEc \
+    -out testOut/cliWorkflow/electionRecordEc 
 ````
 
 output:
@@ -266,9 +265,9 @@ Example:
 /usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunTrustedTallyDecryption \
-    -in testOut/cliWorkflow/electionRecord \
-    -trustees testOut/cliWorkflow/keyceremony/trustees \
-    -out testOut/cliWorkflow/electionRecord 
+    -in testOut/cliWorkflow/electionRecordEc \
+    -trustees testOut/cliWorkflow/keyceremonyEc/trustees \
+    -out testOut/cliWorkflow/electionRecordEc
 ````
 
 output:
@@ -304,10 +303,10 @@ Example:
 /usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunTrustedBallotDecryption \
-    -in testOut/cliWorkflow/electionRecord \
-    -trustees testOut/cliWorkflow/keyceremony/trustees \
+    -in testOut/cliWorkflow/electionRecordEc \
+    -trustees testOut/cliWorkflow/keyceremonyEc/trustees \
     -challenged All \
-    -out testOut/cliWorkflow/electionRecord 
+    -out testOut/cliWorkflow/electionRecordEc
 ````
 
 output:
@@ -332,5 +331,5 @@ Example:
 /usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunVerifier \
-  -in testOut/cliWorkflow/electionRecord 
+  -in testOut/cliWorkflow/electionRecordEc
 ````

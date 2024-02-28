@@ -297,7 +297,7 @@ fun productionGroup(groupName: String? = null, useNative: Boolean = true): Group
         PowRadixOption.LOW_MEMORY_USE,
         ProductionMode.Mode4096
     )
-    else if (groupName.startsWith("Integer group")) org.cryptobiotic.eg.core.intgroup.productionIntGroup(groupName)
+    else if (groupName.startsWith("Integer")) org.cryptobiotic.eg.core.intgroup.productionIntGroup(groupName)
     else org.cryptobiotic.eg.core.ecgroup.EcGroupContext(groupName, useNative)
 }
 
