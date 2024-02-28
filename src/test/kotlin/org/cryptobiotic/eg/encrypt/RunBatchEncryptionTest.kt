@@ -26,7 +26,7 @@ RunBatchEncryptionTest {
                 "--cleanOutput",
             )
         )
-        RunVerifier.runVerifier("testOut/encrypt/testRunBatchEncryptionWithJsonBallots", 11)
+        RunVerifier.runVerifier("testOut/encrypt/testRunBatchEncryptionWithEc", 11)
     }
 
     @Test
@@ -42,7 +42,7 @@ RunBatchEncryptionTest {
                 "--cleanOutput",
             )
         )
-        RunVerifier.runVerifier("testOut/encrypt/testRunBatchEncryptionJson", 11)
+        RunVerifier.runVerifier("testOut/encrypt/testRunBatchEncryptionWithInteger", 11)
     }
 
     @Test

@@ -1,7 +1,7 @@
 package org.cryptobiotic.eg.core.intgroup
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.Base16.toHex
+import org.cryptobiotic.eg.core.Base64.toBase64
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -262,7 +262,7 @@ class ProductionElementModQ(internal val element: BigInteger, val groupContext: 
 
     override fun hashCode() = byteArray().contentHashCode()
 
-    override fun toString() = byteArray().toHex()
+    override fun toString() = byteArray().toBase64()
 }
 
 open class ProductionElementModP(internal val element: BigInteger, val groupContext: ProductionGroupContext): ElementModP,
@@ -320,7 +320,7 @@ open class ProductionElementModP(internal val element: BigInteger, val groupCont
 
     override fun hashCode() = byteArray().contentHashCode()
 
-    override fun toString() = byteArray().toHex()
+    override fun toString() = byteArray().toBase64()
 }
 
 class AcceleratedElementModP(p: ProductionElementModP) : ProductionElementModP(p.element, p.groupContext) {

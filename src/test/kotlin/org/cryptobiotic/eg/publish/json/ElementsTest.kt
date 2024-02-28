@@ -1,14 +1,13 @@
 package org.cryptobiotic.eg.publish.json
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.Base16.fromHex
 import org.cryptobiotic.eg.core.productionGroup
 
 import io.kotest.property.checkAll
 import kotlin.test.*
 import kotlinx.serialization.json.*
+import org.cryptobiotic.eg.core.Base64.fromBase64
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
-import org.cryptobiotic.eg.core.intgroup.ProductionMode
 import org.cryptobiotic.eg.core.intgroup.tinyGroup
 
 
@@ -19,7 +18,7 @@ inline fun <reified T> jsonRoundTripWithStringPrimitive(value: T): T {
 
     if (jsonT is JsonPrimitive) {
         assertTrue(jsonT.isString)
-        assertNotNull(jsonT.content.fromHex()) // validates that we have a base16 string
+        assertNotNull(jsonT.content.fromBase64()) // validates that we have a base16 string
     } else {
         fail("expected jsonT to be JsonPrimitive")
     }
@@ -45,7 +44,11 @@ class ElementsTest {
 
     fun testElementRoundtrip(group: GroupContext) {
         runTest {
-            checkAll(elementsModP(group), elementsModQ(group)) { p, q ->
+            checkAll(
+                iterations = 10000,
+                elementsModP(group),
+                elementsModQ(group)
+            ) { p, q ->
                 assertEquals(p, p.publishJson().import(group))
                 assertEquals(q, q.publishJson().import(group))
 
@@ -79,7 +82,10 @@ class ElementsTest {
 
     fun testUInt256Roundtrip(group: GroupContext) {
         runTest {
-            checkAll(elementsModQ(group)) { q ->
+            checkAll(
+                iterations = 10000,
+                elementsModQ(group)
+            ) { q ->
                 val u : UInt256 = q.toUInt256safe()
                 assertEquals(u, u.publishJson().import())
                 assertEquals(u, jsonRoundTripWithStringPrimitive(u.publishJson()).import())

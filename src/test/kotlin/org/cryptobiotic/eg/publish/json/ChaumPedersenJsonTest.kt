@@ -9,7 +9,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
-import org.cryptobiotic.eg.core.intgroup.ProductionMode
 import org.cryptobiotic.eg.core.intgroup.tinyGroup
 import kotlin.test.Test
 import kotlin.test.assertEquals

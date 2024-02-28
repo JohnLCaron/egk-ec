@@ -5,8 +5,8 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-import org.cryptobiotic.eg.core.Base16.fromHex
-import org.cryptobiotic.eg.core.Base16.toHex
+import org.cryptobiotic.eg.core.Base64.fromBase64
+import org.cryptobiotic.eg.core.Base64.toBase64
 import org.cryptobiotic.eg.core.ElementModP
 import org.cryptobiotic.eg.core.ElementModQ
 import org.cryptobiotic.eg.core.GroupContext
@@ -18,21 +18,21 @@ import org.cryptobiotic.eg.core.UInt256
 @Serializable(with = ElementModPAsStringSerializer::class)
 @SerialName("ElementModP")
 data class ElementModPJson(val bytes: ByteArray) {
-    override fun toString() = bytes.toHex()
+    override fun toString() = bytes.toBase64()
 }
 
 /** External representation of an ElementModQ. */
 @Serializable(with = ElementModQAsStringSerializer::class)
 @SerialName("ElementModQ")
 data class ElementModQJson(val bytes: ByteArray) {
-    override fun toString() = bytes.toHex()
+    override fun toString() = bytes.toBase64()
 }
 
 /** External representation of a UInt256. */
 @Serializable(with = UInt256AsStringSerializer::class)
 @SerialName("UInt256")
 data class UInt256Json(val bytes: ByteArray) {
-    override fun toString() = bytes.toHex()
+    override fun toString() = bytes.toBase64()
 }
 
 /** Custom serializer for [ElementModP]. */
@@ -41,13 +41,13 @@ object ElementModPAsStringSerializer : KSerializer<ElementModPJson> {
         PrimitiveSerialDescriptor("ElementModP", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: ElementModPJson) {
-        val string = value.bytes.toHex()
+        val string = value.bytes.toBase64()
         encoder.encodeString(string)
     }
 
     override fun deserialize(decoder: Decoder): ElementModPJson {
         val string = decoder.decodeString()
-        return ElementModPJson(string.fromHex() ?: throw IllegalArgumentException ("invalid base16 ElementModP string '$string'"))
+        return ElementModPJson(string.fromBase64() ?: throw IllegalArgumentException ("invalid base16 ElementModP string '$string'"))
     }
 }
 
@@ -57,14 +57,14 @@ object ElementModQAsStringSerializer : KSerializer<ElementModQJson> {
         PrimitiveSerialDescriptor("ElementModQ", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: ElementModQJson) {
-        val string = value.bytes.toHex()
+        val string = value.bytes.toBase64()
         encoder.encodeString(string)
     }
 
     override fun deserialize(decoder: Decoder): ElementModQJson {
         val string = decoder.decodeString()
         return ElementModQJson(
-            string.fromHex() ?: throw IllegalArgumentException("invalid base16 ElementModQ string '$string'")
+            string.fromBase64() ?: throw IllegalArgumentException("invalid base16 ElementModQ string '$string'")
         )
     }
 }
@@ -75,14 +75,14 @@ object UInt256AsStringSerializer : KSerializer<UInt256Json> {
         PrimitiveSerialDescriptor("UInt256", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: UInt256Json) {
-        val string = value.bytes.toHex()
+        val string = value.bytes.toBase64()
         encoder.encodeString(string)
     }
 
     override fun deserialize(decoder: Decoder): UInt256Json {
         val string = decoder.decodeString()
         return UInt256Json(
-            string.fromHex() ?: throw IllegalArgumentException("invalid base16 UInt256 string '$string'")
+            string.fromBase64() ?: throw IllegalArgumentException("invalid base16 UInt256 string '$string'")
         )
     }
 }

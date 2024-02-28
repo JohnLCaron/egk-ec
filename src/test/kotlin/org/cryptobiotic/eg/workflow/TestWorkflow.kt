@@ -24,7 +24,7 @@ import kotlin.test.assertTrue
  *     election record changes.
  */
 class TestWorkflow {
-    private val nballots = 11
+    private val nballots = 42
     private val nthreads = 11
 
     @Test

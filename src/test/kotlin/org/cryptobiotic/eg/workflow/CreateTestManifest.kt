@@ -10,7 +10,7 @@ class CreateTestManifest {
         RunCreateTestManifest.main(
             arrayOf(
                 "-ncontests", "20",
-                "-nselections", "5",
+                "-nselections", "4",
                 "-out", "testOut/manifest/runCreateTestManifest",
             )
         )
