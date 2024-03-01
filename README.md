@@ -1,6 +1,6 @@
 # ElectionGuard-Kotlin Elliptic Curve
 
-_last update 02/28/2024_
+_last update 03/01/2024_
 
 ElectionGuard-Kotlin Elliptic Curve (egk-ec) is an experimental implementation of [ElectionGuard](https://github.com/microsoft/electionguard), 
 [version 2.0.0](https://github.com/microsoft/electionguard/releases/download/v2.0/EG_Spec_2_0.pdf), 
@@ -26,6 +26,8 @@ See [EGK EC mixnet](https://github.com/JohnLCaron/egk-ec-mixnet) for an implemen
 * [Workflow and Command Line Programs](docs/CommandLineInterface.md)
 
 ## Serialization
+
+The elliptic curve group uses base64 encoding in the json, with point compression that reduces the byte count per elementModP to 33 bytes.
 
 _We are waiting for the 2.0 JSON serialization specification before finalizing our serialization. For now,
 we are still mostly using the 1.9 serialization._
