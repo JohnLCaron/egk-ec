@@ -31,7 +31,7 @@ class RunDecryptBallotsTest {
             "ALL",
             nthreads,
         )
-        assertEquals(11, n)
+        assertEquals(42, n)
     }
 
     @Test

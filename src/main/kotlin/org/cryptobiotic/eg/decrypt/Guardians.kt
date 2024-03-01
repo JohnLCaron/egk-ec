@@ -16,6 +16,10 @@ data class Guardians(val group : GroupContext, val guardians: List<Guardian>) {
         }
     }
 
+    fun guardianPublicKey(id:String): ElementModP? {
+        return guardianMap[id]?.publicKey()
+    }
+
     /**
      * g^P(ℓ) mod p = Prod_i( g^Pi(ℓ) ), i = 1..n
      *

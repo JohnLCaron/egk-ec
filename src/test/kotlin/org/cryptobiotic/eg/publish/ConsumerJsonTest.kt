@@ -50,7 +50,7 @@ fun readEncryptedBallots(topdir: String) {
     var count = 0
     for (ballot in consumerIn.iterateAllEncryptedBallots { true }) {
         println("$count ballot = ${ballot.ballotId}")
-        assertTrue(ballot.ballotId.startsWith("ballot-id"))
+        assertTrue(ballot.ballotId.contains("id-"))
         count++
     }
 }
@@ -60,7 +60,7 @@ fun readEncryptedBallotsCast(topdir: String) {
     var count = 0
     for (ballot in consumerIn.iterateAllCastBallots()) {
         println("$count ballot = ${ballot.ballotId}")
-        assertTrue(ballot.ballotId.startsWith("ballot-id"))
+        assertTrue(ballot.ballotId.contains("id-"))
         count++
     }
 }
@@ -70,7 +70,7 @@ fun readSubmittedBallotsSpoiled(topdir: String) {
     var count = 0
     for (ballot in consumerIn.iterateAllSpoiledBallots()) {
         println("$count ballot = ${ballot.ballotId}")
-        assertTrue(ballot.ballotId.startsWith("ballot-id"))
+        assertTrue(ballot.ballotId.contains("id-"))
         count++
     }
 }

@@ -11,7 +11,7 @@ class CreateElectionConfig {
         RunCreateElectionConfig.main(
             arrayOf(
                 "-manifest", "src/test/data/startManifest/manifest.json",
-                "-group", "Integer group",
+                "-group", "Integer4096",
                 "-nguardians", "3",
                 "-quorum", "3",
                 "-out",

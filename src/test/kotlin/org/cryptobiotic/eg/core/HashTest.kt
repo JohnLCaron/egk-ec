@@ -1,12 +1,9 @@
 package org.cryptobiotic.eg.core
 
-import org.cryptobiotic.eg.core.*
 import io.kotest.property.checkAll
 import io.kotest.property.forAll
 import org.cryptobiotic.eg.core.Base16.fromHexSafe
 import org.cryptobiotic.eg.core.Base16.toHex
-import org.cryptobiotic.eg.core.intgroup.PowRadixOption
-import org.cryptobiotic.eg.core.productionGroup
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -72,7 +69,7 @@ class HashTest {
 
     fun test(s1 : String, group : GroupContext) {
         val s1u = s1.fromHexSafe().toUInt256safe().toString()
-        val s1q = s1.fromHexSafe().toUInt256safe().toElementModQ(group).toString()
+        val s1q = s1.fromHexSafe().toUInt256safe().toElementModQ(group).toHex()
         println(" len = ${s1.length} s1u = ${s1u} s1q = ${s1q}")
         assertEquals(64, s1q.length)
     }

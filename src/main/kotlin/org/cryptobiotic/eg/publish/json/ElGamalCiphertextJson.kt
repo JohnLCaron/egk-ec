@@ -1,7 +1,6 @@
 package org.cryptobiotic.eg.publish.json
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.election.*
 import kotlinx.serialization.Serializable
 
 @Serializable

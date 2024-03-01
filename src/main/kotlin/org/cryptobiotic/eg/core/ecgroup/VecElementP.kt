@@ -29,8 +29,8 @@
 
 package org.cryptobiotic.eg.core.ecgroup
 
+import org.cryptobiotic.eg.core.Base64.toBase64
 import org.cryptobiotic.eg.core.normalize
-import org.cryptobiotic.eg.core.toHex
 import org.cryptobiotic.eg.core.ecgroup.VecGroup.Companion.MINUS_ONE
 import java.math.BigInteger
 import java.util.*
@@ -120,29 +120,6 @@ open class VecElementP(
         )
     }
 
-    //     // VECJ_PURE_JAVA_BEGIN
-    //
-    //    /**
-    //     * Compute the power of this element to the given exponent.
-    //     *
-    //     * @param exponent Exponent.
-    //     * @return Power of this element to the given exponent.
-    //     */
-    //    public PGroupElement exp(final LargeInteger exponent) {
-    //
-    //        PGroupElement res = getPGroup().getONE();
-    //
-    //        for (int i = exponent.bitLength(); i >= 0; i--) {
-    //            res = res.mul(res);
-    //            if (exponent.testBit(i)) {
-    //                res = mul(res);
-    //            }
-    //        }
-    //        return res;
-    //    }
-    //    // VECJ_PURE_JAVA_END
-
-
     /** Compute the power of this element to the given exponent. */
     open fun exp(exponent: BigInteger): VecElementP {
         var res: VecElementP = pGroup.ONE
@@ -156,47 +133,13 @@ open class VecElementP(
         return res
     }
 
-    //
-    //    // VECJ_BEGIN
-    //
-    //    /**
-    //     * Compute the power of this element to the given exponent.
-    //     *
-    //     * @param exponent Exponent.
-    //     * @return Power of this element to the given exponent.
-    //     */
-    //    public PGroupElement exp(final LargeInteger exponent) {
-    //
-    //        final byte[] exponenta = exponent.toByteArray();
-    //
-    //        final byte[] xa = x.toByteArray();
-    //        final byte[] ya = y.toByteArray();
-    //
-    //        final ECqPGroup jECPGroup = (ECqPGroup) pGroup;
-    //
-    //        final byte[][] res =
-    //            VEC.mul(jECPGroup.nativePointer, xa, ya, exponenta);
-    //
-    //        try {
-    //            return new ECqPGroupElement(jECPGroup,
-    //                                        new LargeInteger(res[0]),
-    //                                        new LargeInteger(res[1]));
-    //        } catch (ArithmFormatException afe) {
-    //            throw new ArithmError("Unable to create elliptic curve point!",
-    //                                  afe);
-    //        }
-    //    }
-    //
-    //    /** * Compute the powers of this element to the given positive * integer exponents. */
-    //    public PGroupElement[] exp(final LargeInteger[] integers, final int bitLength) {
-    //    ...
-    //    }
-    //    // VECJ_END
+    fun toByteArray() = toByteArray1()
 
-    fun toByteArray(): ByteArray {
-        val byteLength = (pGroup.pbitLength + 7) / 8
+        // store both values
+    fun toByteArray2(): ByteArray {
+        val byteLength = pGroup.pbyteLength
 
-        // We add one byte and use point compression.
+        // store both values
         val result = ByteArray(2 * byteLength)
 
         if (x == MINUS_ONE) {
@@ -210,26 +153,23 @@ open class VecElementP(
         return result
     }
 
-    // "Bijective map from the set of elements to arrays of bytes. This is not intended to be used for storing elements."
-    // apparently only used in hash function.
-    // "store x0 and use the equation of the elliptic curve to solve for y0"
-    // toByteTree() stores both x and y, so 512 bits.
-    fun toByteArrayPointCompression(): ByteArray {
-        val byteLength = (pGroup.pbitLength + 7) / 8
+    fun toByteArray1(): ByteArray {
+        val byteLength = pGroup.pbyteLength
 
-        // We add one byte and use point compression.
-        val res = ByteArray(byteLength + 1)
+        // We add one byte and use "point compression", store just x and signe of y
+        val result = ByteArray(byteLength + 1)
 
         if (x == MINUS_ONE) {
-            Arrays.fill(res, 0xFF.toByte())
+            Arrays.fill(result, 0xFF.toByte())
         } else {
-            val tmp = x.toByteArray()
-            System.arraycopy(tmp, 0, res, res.size - tmp.size, tmp.size)
-            if (y.negate().compareTo(y) < 0) {
-                res[0] = 1 // sign bit
-            }
+            // the compressed format is one octet 02 or 03 designating whether Y is even or odd, which
+            // corresponds to y > P/2 (odd) or not (even). This distinguishes y and -y, since one will be > P/2
+            // and one will not.
+            result[0] = if (y.testBit(0)) 3 else 2
+            val xbytes = x.toByteArray().normalize(byteLength)
+            xbytes.forEachIndexed { idx, it -> result[idx+1] = it }
         }
-        return res
+        return result
     }
 
     // point doubling in projective coordinates costs 5 field squarings, 3 field multiplication, and 12 linear
@@ -284,7 +224,7 @@ open class VecElementP(
     }
 
     override fun toString(): String {
-        return "VecElementModP(${x.toHex()}, ${y.toHex()})"
+        return "VecElementP(${x.toByteArray().toBase64()}, ${y.toByteArray().toBase64()})"
     }
 
     override fun equals(other: Any?): Boolean {

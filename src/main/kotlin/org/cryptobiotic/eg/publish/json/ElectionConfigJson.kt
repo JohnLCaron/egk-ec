@@ -4,9 +4,6 @@ import kotlinx.serialization.Serializable
 
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.util.ErrorMessages
-import org.cryptobiotic.eg.core.Base16.fromHex
-import org.cryptobiotic.eg.core.Base16.fromHexSafe
-import org.cryptobiotic.eg.core.Base16.toHex
 import org.cryptobiotic.eg.core.safeEnumValueOf
 import java.math.BigInteger
 

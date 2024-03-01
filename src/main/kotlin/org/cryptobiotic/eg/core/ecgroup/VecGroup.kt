@@ -29,8 +29,7 @@
 
 package org.cryptobiotic.eg.core.ecgroup
 
-import org.cryptobiotic.eg.core.ElementModP
-import org.cryptobiotic.eg.core.ElementModQ
+import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.ElectionConstants
 import org.cryptobiotic.eg.election.GroupType
 import java.math.BigInteger
@@ -41,14 +40,13 @@ import java.math.BigInteger
  * @param a x-coefficient
  * @param b constant
  * @param primeModulus Field over which to perform calculations.
- * @param order Order of the group.
+ * @param order Order of the group, for Q.
  * @param gx x-coordinate of the generator.
  * @param gy y-coordinate of the generator.
  * @throws RuntimeException If the input parameters are * inconsistent
  * @throws RuntimeException If the input parameters are * inconsistentaqrt
  */
 
-// So far, I havent seen any use for order, buts its lurking underneath VCR ECqPGroup. ugh.
 // the order of G is the smallest positive number n such that ng = O (the point at infinity of the curve, and the identity element)
 open class VecGroup(
     val curveName: String,
@@ -87,8 +85,10 @@ open class VecGroup(
 
     open fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean = false) = VecElementP(this, x, y, safe)
 
+    fun elementFromByteArray(ba: ByteArray): VecElementP? = elementFromByteArray1(ba)
+
     val ffbyte: Byte = (-1).toByte()
-    fun elementFromByteArray(ba: ByteArray): VecElementP? {
+    fun elementFromByteArray2(ba: ByteArray): VecElementP? {
         if (ba.size != 2*pbyteLength) return null
         val allff = ba.fold( true) { a, b -> a && (b == ffbyte) }
         if (allff) return ONE
@@ -97,7 +97,27 @@ open class VecGroup(
         return makeVecModP(x, y)
     }
 
+    // the compressed format is one octet 02 or 03 designating whether Y is even or odd, followed by X only.
+    // Odd/even corresponds to y > P/2 (odd) or not (even). This distinguishes y and -y, since one will be > P/2
+    // and one will not. In mod arithmetic, "negative" isnt really a thing, since all values >= 0.
     fun elementFromByteArray1(ba: ByteArray): VecElementP? {
+        if (ba.size != (pbyteLength+1)) return null
+        val allff = ba.fold( true) { a, b -> a && (b == ffbyte) }
+        if (allff) return ONE
+
+        val xbytes = ByteArray(pbyteLength) { ba[it+1] }
+        val x = BigInteger(1, xbytes)
+
+        var y = calcYfromX(x)
+        val wantOdd = ba[0] == 3.toByte()
+        if (wantOdd != y.testBit(0)) { // testBit is little endian
+            // get the other root is wantOdd doesnt match haveOdd = y.testBit(0)
+            y = y.negate().mod(primeModulus)
+        }
+        return makeVecModP(x, y)
+    }
+
+    fun elementFromByteArray1from2(ba: ByteArray): VecElementP? {
         if (ba.size != 2*pbyteLength) return null
         val allff = ba.fold( true) { a, b -> a && (b == ffbyte) }
         if (allff) return ONE
@@ -107,14 +127,13 @@ open class VecGroup(
     }
 
     fun randomElement(): VecElementP {
-        val r = java.util.Random()
         for (j in 0 until 1000) { // limited in case theres a bug
             try {
-                val x = BigInteger(pbitLength, r)
+                val x = BigInteger(1, randomBytes(pbyteLength))
                 val fx = equationf(x)
 
                 if (jacobiSymbol(fx, primeModulus) == 1) {
-                    val y2 = sqrt(fx)
+                    val y2 = sqrt(fx) // TODO so y is always positive
                     return makeVecModP(x, y2, true)
                 }
             } catch (e: RuntimeException) {
@@ -231,10 +250,17 @@ open class VecGroup(
             // n = n * c mod p
             n = n.multiply(c).mod(p)
         }
-        return r
+        return r.toPositive()
     }
 
-    // TODO test if we should use (JVM) simultateous exponentiaton
+    fun BigInteger.toPositive(): BigInteger {
+        return this
+        //val bytes = this.toByteArray()
+        //val posData = ByteArray(bytes.size + 1) { if (it == 0) 0 else bytes[it-1]}
+        // i think you dont need to add the leading zero, just signum=1
+        //return BigInteger(1, posData)
+    }
+
     open fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementP {
         // val pows = List( exps.size) { bases[it] powP exps[it] }
         val pows = List( exps.size) {
@@ -249,6 +275,7 @@ open class VecGroup(
     }
 
     // Checks whether the point (x,y) is on the curve as defined by this group.
+    // that is, checks if y * y == x^3 + ax + b
     // 4 mult, 3 add, 6 mod
     fun isPointOnCurve(x: BigInteger, y: BigInteger): Boolean {
         if (isUnity(x, y)) {
@@ -261,14 +288,13 @@ open class VecGroup(
             return false
         }
         val right = equationf(x)
-
         val left = y.multiply(y).mod(primeModulus)
         return right == left
     }
 
     fun calcYfromX(x: BigInteger): BigInteger {
         val fx = equationf(x)
-        return sqrt(fx)
+        return sqrt(fx) // so always positive
     }
 
     // Applies the curve's formula f(x) = x^3 + ax + b on the given parameter.

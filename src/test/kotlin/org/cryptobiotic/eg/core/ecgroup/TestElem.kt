@@ -23,7 +23,7 @@ class TestElem {
     }
 
     @Test
-    fun testECqPGroupElement() {
+    fun testVecElementP() {
         val group = VecGroups.getEcGroup("P-256")
         println("ECqPGroupParams = $group nbits = ${group.pbitLength}")
 
@@ -56,7 +56,7 @@ class TestElem {
     //// group.getOne() = (INFINITY)
 
     @Test
-    fun testExpAnpInv() {
+    fun testExpAndInv() {
         val group = VecGroups.getEcGroup("P-256")
         println("ECqPGroupParams = $group nbits = ${group.pbitLength}")
 
