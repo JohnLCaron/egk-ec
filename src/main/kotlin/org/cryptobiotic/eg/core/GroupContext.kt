@@ -1,12 +1,18 @@
 package org.cryptobiotic.eg.core
 
-import org.cryptobiotic.eg.core.Base16.fromHex
 import org.cryptobiotic.eg.core.Base16.toHex
-import org.cryptobiotic.eg.core.ecgroup.EcElementModP
-import org.cryptobiotic.eg.core.ecgroup.VecGroup
 import org.cryptobiotic.eg.core.intgroup.PowRadixOption
 import org.cryptobiotic.eg.core.intgroup.ProductionMode
 import org.cryptobiotic.eg.election.ElectionConstants
+
+fun productionGroup(groupName: String? = null, useNative: Boolean = true): GroupContext {
+    return if (groupName == null) org.cryptobiotic.eg.core.intgroup.productionIntGroup(
+        PowRadixOption.LOW_MEMORY_USE,
+        ProductionMode.Mode4096
+    )
+    else if (groupName.startsWith("Integer")) org.cryptobiotic.eg.core.intgroup.productionIntGroup(groupName)
+    else org.cryptobiotic.eg.core.ecgroup.EcGroupContext(groupName, useNative)
+}
 
 /**
  * The GroupContext interface provides all the necessary context to define the arithmetic that we'll
@@ -61,31 +67,21 @@ interface GroupContext {
      */
     fun isCompatible(ctx: GroupContext): Boolean
 
-    /**
-     * Converts a [ByteArray] to an [ElementModP]. The input array is assumed to be in big-endian
-     * byte-order: the most significant byte is in the zeroth element; this is the same behavior as
-     * Java's BigInteger. Guarantees the result is in [minimum, P), by computing the result mod P.
-     */
+    /** Converts a [ByteArray] to an [ElementModP]. Guarantees the result is in [minimum, P), by computing the result mod P. */
     fun binaryToElementModPsafe(b: ByteArray, minimum: Int = 0): ElementModP
 
-    /**
-     * Converts a [ByteArray] to an [ElementModQ]. The input array is assumed to be in big-endian
-     * byte-order: the most significant byte is in the zeroth element; this is the same behavior as
-     * Java's BigInteger. Guarantees the result is in [minimum, Q), by computing the result mod Q.
-     */
+    /** Converts a [ByteArray] to an [ElementModQ]. Guarantees the result is in [minimum, Q), by computing the result mod Q. */
     fun binaryToElementModQsafe(b: ByteArray, minimum: Int = 0): ElementModQ
 
     /**
-     * Converts a [ByteArray] to an [ElementModP]. The input array is assumed to be in big-endian
-     * byte-order: the most significant byte is in the zeroth element; this is the same behavior as
-     * Java's BigInteger. Returns null if the number is out of bounds or malformed.
+     * Converts a [ByteArray] to an [ElementModP], inverse of ElementModP.byteArray().
+     * Returns null if the number is out of bounds or malformed.
      */
     fun binaryToElementModP(b: ByteArray): ElementModP?
 
     /**
-     * Converts a [ByteArray] to an [ElementModQ]. The input array is assumed to be in big-endian
-     * byte-order: the most significant byte is in the zeroth element; this is the same behavior as
-     * Java's BigInteger. Returns null if the number is out of bounds.
+     * Converts a [ByteArray] to an [ElementModQ], inverse of ElementModQ.byteArray().
+     * Returns null if the number is out of bounds or malformed.
      */
     fun binaryToElementModQ(b: ByteArray): ElementModQ?
 
@@ -97,20 +93,20 @@ interface GroupContext {
 
     /**
      * Computes the sum of the given elements, mod q; this can be faster than using the addition
-     * operation for large numbers of inputs by potentially reusing scratch-space memory.
+     * operation for large numbers of inputs.
      */
     fun Iterable<ElementModQ>.addQ(): ElementModQ
 
     /**
      * Computes the product of the given elements, mod p; this can be faster than using the
-     * multiplication operation for large numbers of inputs by potentially reusing scratch-space memory.
+     * multiplication operation for large numbers of inputs.
      */
     fun Iterable<ElementModP>.multP(): ElementModP
 
     /** Computes G^e mod p, where G is our generator */
     fun gPowP(exp: ElementModQ): ElementModP
 
-    /** Standard algorithm for Product ( base_i^exp_i), to allow overrides. */
+    /** Standard algorithm for Product ( base_i^exp_i), to allow subclass speedups. */
     fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): ElementModP {
         require(exps.size == bases.size)
         if (bases.isEmpty()) {
@@ -150,13 +146,6 @@ interface GroupContext {
     fun getAndClearOpCounts(): Map<String, Int>
 }
 
-/**
- * Converts a base-16 (hexadecimal) string to an [ElementModP]. Returns null if the number is out of
- * bounds or the string is malformed.
- */
-fun GroupContext.base16ToElementModP(s: String): ElementModP? =
-    s.fromHex()?.let { binaryToElementModP(it) }
-
 interface Element {
     /**
      * Every Element knows the [GroupContext] that was used to create it. This simplifies code that
@@ -173,7 +162,7 @@ interface Element {
      */
     fun inBounds(): Boolean
 
-    /** Converts from any [Element] to a big-endian [ByteArray] representation. */
+    /** Converts to a [ByteArray] representation. Inverse to group.binaryToElementModX(). */
     fun byteArray(): ByteArray
 
     fun toHex() : String = byteArray().toHex()
@@ -227,13 +216,10 @@ interface ElementModP : Element, Comparable<ElementModP> {
     /** Allows elements to be compared (<, >, <=, etc.) using the usual arithmetic operators. */
     override operator fun compareTo(other: ElementModP): Int
 
-    /**
-     * Creates a new instance of this element where the `powP` function will acceleration
-     * if possible to run faster.
-     */
+    /** Create a new instance of this element where the `powP` function will possibly run faster. */
     fun acceleratePow(): ElementModP
 
-    /** Short version of the String for readability */
+    /** Short version of the String for readability. */
     fun toStringShort(): String {
         val s = toHex()
         val len = s.length
@@ -280,6 +266,7 @@ fun compatibleContextOrFail(vararg elements: Element): GroupContext {
 
     return headContext
 }
+
 /**
  * Computes the sum of the given elements, mod q; this can be faster than using the addition
  * operation for large enough numbers of inputs.
@@ -292,13 +279,5 @@ fun GroupContext.addQ(vararg elements: ElementModQ) = elements.asIterable().addQ
  */
 fun GroupContext.multP(vararg elements: ElementModP) = elements.asIterable().multP()
 
-fun productionGroup(groupName: String? = null, useNative: Boolean = true): GroupContext {
-    return if (groupName == null) org.cryptobiotic.eg.core.intgroup.productionIntGroup(
-        PowRadixOption.LOW_MEMORY_USE,
-        ProductionMode.Mode4096
-    )
-    else if (groupName.startsWith("Integer")) org.cryptobiotic.eg.core.intgroup.productionIntGroup(groupName)
-    else org.cryptobiotic.eg.core.ecgroup.EcGroupContext(groupName, useNative)
-}
 
 

@@ -41,7 +41,7 @@ class Decryptor(
                     badTrustees.add(trustee.id())
                     println("trustee = ${trustee.guardianPublicKey()}")
                     println("guardian = ${guardian.publicKey()}")
-                    println("ok = ${trustee.guardianPublicKey().equals(guardian.publicKey())}")
+                    println("ok = ${trustee.guardianPublicKey().equals(guardian.publicKey())} for ${trustee.id()}")
                 }
             }
         }

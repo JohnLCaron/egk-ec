@@ -41,17 +41,14 @@ infix fun UInt256.xor(other: UInt256) =
 /** Check for whether the UInt256 is all zeros. */
 fun UInt256.isZero(): Boolean = UInt256.ZERO == this
 
-/**
- * Given a [ByteArray] representation of a big-endian, unsigned integer, returns a [UInt256] if it
- * fits. Otherwise, throws an [IllegalArgumentException].
- */
+/** Converts a [ByteArray] to a [UInt256] if it fits. Otherwise, throws an [Exception]. */
 fun ByteArray.toUInt256safe(): UInt256 {
     return UInt256(this.normalize(32))
 }
 
 /**
- * Given a [ByteArray] representation of a big-endian, unsigned integer, returns a [UInt256] if it
- * fits. Otherwise, return null.
+ * Converts a [ByteArray] to a [UInt256], must be that x == x.bytes.toUInt256(), where x is a UInt256.
+ * Returns null if the number doesnt fit in 32 bytes.
  */
 fun ByteArray.toUInt256(): UInt256? {
     return try {
