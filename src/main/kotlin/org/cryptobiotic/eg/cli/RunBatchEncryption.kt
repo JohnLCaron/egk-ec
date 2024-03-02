@@ -44,6 +44,7 @@ private val logger = KotlinLogging.logger("RunBatchEncryption")
  * Read ElectionConfig from inputDir, write electionInit to outputDir.
  * Read plaintext ballots from ballotDir.
  * All ballots will be cast.
+ * TODO ballot chaining ??
  */
 class RunBatchEncryption {
 

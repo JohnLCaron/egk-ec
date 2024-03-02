@@ -28,15 +28,16 @@ See [EGK EC mixnet](https://github.com/JohnLCaron/egk-ec-mixnet) for an implemen
 ## Serialization
 
 The elliptic curve group uses base64 encoding in the json, with point compression that reduces the byte count per elementModP to 33 bytes.
+Json serialization of 1000 encrypted ballots with 34 ciphertexts each (including all the proofs) is 44.5 Mb. 
+Zipping all into zip archive is 12.3 Mb.
 
-_We are waiting for the 2.0 JSON serialization specification before finalizing our serialization. For now,
+_We are waiting for the 2.0 JSON serialization specification before finalizing the JSON serialization. For now,
 we are still mostly using the 1.9 serialization._
 
-Support for Integer Group [Protocol Buffers](https://en.wikipedia.org/wiki/Protocol_Buffers) has been moved to [this repo](https://github.com/JohnLCaron/egk-protobuf).
-
-### JSON Serialization specification
 * [JSON serialization 1.9](docs/JsonSerializationSpec1.9.md)
 * [Election Record JSON directory and file layout](docs/ElectionRecordJson.md)
+
+Support for Integer Group [Protocol Buffers](https://en.wikipedia.org/wiki/Protocol_Buffers) has been moved to [this repo](https://github.com/JohnLCaron/egk-protobuf).
 
 ## Validation
 * [Input Validation](docs/InputValidation.md)

@@ -1,6 +1,6 @@
 # Workflow and Command Line Programs
 
-last update 02/25/2024
+last update 03/02/2024
 
 <!-- TOC -->
 * [Workflow and Command Line Programs](#workflow-and-command-line-programs)
@@ -43,13 +43,14 @@ last update 02/25/2024
    1. _org.cryptobiotic.eg.workflow.GenerateFakeBallots_ (in the test code) generates random test ballots.
    2. Use existing fake ballots for testing in _src/test/data/fakeBallots_.
 
-5. **Batch Encryption**. 
-   1. The [_RunBatchEncryption_ CLI](#run-batch-encryption) reads an ElectionInitialized record and input plaintext
+5. **Encryption**.
+   1. The [_RunEncryptBallot_ CLI](#run-encrypt-ballot) reads a plaintext ballot from disk and writes its encryption to disk.
+   2. The [_RunBatchEncryption_ CLI](#run-batch-encryption) reads an ElectionInitialized record and input plaintext
        ballots, encrypts the ballots and writes out EncryptedBallot records. If any input plaintext ballot fails validation,
        it is annotated and written to a separate directory, and not encrypted.
-   2. _org.cryptobiotic.eg.encrypt.AddEncryptedBallot_ is a class that your program calls to encrypt plaintext ballots
+   3. _org.cryptobiotic.eg.encrypt.AddEncryptedBallot_ is a class that your program calls to encrypt plaintext ballots
        and add them to the election record. (See _org.cryptobiotic.eg.cli.ExampleEncryption_ as an example of using AddEncryptedBallot). 
-   3. To run encryption with the Encryption server, see the webapps CLI. This allows you to run the encryption on a 
+   4. To run encryption with the Encryption server, see the webapps CLI. This allows you to run the encryption on a 
       different machine than where ballots are generated, and/or to call from a non-JVM program.
 
 6. **Accumulate Tally**.
@@ -174,6 +175,34 @@ Example:
     -out testOut/generateInputBallots \
     -n 100 \
     -json
+````
+
+## Run Encrypt Ballot
+
+````
+Usage: RunEncryptBallot options_list
+Options: 
+    --configDir, -config -> Directory containing election configuration (always required) { String }
+    --ballotFilename, -ballot -> Plaintext ballot filename (input) (always required) { String }
+    --encryptBallotDir, -output -> Write encrypted ballot to this directory (always required) { String }
+    --device, -device -> voting device name (always required) { String }
+    --previousConfirmationCode, -previous -> previous confirmation code when chaining ballots { String }
+    --help, -h -> Usage info 
+````
+This reads one plaintext ballot from disk and writes its encryption into the specified directory.
+You may optionally do ballot chaining by sending the previous ballots confirmation code, taken as is from its
+json serialization.
+
+Example:
+
+````
+/usr/bin/java \
+  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  org.cryptobiotic.eg.cli.RunEncryptBallot \
+    -config src/test/data/encrypt/testJsonSyncNoChain \
+    -ballot src/test/data/fakeBallots/pballot-id153737325.json \
+    -output testOut/encrypt/RunExampleEncryption \
+    -device device42
 ````
 
 ## Run Batch Encryption

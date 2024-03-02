@@ -158,12 +158,12 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         }
     }
 
-    override fun iterateEncryptedBallotsFromDir(ballotDir: String, filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot> {
+    override fun iterateEncryptedBallotsFromDir(ballotDir: String, pathFilter: Predicate<Path>?, filter: Predicate<EncryptedBallot>? ): Iterable<EncryptedBallot> {
         val path = fileSystem.getPath(ballotDir)
         if (!Files.exists(path)) {
             return emptyList()
         }
-        return Iterable { EncryptedBallotFileIterator(path, filter) }
+        return Iterable { EncryptedBallotFileIterator(path, pathFilter, filter) }
     }
 
     override fun readEncryptedBallot(ballotDir: String, ballotId: String) : Result<EncryptedBallot, ErrorMessages> {
@@ -180,7 +180,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         }
     }
 
-    override fun iterateEncryptedBallots(device: String, filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot> {
+    override fun iterateEncryptedBallots(device: String, filter : Predicate<EncryptedBallot>?): Iterable<EncryptedBallot> {
         val deviceDirPath = Path.of(jsonPaths.encryptedBallotDir(device))
         if (!Files.exists(deviceDirPath)) {
             throw RuntimeException("ConsumerJson.iterateEncryptedBallots: $deviceDirPath doesnt exist")
@@ -191,7 +191,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
             return Iterable { EncryptedBallotDeviceIterator(device, chain.ballotIds.iterator(), filter) }
         }
         // just read individual files
-        return Iterable { EncryptedBallotFileIterator(deviceDirPath, filter) }
+        return Iterable { EncryptedBallotFileIterator(deviceDirPath, null, filter) }
     }
 
     override fun iterateAllEncryptedBallots(filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot> {
@@ -232,6 +232,23 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         return readTrustee(fileSystem.getPath(filename))
     }
 
+    // read the PlaintextBallot from the given filename
+    override fun readPlaintextBallot(ballotFilename: String): Result<PlaintextBallot, ErrorMessages> {
+        val errs = ErrorMessages("readPlaintextBallot $ballotFilename")
+        if (!Files.exists(fileSystem.getPath(ballotFilename))) {
+            return errs.add("file does not exist ")
+        }
+        val file = fileSystem.getPath(ballotFilename)
+        return try {
+            fileSystemProvider.newInputStream(file, StandardOpenOption.READ).use { inp ->
+                val json = jsonReader.decodeFromStream<PlaintextBallotJson>(inp)
+                val plaintextBallot = json.import()
+                Ok(plaintextBallot)
+            }
+        } catch (t: Throwable) {
+            errs.add("Exception= ${t.message} ${t.stackTraceToString()}")
+        }
+    }
 
     //////// The low level reading functions
 
@@ -371,7 +388,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         ballotDir: Path,
         private val filter: Predicate<PlaintextBallot>?
     ) : AbstractIterator<PlaintextBallot>() {
-        val pathList = ballotDir.pathListNoDirs()
+        val pathList = ballotDir.pathListNoDirs(null)
         var idx = 0
 
         override fun computeNext() {
@@ -394,10 +411,16 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
 
     private inner class EncryptedBallotFileIterator(
         ballotDir: Path,
+        filterPath: Predicate<Path>?,
         private val filter: Predicate<EncryptedBallot>?,
     ) : AbstractIterator<EncryptedBallot>() {
-        val pathList = ballotDir.pathListNoDirs()
+        val pathList: List<Path>
         var idx = 0
+
+        init {
+            pathList = ballotDir.pathListNoDirs(filterPath)
+            idx = 0
+        }
 
         override fun computeNext() {
             while (idx < pathList.size) {
@@ -469,7 +492,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         ballotDir: Path,
         private val group: GroupContext,
     ) : AbstractIterator<DecryptedTallyOrBallot>() {
-        val pathList = ballotDir.pathListNoDirs()
+        val pathList = ballotDir.pathListNoDirs(null)
         var idx = 0
 
         override fun computeNext() {
@@ -500,11 +523,11 @@ fun Path.pathList(): List<Path> {
     }
 }
 
-fun Path.pathListNoDirs(): List<Path> {
+fun Path.pathListNoDirs(filter: Predicate<Path>?): List<Path> {
     // LOOK does this sort?
-    // LOOK "API Note: This method must be used within a try-with-resources statement"
+    // TODO "API Note: This method must be used within a try-with-resources statement"
     return Files.walk(this, 1).use { fileStream ->
-        fileStream.filter { it != this && !it.isDirectory() }.toList()
+        fileStream.filter { it != this && !it.isDirectory() &&  (filter == null || filter.test(it)) }.toList()
     }
 }
 
