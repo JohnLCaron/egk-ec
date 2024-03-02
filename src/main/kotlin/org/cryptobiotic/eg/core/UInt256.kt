@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.core
 
 import org.cryptobiotic.eg.core.Base16.toHex
+import org.cryptobiotic.eg.core.Base64.toBase64
 import kotlin.experimental.xor
 
 /**
@@ -23,7 +24,8 @@ data class UInt256(val bytes: ByteArray) {
         return "UInt256(0x${bytes.toHex()})"
     }
 
-    fun toHex(): String = bytes.toHex()
+    fun toHex(): String = bytes.toHex() // TODO why?
+    fun toBase64(): String = bytes.toBase64() // TODO why?
 
     companion object {
         val ZERO = 0U.toUInt256()

@@ -12,7 +12,7 @@ data class CiphertextBallot(
     val timestamp: Long,
     val codeBaux: ByteArray, // Baux in spec 2.0.0, eq 58
     val confirmationCode: UInt256, // tracking code, H(B), eq 58
-    val electionId : UInt256,
+    val electionId : UInt256, // aka extendedBaseHash
     val contests: List<Contest>,
     val ballotNonce: UInt256,
     val encryptedSN: ElGamalCiphertext?,

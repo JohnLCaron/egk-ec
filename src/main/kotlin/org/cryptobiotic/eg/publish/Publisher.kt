@@ -24,7 +24,7 @@ interface Publisher {
 }
 
 interface EncryptedBallotSinkIF : Closeable {
-    fun writeEncryptedBallot(ballot: EncryptedBallot)
+    fun writeEncryptedBallot(ballot: EncryptedBallot): String // return filename
 }
 
 interface DecryptedTallyOrBallotSinkIF : Closeable {

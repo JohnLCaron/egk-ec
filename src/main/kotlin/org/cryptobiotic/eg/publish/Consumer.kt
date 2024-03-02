@@ -12,6 +12,7 @@ import org.cryptobiotic.eg.publish.json.ElectionRecordJsonPaths
 import org.cryptobiotic.util.ErrorMessages
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.function.Predicate
 
 private val logger = KotlinLogging.logger("Consumer")
 
@@ -38,7 +39,7 @@ interface Consumer {
     /** Read a specific file containing an encrypted ballot. */
     fun readEncryptedBallot(ballotDir: String, ballotId: String) : Result<EncryptedBallot, ErrorMessages>
     /** Read encrypted ballots for specified device. */
-    fun iterateEncryptedBallots(device: String, filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot>
+    fun iterateEncryptedBallots(device: String, filter : Predicate<EncryptedBallot>?): Iterable<EncryptedBallot>
     /** Read all encrypted ballots for all devices. */
     fun iterateAllEncryptedBallots(filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot>
     fun iterateAllCastBallots(): Iterable<EncryptedBallot>  = iterateAllEncryptedBallots{  it.state == EncryptedBallot.BallotState.CAST }
@@ -49,11 +50,14 @@ interface Consumer {
 
     //// outside  the election record
     /** read encrypted ballots in given directory. */
-    fun iterateEncryptedBallotsFromDir(ballotDir: String, filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot>
+    fun iterateEncryptedBallotsFromDir(ballotDir: String, pathFilter: Predicate<Path>?, filter : Predicate<EncryptedBallot>? ): Iterable<EncryptedBallot>
     /** read plaintext ballots in given directory, private data. */
     fun iteratePlaintextBallots(ballotDir: String, filter : ((PlaintextBallot) -> Boolean)? ): Iterable<PlaintextBallot>
     /** read trustee in given directory for given guardianId, private data. */
     fun readTrustee(trusteeDir: String, guardianId: String): Result<DecryptingTrusteeIF, ErrorMessages>
+
+    /** read plaintext ballot. */
+    fun readPlaintextBallot(ballotFilename: String): Result<PlaintextBallot, ErrorMessages>
 }
 
 fun makeConsumer(

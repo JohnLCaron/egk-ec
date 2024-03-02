@@ -1,8 +1,9 @@
-package org.cryptobiotic.eg.cli
+package org.cryptobiotic.eg.workflow
 
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
+import org.cryptobiotic.eg.cli.buildTestManifest
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.encrypt.Encryptor
@@ -73,9 +74,7 @@ class RunEncryptBallotTiming {
                 requireNotNull(encryptedBallot)
             }
             val opCounts = group.getAndClearOpCounts()
-            var duration = stopwatch.stop()
 
-            val perballot = duration.toDouble() / nballots / 1_000_000
             val nencryptions = ncontests + ncontests * nselections
             println("Encryption ${stopwatch.tookPer(nballots, "ballots")}")
             println("   ${stopwatch.tookPer(nencryptions, "encryptions")}")

@@ -1,4 +1,4 @@
-package org.cryptobiotic.eg.cli
+package org.cryptobiotic.eg.workflow
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok

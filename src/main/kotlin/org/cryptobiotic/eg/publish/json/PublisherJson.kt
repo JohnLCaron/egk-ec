@@ -129,13 +129,14 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
 
     inner class EncryptedBallotDeviceSink(val device: String?) : EncryptedBallotSinkIF {
 
-        override fun writeEncryptedBallot(ballot: EncryptedBallot) {
+        override fun writeEncryptedBallot(ballot: EncryptedBallot): String {
             val ballotFile = jsonPaths.encryptedBallotDevicePath(device, ballot.ballotId)
             val json = ballot.publishJson()
             FileOutputStream(ballotFile).use { out ->
                 jsonReader.encodeToStream(json, out)
                 out.close()
             }
+            return ballotFile
         }
         override fun close() {
         }
@@ -174,6 +175,7 @@ fun removeAllFiles(path: Path) {
         .forEach { f: File -> f.delete() }
 }
 
+// not used for now, keep for proto or batch
 fun writeVlen(input: Int, output: OutputStream) {
     var value = input
     while (true) {

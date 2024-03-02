@@ -70,6 +70,7 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
         val chainOk = if (!config.chainConfirmationCodes) true else {
             val chainErrs = ErrorMessages("")
             val ok = encryptionVerifier.verifyConfirmationChain(record, chainErrs)
+            // encryptionVerifier.verifyConfirmationChain2(record, chainErrs)
             println(" 7. verifyConfirmationChain $ok")
             if (!ok) {
                 println(chainErrs)
