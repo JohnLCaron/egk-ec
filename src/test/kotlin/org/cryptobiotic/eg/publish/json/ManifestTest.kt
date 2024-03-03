@@ -10,6 +10,7 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
+import org.cryptobiotic.util.testOut
 
 import kotlin.random.Random
 import kotlin.test.*
@@ -30,7 +31,7 @@ class ManifestTest {
         assertEquals(roundtrip, manifest)
 
         if (writeout) {
-            val output = "testOut/json2/writeManifest"
+            val output = "$testOut/json2/writeManifest"
             val publisher = makePublisher(output, true)
             publisher.writeManifest(manifest)
             println("Wrote to $output")

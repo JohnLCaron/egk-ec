@@ -5,16 +5,17 @@ import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
+import org.cryptobiotic.util.testOut
 import kotlin.test.*
 
 class AddBallotSyncTest {
     val inputJson = "src/test/data/workflow/allAvailableEc"
-    val outputDirTop = "testOut/encrypt/AddBallotSyncTest"
+    val outputDirTop = "$testOut/encrypt/AddBallotSyncTest"
     val nballots = 4
 
     @Test
-    fun testJsonSyncNoChain() {
-        val outputDir = "$outputDirTop/testJsonSyncNoChain"
+    fun testBallotNoChain() {
+        val outputDir = "$outputDirTop/testBallotNoChain"
         val device = "device1"
 
         val electionRecord = readElectionRecord(inputJson)
@@ -30,7 +31,7 @@ class AddBallotSyncTest {
             electionInit.extendedBaseHash,
             device,
             outputDir,
-            "outputDir/invalidDir",
+            "$outputDir/invalidDir",
             isJson = publisher.isJson(),
         )
         val ballotProvider = RandomBallotProvider(electionRecord.manifest())
@@ -38,7 +39,7 @@ class AddBallotSyncTest {
         repeat(3) {
             repeat(nballots) {
                 val ballot = ballotProvider.makeBallot()
-                val result = encryptor.encrypt(ballot, ErrorMessages("testJsonSyncNoChain"))
+                val result = encryptor.encrypt(ballot, ErrorMessages("testBallotNoChain"))
                 assertNotNull(result)
                 encryptor.submit(result.confirmationCode, EncryptedBallot.BallotState.CAST)
             }
@@ -57,8 +58,8 @@ class AddBallotSyncTest {
     }
 
     @Test
-    fun testJsonSyncChain() {
-        val outputDir = "$outputDirTop/testJsonSyncChain"
+    fun testBallotChain() {
+        val outputDir = "$outputDirTop/testBallotChain"
         val device = "device1"
 
         val electionRecord = readElectionRecord(inputJson)
@@ -76,7 +77,7 @@ class AddBallotSyncTest {
             electionInit.extendedBaseHash,
             device,
             outputDir,
-            "outputDir/invalidDir",
+            "$outputDir/invalidDir",
             isJson = publisher.isJson(),
         )
         val ballotProvider = RandomBallotProvider(electionRecord.manifest())
@@ -84,7 +85,7 @@ class AddBallotSyncTest {
         repeat(3) {
             repeat(nballots) {
                 val ballot = ballotProvider.makeBallot()
-                val result = encryptor.encrypt(ballot, ErrorMessages("testJsonSyncChain"))
+                val result = encryptor.encrypt(ballot, ErrorMessages("testBallotChain"))
                 assertNotNull(result)
                 encryptor.submit(result.confirmationCode, EncryptedBallot.BallotState.CAST)
             }

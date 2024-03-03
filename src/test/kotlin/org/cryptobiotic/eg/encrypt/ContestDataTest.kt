@@ -9,6 +9,7 @@ import org.cryptobiotic.eg.publish.decodeToContestData
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
+import org.cryptobiotic.util.testOut
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -16,7 +17,7 @@ import kotlin.test.assertTrue
 
 class ContestDataTest {
     val input = "src/test/data/workflow/allAvailableEc"
-    val output = "testOut/contestData/testEncryptionWithWriteIn"
+    val output = "$testOut/contestData/testEncryptionWithWriteIn"
     val context = productionGroup()
     val keypair = elGamalKeyPairFromRandom(context)
 

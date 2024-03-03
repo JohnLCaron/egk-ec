@@ -9,6 +9,7 @@ import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.verifier.VerifyEncryptedBallots
 import org.cryptobiotic.util.ErrorMessages
+import org.cryptobiotic.util.testOut
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -20,8 +21,8 @@ class RunEncryptBallotTest {
 
     @Test
     fun testRunEncryptBallotNoChaining() {
-        val inputDir = "src/test/data/encrypt/testJsonSyncNoChain"
-        val outputDir = "testOut/encrypt/testRunEncryptBallotNoChaining"
+        val inputDir = "src/test/data/encrypt/testBallotNoChain"
+        val outputDir = "$testOut/encrypt/testRunEncryptBallotNoChaining"
         val ballotId = "3842034"
 
         val consumerIn = makeConsumer(inputDir)
@@ -50,8 +51,8 @@ class RunEncryptBallotTest {
 
     @Test
     fun testRunEncryptBallotNoChainingBut() {
-        val inputDir = "src/test/data/encrypt/testJsonSyncNoChain"
-        val outputDir = "testOut/encrypt/testRunEncryptBallotNoChaining"
+        val inputDir = "src/test/data/encrypt/testBallotNoChain"
+        val outputDir = "$testOut/encrypt/testRunEncryptBallotNoChaining"
         val nballots = 10
 
         val consumerIn = makeConsumer(inputDir)
@@ -88,8 +89,8 @@ class RunEncryptBallotTest {
 
     @Test
     fun testRunEncryptBallotChaining() {
-        val inputDir = "src/test/data/encrypt/testJsonSyncChain"
-        val outputDir = "testOut/encrypt/testRunEncryptBallotChaining"
+        val inputDir = "src/test/data/encrypt/testBallotChain"
+        val outputDir = "$testOut/encrypt/testRunEncryptBallotChaining"
         val nballots = 10
 
         val consumerIn = makeConsumer(inputDir)
@@ -136,6 +137,7 @@ class RunEncryptBallotTest {
         )
 
         val consumerBallots = makeConsumer(ballotDir, consumer.group)
+        // TODO should this be standard filter?
         val pathFilter = Predicate<Path> {
             val name = it.getFileName().toString()
             name.startsWith("eballot")

@@ -120,6 +120,11 @@ class RunTrustedTallyDecryption {
             val missingGuardians =
                 electionInit.guardians.filter { !trusteeNames.contains(it.guardianId) }.map { it.guardianId }
             println("runDecryptTally ${outputDir} present = $trusteeNames missing = $missingGuardians")
+            val quorum = electionInit.config.quorum
+            if (decryptingTrustees.size < quorum) {
+                logger.error { " encryptedTally.decrypt $inputDir does not have a quorum=${quorum}, only ${electionInit.config.quorum} guardians" }
+                return
+            }
 
             val guardians = Guardians(consumerIn.group, electionInit.guardians)
             val decryptor = Decryptor(
@@ -134,7 +139,7 @@ class RunTrustedTallyDecryption {
             try {
                 val decryptedTally = with(decryptor) { tallyResult.encryptedTally.decrypt(errs) }
                 if (decryptedTally == null) {
-                    logger.error { " RunTrustedTallyDecryption error=${errs}" }
+                    logger.error { " encryptedTally.decrypt $inputDir has error=${errs}" }
                     return
                 }
                 val publisher = makePublisher(outputDir, false)

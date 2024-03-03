@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.decrypt
 
 import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption
+import org.cryptobiotic.util.testOut
 
 import kotlin.test.Test
 
@@ -16,7 +17,7 @@ class RunTrustedTallyDecryptionTest {
                 "-trustees",
                 "src/test/data/workflow/allAvailableEc/private_data/trustees",
                 "-out",
-                "testOut/decrypt/testDecryptionJson",
+                "$testOut/decrypt/testDecryptionJson",
                 "-createdBy",
                 "RunTrustedTallyDecryptionTest",
             )
@@ -28,11 +29,11 @@ class RunTrustedTallyDecryptionTest {
         RunTrustedTallyDecryption.main(
             arrayOf(
                 "-in",
-                "src/test/workflow/someAvailableEc",
+                "src/test/data/workflow/someAvailableEc",
                 "-trustees",
-                "src/test/workflow/someAvailableEc/private_data/trustees",
+                "src/test/data/workflow/someAvailableEc/private_data/trustees",
                 "-out",
-                "testOut/decrypt/testDecryptionSome",
+                "$testOut/decrypt/testDecryptionSome",
                 "-createdBy",
                 "RunTrustedTallyDecryptionTest",
                 "-missing",

@@ -39,8 +39,6 @@ class RunKeyCeremonyTrusteeTest {
             assertEquals(tpkey, gkey)
         }
         println()
-
-        // RunVerifier.runVerifier("testOut/keyceremony/testKeyCeremonyJson", 1, true)
     }
 
 }

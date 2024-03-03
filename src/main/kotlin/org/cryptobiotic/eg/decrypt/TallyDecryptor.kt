@@ -42,7 +42,8 @@ internal class TallyDecryptor(
         val selections = contest.selections.map {
             val id = "${contest.contestId}#@${it.selectionId}"
             val shares = decryptions.shares[id]
-            if (shares == null) errs.addNull("'$id' share not found") as DecryptedTallyOrBallot.Selection?
+            if (shares == null)
+                errs.addNull("'$id' share not found") as DecryptedTallyOrBallot.Selection?
             else decryptSelection(it, shares, contest.contestId, stats, errs.nested("Selection ${it.selectionId}"))
         }
         return if (errs.hasErrors()) null else DecryptedTallyOrBallot.Contest(contest.contestId, selections.filterNotNull(), decryptedContestData)

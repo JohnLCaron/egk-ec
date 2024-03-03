@@ -6,6 +6,7 @@ import org.cryptobiotic.eg.cli.RunVerifier
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.json.ConsumerJson
 import org.cryptobiotic.eg.publish.readElectionRecord
+import org.cryptobiotic.util.testOut
 import kotlin.test.Test
 import kotlin.test.assertContains
 
@@ -19,14 +20,14 @@ RunBatchEncryptionTest {
             arrayOf(
                 "-in", "src/test/data/workflow/allAvailableEc",
                 "-ballots", "src/test/data/fakeBallots",
-                "-out", "testOut/encrypt/testRunBatchEncryptionWithEc",
-                "-invalid", "testOut/encrypt/testRunBatchEncryptionWithEc/invalid_ballots",
+                "-out", "$testOut/encrypt/testRunBatchEncryptionWithEc",
+                "-invalid", "$testOut/encrypt/testRunBatchEncryptionWithEc/invalid_ballots",
                 "-nthreads", "$nthreads",
                 "-device", "device2",
                 "--cleanOutput",
             )
         )
-        RunVerifier.runVerifier("testOut/encrypt/testRunBatchEncryptionWithEc", 11)
+        RunVerifier.runVerifier("$testOut/encrypt/testRunBatchEncryptionWithEc", 11)
     }
 
     @Test
@@ -35,14 +36,14 @@ RunBatchEncryptionTest {
             arrayOf(
                 "-in", "src/test/data/workflow/allAvailable",
                 "-ballots", "src/test/data/fakeBallots",
-                "-out", "testOut/encrypt/testRunBatchEncryptionWithInteger",
-                "-invalid", "testOut/encrypt/testRunBatchEncryptionWithInteger/invalid_ballots",
+                "-out", "$testOut/encrypt/testRunBatchEncryptionWithInteger",
+                "-invalid", "$testOut/encrypt/testRunBatchEncryptionWithInteger/invalid_ballots",
                 "-nthreads", "$nthreads",
                 "-device", "device2",
                 "--cleanOutput",
             )
         )
-        RunVerifier.runVerifier("testOut/encrypt/testRunBatchEncryptionWithInteger", 11)
+        RunVerifier.runVerifier("$testOut/encrypt/testRunBatchEncryptionWithInteger", 11)
     }
 
     @Test
@@ -51,8 +52,8 @@ RunBatchEncryptionTest {
             arrayOf(
                 "-in", "src/test/data/workflow/allAvailableEc",
                 "-ballots", "src/test/data/fakeBallots",
-                "-out", "testOut/encrypt/testRunBatchEncryptionEncryptTwice",
-                "-invalid", "testOut/encrypt/testRunBatchEncryptionEncryptTwice/invalid_ballots",
+                "-out", "$testOut/encrypt/testRunBatchEncryptionEncryptTwice",
+                "-invalid", "$testOut/encrypt/testRunBatchEncryptionEncryptTwice/invalid_ballots",
                 "-nthreads", "$nthreads",
                 "-device", "device4",
                 "-check", "EncryptTwice",
@@ -67,8 +68,8 @@ RunBatchEncryptionTest {
             arrayOf(
                 "-in", "src/test/data/workflow/allAvailableEc",
                 "-ballots", "src/test/data/fakeBallots",
-                "-out", "testOut/encrypt/testRunBatchEncryptionVerify",
-                "-invalid", "testOut/encrypt/testRunBatchEncryptionVerify/invalid_ballots",
+                "-out", "$testOut/encrypt/testRunBatchEncryptionVerify",
+                "-invalid", "$testOut/encrypt/testRunBatchEncryptionVerify/invalid_ballots",
                 "-nthreads", "$nthreads",
                 "-device", "device35",
                 "-check", "Verify",
@@ -83,8 +84,8 @@ RunBatchEncryptionTest {
             arrayOf(
                 "-in", "src/test/data/workflow/allAvailableEc",
                 "-ballots", "src/test/data/fakeBallots",
-                "-out", "testOut/encrypt/testRunBatchEncryptionVerifyDecrypt",
-                "-invalid", "testOut/encrypt/testRunBatchEncryptionVerifyDecrypt/invalid_ballots",
+                "-out", "$testOut/encrypt/testRunBatchEncryptionVerifyDecrypt",
+                "-invalid", "$testOut/encrypt/testRunBatchEncryptionVerifyDecrypt/invalid_ballots",
                 "-nthreads", "$nthreads",
                 "-device", "device42",
                 "-check", "DecryptNonce",
@@ -96,8 +97,8 @@ RunBatchEncryptionTest {
     @Test
     fun testInvalidBallot() {
         val inputDir = "src/test/data/workflow/allAvailableEc"
-        val outputDir = "testOut/testInvalidBallot"
-        val invalidDir = "testOut/testInvalidBallot/invalidDir"
+        val outputDir = "$testOut/testInvalidBallot"
+        val invalidDir = "$testOut/testInvalidBallot/invalidDir"
 
         val electionRecord = readElectionRecord(inputDir)
 
