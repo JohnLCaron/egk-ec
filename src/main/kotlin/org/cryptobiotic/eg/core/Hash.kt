@@ -28,13 +28,8 @@ package org.cryptobiotic.eg.core
 fun hashFunction(key: ByteArray, vararg elements: Any): UInt256 {
     val hmac = HmacSha256(key)
     var count = 0
-    val showHash = false // ((elements[0] as Byte) == 0x01.toByte())
-    if (showHash) {
-        println("hashFunction")
-    }
     elements.forEach {
-        if (showHash) println(" $count $it ${it.javaClass.name}")
-        hmac.addToHash(it, showHash)
+        hmac.addToHash(it)
         count++
     }
     return hmac.finish()
@@ -49,7 +44,7 @@ fun hmacFunction(key: ByteArray, vararg elements: Any): UInt256 {
     return hmac.finish()
 }
 
-fun HmacSha256.addToHash(element : Any, show : Boolean = false) {
+fun HmacSha256.addToHash(element : Any) {
     if (element is Iterable<*>) {
         element.forEach { this.addToHash(it!!) }
     } else {
@@ -64,7 +59,6 @@ fun HmacSha256.addToHash(element : Any, show : Boolean = false) {
             is Int -> intToByteArray(element)
             else -> throw IllegalArgumentException("unknown type in hashElements: ${element::class}")
         }
-        if (show) println("  ${ba.contentToString()} len= ${ba.size}")
         this.update(ba)
     }
 }

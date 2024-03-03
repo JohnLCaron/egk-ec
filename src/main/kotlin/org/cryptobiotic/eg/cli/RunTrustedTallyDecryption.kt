@@ -59,7 +59,8 @@ class RunTrustedTallyDecryption {
                 description = "missing guardians' xcoord, comma separated, eg '2,4'"
             )
             parser.parse(args)
-            println("RunTrustedTallyDecryption starting\n   input= $inputDir\n   trustees= $trusteeDir\n   output = $outputDir")
+            val startupInfo = "RunTrustedTallyDecryption starting   input= $inputDir   trustees= $trusteeDir   output = $outputDir"
+            logger.info { startupInfo }
 
             try {
                 runDecryptTally(
@@ -110,7 +111,7 @@ class RunTrustedTallyDecryption {
             val consumerIn = makeConsumer(inputDir)
             val result = consumerIn.readTallyResult()
             if (result is Err) {
-                println("readTallyResult error ${result.error}")
+                logger.error { "readTallyResult error ${result.error}" }
                 return
             }
             val tallyResult = result.unwrap()
@@ -119,7 +120,7 @@ class RunTrustedTallyDecryption {
             val trusteeNames = decryptingTrustees.map { it.id() }.toSet()
             val missingGuardians =
                 electionInit.guardians.filter { !trusteeNames.contains(it.guardianId) }.map { it.guardianId }
-            println("runDecryptTally ${outputDir} present = $trusteeNames missing = $missingGuardians")
+            logger.debug { "runDecryptTally ${outputDir} present = $trusteeNames missing = $missingGuardians" }
             val quorum = electionInit.config.quorum
             if (decryptingTrustees.size < quorum) {
                 logger.error { " encryptedTally.decrypt $inputDir does not have a quorum=${quorum}, only ${electionInit.config.quorum} guardians" }
@@ -159,7 +160,7 @@ class RunTrustedTallyDecryption {
                 logger.error { errs }
             }
 
-            println("DecryptTally ${stopwatch.took()}")
+            logger.info { "DecryptTally ${stopwatch.took()}" }
         }
     }
 }

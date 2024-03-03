@@ -108,6 +108,7 @@ data class EncryptedBallot(
         // the short codes and selection vectors for all selections on the made by the voter.
         val selectedVectors: List<SelectionVector>, // size = limit, sorted numerically
     ) {
+
         fun show() {
             println("PreEncryption preencryptionHash = $preencryptionHash")
             println("   allSelectionHashes = $allSelectionHashes")

@@ -8,11 +8,6 @@ import org.cryptobiotic.eg.publish.decodeToContestData
 import org.cryptobiotic.eg.publish.encodeToByteArray
 import kotlin.math.max
 
-private val logger = KotlinLogging.logger("ContestData")
-private const val debug = false
-private const val BLOCK_SIZE : Int = 32
-private const val CHOP_WRITE_INS : Int = 30
-
 enum class ContestDataStatus {
     normal, null_vote, over_vote, under_vote
 }
@@ -91,13 +86,17 @@ data class ContestData(
             trialSize = trialContestDataBA.size
             trialSizes.add(trialSize)
         }
-        if (debug) println("encodedData = $trialContestData")
-        if (debug) println(" trialSizes = $trialSizes")
+        logger.debug{ "encodedData = $trialContestData trialSizes = $trialSizes" }
 
         return trialContestDataBA.encryptContestData(publicKey, extendedBaseHash, contestId, contestIndex, ballotNonce)
     }
 
     companion object {
+        val logger = KotlinLogging.logger("ContestData")
+        private const val debug = false
+        private const val BLOCK_SIZE : Int = 32
+        private const val CHOP_WRITE_INS : Int = 30
+
         const val label = "share_enc_keys"
         const val contestDataLabel = "contest_data"
     }
@@ -222,7 +221,7 @@ fun HashedElGamalCiphertext.decryptContestData(
     val expectedHmac = (c0.byteArray() + c1).hmacSha256(k0) // TODO use hmacFunction() ?
 
     if (expectedHmac != c2) {
-        logger.error { "HashedElGamalCiphertext decryptContestData failure: HMAC doesn't match" }
+        ContestData.logger.error { "HashedElGamalCiphertext decryptContestData failure: HMAC doesn't match" }
         return null
     }
 

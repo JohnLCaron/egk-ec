@@ -5,12 +5,8 @@ import org.cryptobiotic.eg.core.intgroup.PowRadixOption
 import org.cryptobiotic.eg.core.intgroup.ProductionMode
 import org.cryptobiotic.eg.election.ElectionConstants
 
-fun productionGroup(groupName: String? = null, useNative: Boolean = true): GroupContext {
-    return if (groupName == null) org.cryptobiotic.eg.core.intgroup.productionIntGroup(
-        PowRadixOption.LOW_MEMORY_USE,
-        ProductionMode.Mode4096
-    )
-    else if (groupName.startsWith("Integer")) org.cryptobiotic.eg.core.intgroup.productionIntGroup(groupName)
+fun productionGroup(groupName: String = "P-256", useNative: Boolean = true): GroupContext {
+    return if (groupName.startsWith("Integer")) org.cryptobiotic.eg.core.intgroup.productionIntGroup(groupName)
     else org.cryptobiotic.eg.core.ecgroup.EcGroupContext(groupName, useNative)
 }
 

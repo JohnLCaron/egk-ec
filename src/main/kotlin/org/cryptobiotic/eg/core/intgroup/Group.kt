@@ -96,8 +96,6 @@ class ProductionGroupContext(
         get() = numPBits
 
     override fun isCompatible(ctx: GroupContext): Boolean {
-        if (!(ctx is ProductionGroupContext))
-            println("HEY")
         return ctx.isProductionStrength() && productionMode == (ctx as ProductionGroupContext).productionMode
     }
 

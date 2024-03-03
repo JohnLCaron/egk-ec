@@ -30,9 +30,6 @@ import org.cryptobiotic.eg.publish.*
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stopwatch
 
-private val logger = KotlinLogging.logger("RunTrustedBallotDecryption")
-private const val debug = false
-
 /**
  * Decrypt spoiled ballots with local trustees CLI.
  * Read election record from inputDir, write to outputDir.
@@ -42,6 +39,9 @@ private const val debug = false
 class RunTrustedBallotDecryption {
 
     companion object {
+        private val logger = KotlinLogging.logger("RunTrustedBallotDecryption")
+        private const val debug = false
+
         @JvmStatic
         fun main(args: Array<String>) {
             val parser = ArgParser("RunTrustedBallotDecryption")
@@ -71,10 +71,9 @@ class RunTrustedBallotDecryption {
                 description = "Number of parallel threads to use"
             )
             parser.parse(args)
-            println(
-                "RunTrustedBallotDecryption starting\n   input= $inputDir\n   trustees= $trusteeDir\n" +
-                        "   decryptChallenged = $decryptChallenged\n   output = $outputDir"
-            )
+            val startupInfo = "RunTrustedBallotDecryption starting   input= $inputDir   trustees= $trusteeDir" +
+                        "   decryptChallenged = $decryptChallenged   output = $outputDir"
+            logger.info { startupInfo }
 
             try {
                 runDecryptBallots(
@@ -93,7 +92,6 @@ class RunTrustedBallotDecryption {
             decryptChallenged: String?, // comma delimited, no spaces
             nthreads: Int,
         ): Int {
-            println(" runDecryptBallots on ballots in ${inputDir} with nthreads = $nthreads")
             val stopwatch = Stopwatch() // start timing here
 
             val consumerIn = makeConsumer(inputDir)
@@ -120,27 +118,26 @@ class RunTrustedBallotDecryption {
             val ballotIter: Iterable<EncryptedBallot> =
                 when {
                     (decryptChallenged == null) -> {
-                        println(" use all challenged")
+                        logger.info {" use all challenged" }
                         consumerIn.iterateAllSpoiledBallots()
                     }
 
                     (decryptChallenged.trim().lowercase() == "all") -> {
-                        println(" use all")
+                        logger.info { " use all" }
                         consumerIn.iterateAllEncryptedBallots { true }
                     }
 
                     doesPathExist(decryptChallenged) -> {
-                        println(" use ballots in file '$decryptChallenged'")
+                        logger.info {" use ballots in file '$decryptChallenged'"}
                         val wanted: List<String> = fileReadLines(decryptChallenged)
                         val wantedTrim: List<String> = wanted.map { it.trim() }
                         consumerIn.iterateAllEncryptedBallots { wantedTrim.contains(it.ballotId) }
                     }
 
                     else -> {
-                        println(" use ballots in list '${decryptChallenged}'")
+                        logger.info {" use ballots in list '${decryptChallenged}'"}
                         val wanted: List<String> = decryptChallenged.split(",")
                         consumerIn.iterateAllEncryptedBallots {
-                            // println(" ballot ${it.ballotId}")
                             wanted.contains(it.ballotId)
                         }
                     }
@@ -174,7 +171,7 @@ class RunTrustedBallotDecryption {
             decryptor.stats.show(5)
             val count = decryptor.stats.count()
 
-            println(" decrypt ballots ${stopwatch.tookPer(count, "ballots")}")
+            logger.info {" decrypt ballots ${stopwatch.tookPer(count, "ballots")}" }
 
             return count
         }

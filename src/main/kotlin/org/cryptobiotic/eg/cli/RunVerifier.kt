@@ -1,5 +1,6 @@
 package org.cryptobiotic.eg.cli
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
@@ -16,6 +17,8 @@ import org.cryptobiotic.util.Stopwatch
 class RunVerifier {
 
     companion object {
+        private val logger = KotlinLogging.logger("RunVerifier")
+
         @JvmStatic
         fun main(args: Array<String>) {
             val parser = ArgParser("RunVerifier")
@@ -35,7 +38,7 @@ class RunVerifier {
                 description = "Show timing"
             ).default(false)
             parser.parse(args)
-            println("RunVerifier starting\n   input= $inputDir")
+            logger.info { "RunVerifier input= $inputDir" }
 
             runVerifier(inputDir, nthreads, showTime)
         }
@@ -48,10 +51,11 @@ class RunVerifier {
             val stats = Stats()
             val allOk = verifier.verify(stats, showTime)
             if (showTime) {
-                stats.show()
+                stats.show(logger)
             }
 
-            println("RunVerifier ${stopwatch.took()} OK = ${allOk}")
+            logger.debug { "RunVerifier ${stopwatch.took()} OK = ${allOk}" }
+            logger.info { "RunVerifier ${stopwatch.took()} OK = ${allOk}" }
             return allOk
         }
 
@@ -64,10 +68,10 @@ class RunVerifier {
             val stats = Stats()
             val allOk = verifier.verify(stats, showTime)
             if (showTime) {
-                stats.show()
+                stats.show(logger)
             }
 
-            println("RunVerifier ${stopwatch.took()} OK = ${allOk}")
+            logger.info { "RunVerifier ${stopwatch.took()} OK = ${allOk}" }
             return allOk
         }
 
@@ -79,10 +83,10 @@ class RunVerifier {
 
             val stats = Stats()
             val errs = verifier.verifyEncryptedBallots(stats)
-            println(errs)
-            stats.show()
+            logger.info { errs }
+            stats.show(logger)
 
-            println("VerifyEncryptedBallots ${stopwatch.took()}")
+            logger.info { "VerifyEncryptedBallots ${stopwatch.took()}" }
         }
 
         fun verifyDecryptedTally(inputDir: String) {
@@ -94,10 +98,10 @@ class RunVerifier {
             val decryptedTally = electionRecord.decryptedTally() ?: throw IllegalStateException("no decryptedTally ")
             val stats = Stats()
             val errs = verifier.verifyDecryptedTally(decryptedTally, stats)
-            println(errs)
-            stats.show()
+            logger.info { errs }
+            stats.show(logger)
 
-            println("verifyDecryptedTally ${stopwatch.took()} ")
+            logger.info { "verifyDecryptedTally ${stopwatch.took()} " }
         }
 
         fun verifyChallengedBallots(inputDir: String) {
@@ -108,10 +112,10 @@ class RunVerifier {
 
             val stats = Stats()
             val errs = verifier.verifySpoiledBallotTallies(stats)
-            stats.show()
-            println(errs)
+            logger.info { errs }
+            stats.show(logger)
 
-            println("verifyRecoveredShares ${stopwatch.took()}")
+            logger.info { "verifyRecoveredShares ${stopwatch.took()}" }
         }
 
         fun verifyTallyBallotIds(inputDir: String) {
@@ -120,7 +124,7 @@ class RunVerifier {
 
             val verifier = Verifier(electionRecord, 1)
             val errs = verifier.verifyTallyBallotIds()
-            println(errs)
+            logger.info { errs }
         }
     }
 }
