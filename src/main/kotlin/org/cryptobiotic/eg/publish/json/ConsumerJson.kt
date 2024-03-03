@@ -408,7 +408,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
     }
 
     //// Encrypted ballots iteration
-
+    // TODO how come this doesnt barf on ballot_chain/json ??
     private inner class EncryptedBallotFileIterator(
         ballotDir: Path,
         filterPath: Predicate<Path>?,

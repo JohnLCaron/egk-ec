@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.workflow
 
 import org.cryptobiotic.eg.cli.RunCreateElectionConfig
+import org.cryptobiotic.util.testOut
 
 import kotlin.test.Test
 
@@ -14,10 +15,8 @@ class CreateElectionConfig {
                 "-group", "Integer4096",
                 "-nguardians", "3",
                 "-quorum", "3",
-                "-out",
-                "testOut/config/startConfig",
-                "-device",
-                "device information",
+                "-out", "$testOut/config/startConfig",
+                "-device", "device information",
             )
         )
     }
@@ -30,10 +29,8 @@ class CreateElectionConfig {
                 "-group", "P-256",
                 "-nguardians", "3",
                 "-quorum", "3",
-                "-out",
-                "testOut/config/startConfigEc",
-                "-device",
-                "device information",
+                "-out", "$testOut/config/startConfigEc",
+                "-device", "device information",
             )
         )
     }

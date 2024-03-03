@@ -13,6 +13,7 @@ import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.verifier.VerifyEncryptedBallots
 import org.cryptobiotic.util.ErrorMessages
+import org.cryptobiotic.util.testOut
 import kotlin.random.Random
 
 class RunExampleEncryption {
@@ -21,7 +22,7 @@ class RunExampleEncryption {
         @JvmStatic
         fun main(args: Array<String>) {
             val inputDir = "src/test/data/workflow/allAvailableEc"
-            val outputDir = "testOut/encrypt/RunExampleEncryption"
+            val outputDir = "$testOut/encrypt/RunExampleEncryption"
             val device = "device0"
 
             val consumerIn = makeConsumer(inputDir)
@@ -48,7 +49,7 @@ class RunExampleEncryption {
                 electionInit.extendedBaseHash,
                 device,
                 outputDir = outputDir,
-                invalidDir ="testOut/encrypt/invalidDir",
+                invalidDir ="$testOut/encrypt/invalidDir",
                 isJson = publisher.isJson(),
             )
 

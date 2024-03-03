@@ -1,5 +1,6 @@
 package org.cryptobiotic.eg.cli
 
+import org.cryptobiotic.util.testOut
 import kotlin.test.Test
 
 class RunCreateConfigTest {
@@ -13,7 +14,7 @@ class RunCreateConfigTest {
                 "-nguardians", "3",
                 "-quorum", "3",
                 "-out",
-                "testOut/config/startConfigJson",
+                "$testOut/config/startConfigJson",
                 "-device",
                 "device information",
             )
@@ -30,7 +31,7 @@ class RunCreateConfigTest {
                 "-quorum", "3",
                 "-createdBy", "testCreateConfigDirectoryJson",
                 "-out",
-                "testOut/config/testCreateConfigDirectoryJson",
+                "$testOut/config/testCreateConfigDirectoryJson",
                 "-device",
                 "device information",
             )

@@ -12,6 +12,7 @@ import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.verifier.Verifier
 import org.cryptobiotic.util.Stats
+import org.cryptobiotic.util.testOut
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -29,10 +30,10 @@ class TestWorkflow {
 
     @Test
     fun runWorkflow() {
-        runWorkflow("src/test/data/startConfig", "testOut/workflow/allAvailable", false)
-        runWorkflow("src/test/data/startConfigEc", "testOut/workflow/allAvailableEc", false)
-        runWorkflow("src/test/data/startConfig", "testOut/workflow/someAvailable", true)
-        runWorkflow("src/test/data/startConfigEc", "testOut/workflow/someAvailableEc", true)
+        runWorkflow("src/test/data/startConfig", "$testOut/workflow/allAvailable", false)
+        runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/allAvailableEc", false)
+        runWorkflow("src/test/data/startConfig", "$testOut/workflow/someAvailable", true)
+        runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/someAvailableEc", true)
     }
 
     fun runWorkflow(configDirJson: String, workingDir: String, onlySome: Boolean, chained: Boolean = false) {

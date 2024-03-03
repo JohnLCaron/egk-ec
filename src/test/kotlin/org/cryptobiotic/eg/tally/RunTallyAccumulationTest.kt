@@ -5,6 +5,7 @@ import org.cryptobiotic.eg.election.EncryptedTally
 import org.cryptobiotic.eg.cli.RunAccumulateTally
 import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.publish.makeConsumer
+import org.cryptobiotic.util.testOut
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
@@ -17,7 +18,7 @@ class RunTallyAccumulationTest {
                 "-in",
                 "src/test/data/workflow/someAvailableEc",
                 "-out",
-                "testOut/tally/testRunBatchEncryptionJson",
+                "$testOut/tally/testRunBatchEncryptionJson",
             )
         )
     }

@@ -36,8 +36,8 @@ class VerifierTest {
 
     @Test
     fun verifyAddBallots() {
-        RunVerifier.runVerifier("src/test/data/encrypt/testJsonSyncChain", 11)
-        RunVerifier.runVerifier("src/test/data/encrypt/testJsonSyncNoChain", 11)
+        RunVerifier.runVerifier("src/test/data/encrypt/testBallotNoChain", 11)
+        RunVerifier.runVerifier("src/test/data/encrypt/testBallotChain", 11)
     }
 
     @Test

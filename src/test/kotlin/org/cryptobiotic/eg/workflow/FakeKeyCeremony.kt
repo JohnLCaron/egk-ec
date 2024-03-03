@@ -10,6 +10,7 @@ import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import org.cryptobiotic.eg.keyceremony.keyCeremonyExchange
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
+import org.cryptobiotic.util.testOut
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -20,7 +21,7 @@ class FakeKeyCeremonyTest {
     @Test
     fun runFakeKeyCeremonyAll() {
         val configDir = "src/test/data/startConfig"
-        val outputDir = "testOut/keyceremony/runFakeKeyCeremonyAll"
+        val outputDir = "$testOut/keyceremony/runFakeKeyCeremonyAll"
         val trusteeDir = "$outputDir/private_data/trustees"
 
         runFakeKeyCeremony(configDir, outputDir, trusteeDir, 3, 3, false)
@@ -29,7 +30,7 @@ class FakeKeyCeremonyTest {
     @Test
     fun runFakeKeyCeremonySome() {
         val configDir = "src/test/data/startConfig"
-        val outputDir = "testOut/keyceremony/runFakeKeyCeremonySome"
+        val outputDir = "$testOut/keyceremony/runFakeKeyCeremonySome"
         val trusteeDir = "$outputDir/private_data/trustees"
 
         runFakeKeyCeremony(configDir, outputDir, trusteeDir, 5, 3, false)
@@ -38,7 +39,7 @@ class FakeKeyCeremonyTest {
     @Test
     fun runFakeKeyCeremonyAllEc() {
         val configDir = "src/test/data/startConfigEc"
-        val outputDir = "testOut/keyceremony/runFakeKeyCeremonyAllEc"
+        val outputDir = "$testOut/keyceremony/runFakeKeyCeremonyAllEc"
         val trusteeDir = "$outputDir/private_data/trustees"
 
         runFakeKeyCeremony(configDir, outputDir, trusteeDir, 3, 3, false)
@@ -47,7 +48,7 @@ class FakeKeyCeremonyTest {
     @Test
     fun runFakeKeyCeremonySomeEc() {
         val configDir = "src/test/data/startConfigEc"
-        val outputDir = "testOut/keyceremony/runFakeKeyCeremonySomeEc"
+        val outputDir = "$testOut/keyceremony/runFakeKeyCeremonySomeEc"
         val trusteeDir = "$outputDir/private_data/trustees"
 
         runFakeKeyCeremony(configDir, outputDir, trusteeDir, 5, 3, false)

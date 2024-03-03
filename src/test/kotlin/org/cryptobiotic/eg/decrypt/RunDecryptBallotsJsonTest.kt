@@ -3,6 +3,7 @@ package org.cryptobiotic.eg.decryptBallot
 import org.cryptobiotic.eg.cli.RunTrustedBallotDecryption.Companion.runDecryptBallots
 import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption.Companion.readDecryptingTrustees
 import org.cryptobiotic.eg.publish.makeConsumer
+import org.cryptobiotic.util.testOut
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,7 +22,7 @@ class RunDecryptBallotsJsonTest {
     fun testDecryptBallotsAll() {
         val inputDir = "src/test/data/workflow/allAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
-        val outputDir = "testOut/decrypt/testDecryptBallotsAllJson"
+        val outputDir = "$testOut/decrypt/testDecryptBallotsAllJson"
         println("\ntestDecryptBallotsAll")
         val n = runDecryptBallots(
             inputDir,
@@ -37,7 +38,7 @@ class RunDecryptBallotsJsonTest {
     fun testDecryptBallotsSome() {
         val inputDir = "src/test/data/workflow/someAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
-        val outputDir = "testOut/decrypt/testDecryptBallotsSomeJson"
+        val outputDir = "$testOut/decrypt/testDecryptBallotsSomeJson"
         println("\ntestDecryptBallotsAll")
         val n = runDecryptBallots(
             inputDir,
@@ -53,7 +54,7 @@ class RunDecryptBallotsJsonTest {
     fun testDecryptBallotsSomeFromList() {
         val inputDir = "src/test/data/workflow/someAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
-        val outputDir = "testOut/decrypt/testDecryptBallotsSomeFromListJson"
+        val outputDir = "$testOut/decrypt/testDecryptBallotsSomeFromListJson"
         println("\ntestDecryptBallotsSomeFromList")
         val n = runDecryptBallots(
             inputDir, outputDir, readDecryptingTrustees(inputDir, trusteeDir, "5"),
