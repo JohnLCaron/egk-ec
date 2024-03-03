@@ -32,8 +32,8 @@ class ErrorMessages(val id: String, private val level: Int = 1) {
             return "$id all OK"
         }
         return buildString {
-            append("$id has errors:\n")
-            messages.forEach { append("$indent$it\n") }
+            append("$id has errors:")
+            messages.forEach { append("\n$indent$it") }
             nested.forEach {
                 if (it.hasErrors()) { append("$indent$it") }
             }

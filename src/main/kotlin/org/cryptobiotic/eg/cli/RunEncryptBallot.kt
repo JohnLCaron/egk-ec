@@ -1,31 +1,21 @@
 package org.cryptobiotic.eg.cli
 
 import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.unwrap
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
-import kotlinx.cli.default
 import kotlinx.cli.required
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.Base64.fromBase64
 import org.cryptobiotic.eg.election.EncryptedBallot
-import org.cryptobiotic.eg.election.PlaintextBallot
-import org.cryptobiotic.eg.encrypt.AddEncryptedBallot
 import org.cryptobiotic.eg.encrypt.Encryptor
 import org.cryptobiotic.eg.encrypt.submit
 import org.cryptobiotic.eg.input.ManifestInputValidation
-import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.EncryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
-import org.cryptobiotic.eg.publish.readElectionRecord
-import org.cryptobiotic.eg.verifier.VerifyEncryptedBallots
 import org.cryptobiotic.util.ErrorMessages
-import kotlin.random.Random
 
 class RunEncryptBallot {
 
@@ -74,7 +64,7 @@ class RunEncryptBallot {
                 device,
                 previousConfirmationCode?: "",
             )
-            println("RunEncryptBallot returns $retval")
+            logger.info { "RunEncryptBallot returns $retval" }
         }
 
         fun encryptBallot(

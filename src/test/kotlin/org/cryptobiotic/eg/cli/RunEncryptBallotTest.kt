@@ -52,7 +52,7 @@ class RunEncryptBallotTest {
     @Test
     fun testRunEncryptBallotNoChainingBut() {
         val inputDir = "src/test/data/encrypt/testBallotNoChain"
-        val outputDir = "$testOut/encrypt/testRunEncryptBallotNoChaining"
+        val outputDir = "$testOut/encrypt/testRunEncryptBallotNoChainingBut"
         val nballots = 10
 
         val consumerIn = makeConsumer(inputDir)
@@ -80,8 +80,13 @@ class RunEncryptBallotTest {
             )
 
             val result = consumerIn.readEncryptedBallot(outputDir, ballotId)
-            val eballot = result.unwrap()
-            prevCC = eballot.confirmationCode.toBase64()
+            if (result is Err) {
+                println(result)
+                fail()
+            } else {
+                val eballot = result.unwrap()
+                prevCC = eballot.confirmationCode.toBase64()
+            }
         }
         verifyOutput(inputDir, outputDir, true)
     }

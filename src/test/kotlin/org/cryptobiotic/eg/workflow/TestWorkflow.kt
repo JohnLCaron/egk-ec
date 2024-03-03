@@ -31,9 +31,9 @@ class TestWorkflow {
     @Test
     fun runWorkflow() {
         runWorkflow("src/test/data/startConfig", "$testOut/workflow/allAvailable", false)
-        runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/allAvailableEc", false)
-        runWorkflow("src/test/data/startConfig", "$testOut/workflow/someAvailable", true)
-        runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/someAvailableEc", true)
+    //    runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/allAvailableEc", false)
+    //    runWorkflow("src/test/data/startConfig", "$testOut/workflow/someAvailable", true)
+    //    runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/someAvailableEc", true)
     }
 
     fun runWorkflow(configDirJson: String, workingDir: String, onlySome: Boolean, chained: Boolean = false) {

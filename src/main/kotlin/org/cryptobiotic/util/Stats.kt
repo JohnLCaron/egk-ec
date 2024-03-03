@@ -1,5 +1,6 @@
 package org.cryptobiotic.util
 
+import io.github.oshai.kotlinlogging.KLogger
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -27,6 +28,10 @@ class Stats {
 
     fun show(len: Int = 3) {
         showLines(len).forEach { println(it) }
+    }
+
+    fun show(logger: KLogger) {
+        showLines().forEach { logger.info { it } }
     }
 
     fun count() : Int {

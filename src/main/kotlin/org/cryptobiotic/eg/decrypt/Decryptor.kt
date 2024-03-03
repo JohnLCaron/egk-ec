@@ -1,5 +1,6 @@
 package org.cryptobiotic.eg.decrypt
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.Base16.toHex
 import org.cryptobiotic.eg.election.*
@@ -39,9 +40,7 @@ class Decryptor(
             } else {
                 if (trustee.guardianPublicKey() != guardian.publicKey()) {
                     badTrustees.add(trustee.id())
-                    println("trustee = ${trustee.guardianPublicKey()}")
-                    println("guardian = ${guardian.publicKey()}")
-                    println("ok = ${trustee.guardianPublicKey().equals(guardian.publicKey())} for ${trustee.id()}")
+                    logger.error { "trustee public key = ${trustee.guardianPublicKey()} not equal guardian = ${guardian.publicKey()}" }
                 }
             }
         }
@@ -73,7 +72,6 @@ class Decryptor(
         return tally.decrypt(errs, isBallot = false, isPep = true)
     }
 
-    var first = false
     fun EncryptedTally.decrypt(errs : ErrorMessages, isBallot : Boolean = false, isPep : Boolean = false): DecryptedTallyOrBallot? {
         if (this.electionId != extendedBaseHash) {
             errs.add("Encrypted Tally/Ballot has wrong electionId = ${this.electionId}")
@@ -125,18 +123,6 @@ class Decryptor(
                 dresults.ciphertext.pad,
                 dresults.ciphertext.data,
                 a, b, weightedProduct)
-
-            if (first) { // temp debug, when a,b dont validate
-                println(" decrypt extendedBaseHash = $extendedBaseHash")
-                println(" jointPublicKey = $jointPublicKey")
-                println(" message.pad = ${dresults.ciphertext.pad}")
-                println(" message.data = ${dresults.ciphertext.data}")
-                println(" a= $a")
-                println(" b= $b")
-                println(" M = $weightedProduct")
-                println(" c = ${dresults.collectiveChallenge}")
-                first = false
-            }
         }
 
         // note that the proof is only in the decrypted ballot, and is only checked by the verifier
@@ -267,6 +253,10 @@ class Decryptor(
         // ask for all of them at once from the trustee
         val results: List<ChallengeResponse> = trustee.challenge(group, requests)
         return TrusteeChallengeResponses(trustee.id(), results)
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger("Decryptor")
     }
 }
 

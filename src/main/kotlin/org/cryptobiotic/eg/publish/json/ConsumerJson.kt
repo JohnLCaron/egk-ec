@@ -42,9 +42,10 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
             fileSystemProvider = fileSystem.provider()
             jsonPaths = ElectionRecordJsonPaths("")
 
-            println("electionConstantsPath = ${jsonPaths.electionConstantsPath()} -> ${fileSystem.getPath(jsonPaths.electionConstantsPath())}")
-            println("manifestPath = ${jsonPaths.manifestPath()} -> ${fileSystem.getPath(jsonPaths.manifestPath())}")
-            println("electionConfigPath = ${jsonPaths.electionConfigPath()} -> ${fileSystem.getPath(jsonPaths.electionConfigPath())}")
+            logger.debug {
+                "electionConstantsPath = ${jsonPaths.electionConstantsPath()} -> ${fileSystem.getPath(jsonPaths.electionConstantsPath())}" +
+                "\nmanifestPath = ${jsonPaths.manifestPath()} -> ${fileSystem.getPath(jsonPaths.manifestPath())}" +
+                "\nelectionConfigPath = ${jsonPaths.electionConfigPath()} -> ${fileSystem.getPath(jsonPaths.electionConfigPath())}" }
         }
         // must have a config and constants
         val readConfigResult = readElectionConfig()
@@ -436,8 +437,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
                         } // otherwise skip it
                     }
                 } catch (t : Throwable) {
-                    println("Error reading EncryptedBallot '${ballotFilePath}', skipping.\n  Exception= ${t.message} ${t.stackTraceToString()}")
-                    logger.error { "Error reading EncryptedBallot '${ballotFilePath}', skipping.\n Exception= ${t.message} ${t.stackTraceToString()}"}
+                    logger.error(t) { "Error reading EncryptedBallot '${ballotFilePath}', skipping.\n  Exception= ${t.message}"}
                 }
             }
             return done()
@@ -455,7 +455,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
                 if (ballotIds.hasNext()) {
                     val ballotFilePath : Path = Path.of(jsonPaths.encryptedBallotDevicePath(device, ballotIds.next()))
                     if (!Files.exists(ballotFilePath)) {
-                        println("EncryptedBallotDeviceIterator file '${ballotFilePath}' does not exist, skipping}")
+                        logger.warn { "EncryptedBallotDeviceIterator file '${ballotFilePath}' does not exist, skipping}" }
                         continue
                     }
                     try {
@@ -469,8 +469,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
                             } // otherwise skip it
                         }
                     } catch (t : Throwable) {
-                        println("Error reading EncryptedBallot '${ballotFilePath}', skipping.\n  Exception= ${t.message} ${t.stackTraceToString()}")
-                        logger.error { "Error reading EncryptedBallot '${ballotFilePath}', skipping.\n  Exception= ${t.message} ${t.stackTraceToString()}"}
+                        logger.error(t) { "Error reading EncryptedBallot '${ballotFilePath}', skipping." }
                     }
                 } else {
                     return done()
@@ -511,6 +510,10 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
             }
             return done()
         }
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger("ConsumerJson")
     }
 
 }

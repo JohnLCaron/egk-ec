@@ -37,8 +37,6 @@ import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
 import org.cryptobiotic.util.Stopwatch
 
-private val logger = KotlinLogging.logger("RunBatchEncryption")
-
 /**
  * Run ballot encryption in multithreaded batch mode CLI.
  * Read ElectionConfig from inputDir, write electionInit to outputDir.
@@ -49,6 +47,8 @@ private val logger = KotlinLogging.logger("RunBatchEncryption")
 class RunBatchEncryption {
 
     companion object {
+        private val logger = KotlinLogging.logger("RunBatchEncryption")
+
         @JvmStatic
         fun main(args: Array<String>) {
             val parser = ArgParser("RunBatchEncryption")
@@ -109,19 +109,19 @@ class RunBatchEncryption {
             ).default(false)
 
             parser.parse(args)
-
-            if (outputDir == null && encryptDir == null) {
-                throw RuntimeException("Must specify outputDir or encryptDir")
-            }
-
-            println(
-                "RunBatchEncryption starting\n   input= $inputDir\n   ballots = $ballotDir\n   device = $device" +
+            val startupInfo =
+                "batchEncryption input= $inputDir\n   ballots = $ballotDir\n   device = $device" +
                         "\n   outputDir = $outputDir" +
                         "\n   encryptDir = $encryptDir" +
                         "\n   nthreads = $nthreads" +
                         "\n   check = $check" +
                         "\n   anonymize = $anonymize"
-            )
+            logger.info { startupInfo }
+            println(startupInfo)
+
+            if (outputDir == null && encryptDir == null) {
+                throw RuntimeException("Must specify outputDir or encryptDir")
+            }
 
             batchEncryption(
                 inputDir,
@@ -136,6 +136,7 @@ class RunBatchEncryption {
                 cleanOutput,
                 anonymize,
             )
+            logger.info { "RunBatchEncryption success" }
         }
 
         enum class CheckType { None, Verify, EncryptTwice, DecryptNonce }
@@ -155,11 +156,11 @@ class RunBatchEncryption {
             anonymize: Boolean = false,
         ) {
             // ballots can be in either format
-            val comsumer = makeConsumer(inputDir)
+            val consumer = makeConsumer(inputDir)
 
             return batchEncryption(
                 inputDir,
-                comsumer.iteratePlaintextBallots(ballotDir, null),
+                consumer.iteratePlaintextBallots(ballotDir, null),
                 device = device,
                 outputDir, encryptDir, invalidDir,
                 nthreads, createdBy, check, cleanOutput, anonymize
@@ -184,7 +185,7 @@ class RunBatchEncryption {
             val consumerIn = makeConsumer(inputDir)
             val initResult = consumerIn.readElectionInitialized()
             if (initResult is Err) {
-                println("readElectionInitialized error ${initResult.error}")
+                logger.error{ "readElectionInitialized error ${initResult.error}" }
                 return
             }
             val electionInit = initResult.unwrap()
@@ -194,8 +195,7 @@ class RunBatchEncryption {
             val manifestValidator = ManifestInputValidation(manifest)
             val errors = manifestValidator.validate()
             if (errors.hasErrors()) {
-                println("*** ManifestInputValidation error on election record in $inputDir")
-                println("$errors")
+                logger.error{ "ManifestInputValidation error on election record in $inputDir errs=$errors}" }
                 return
             }
             // debugging
@@ -209,8 +209,7 @@ class RunBatchEncryption {
             val validate: ((PlaintextBallot) -> Boolean) = {
                 val mess = ballotValidator.validate(it)
                 if (mess.hasErrors()) {
-                    println("*** BallotInputValidation error on ballot ${it.ballotId}")
-                    println("$mess\n")
+                    logger.warn { "*** BallotInputValidation error on ballot ${it.ballotId}: $mess" }
                     invalidBallots.add(PlaintextBallot(it, mess.toString()))
                     false
                 } else {
@@ -277,12 +276,12 @@ class RunBatchEncryption {
                 val useInvalidDir = if (invalidDir != null) invalidDir else if (outputDir != null) "$outputDir/invalid" else "$encryptDir/invalid"
                 createDirectories(useInvalidDir)
                 publisher.writePlaintextBallot(useInvalidDir, invalidBallots)
-                println(" wrote ${invalidBallots.size} invalid ballots to $useInvalidDir")
+                logger.info{ " wrote ${invalidBallots.size} invalid ballots to $useInvalidDir" }
             }
 
-            println("Encryption with nthreads = $nthreads ${stopwatch.tookPer(count, "ballot")}")
+            logger.info{ "Encryption with nthreads = $nthreads ${stopwatch.tookPer(count, "ballot")}" }
             val encryptionPerBallot = if (count == 0) 0 else (countEncryptions / count)
-            println("   $countEncryptions total encryptions = $encryptionPerBallot per ballot ${stopwatch.tookPer(countEncryptions, "encryptions")}")
+            logger.info{ "  $countEncryptions total encryptions = $encryptionPerBallot per ballot ${stopwatch.tookPer(countEncryptions, "encryptions")}"}
         }
 
         private var codeBaux = ByteArray(0)

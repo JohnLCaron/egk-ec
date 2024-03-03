@@ -51,12 +51,14 @@ class RunTrustedKeyCeremony {
                 description = "who created"
             ).default("RunTrustedKeyCeremony")
             parser.parse(args)
-            println("RunTrustedKeyCeremony starting\n   input= $inputDir\n   trustees= $trusteeDir\n   output = $outputDir")
+
+            val startupInfo = "RunTrustedKeyCeremony starting\n   input= $inputDir\n   trustees= $trusteeDir\n   output = $outputDir"
+            logger.info { startupInfo }
 
             val consumerIn = makeConsumer(inputDir)
             val configResult = consumerIn.readElectionConfig()
             if (configResult is Err) {
-                println("readElectionConfig error ${configResult.error}")
+                logger.error {"readElectionConfig error ${configResult.error}"}
                 return
             }
             val config = configResult.unwrap()
@@ -71,10 +73,11 @@ class RunTrustedKeyCeremony {
                     consumerIn.isJson(),
                     createdBy
                 )
-                println("runKeyCeremony result = $result")
+                logger.info {"runKeyCeremony result = $result"}
                 require(result is Ok)
+
             } catch (t: Throwable) {
-                logger.error{"Exception= ${t.message} ${t.stackTraceToString()}"}
+                logger.error{ "Exception= ${t.message} ${t.stackTraceToString()}" }
             }
         }
 
@@ -87,8 +90,6 @@ class RunTrustedKeyCeremony {
             isJson: Boolean,
             createdBy: String?
         ): Result<Boolean, String> {
-            val stopwatch = Stopwatch() // start timing here
-
             // Generate all KeyCeremonyTrustees here, which means this is a trusted situation.
             val trustees: List<KeyCeremonyTrustee> = List(config.numberOfGuardians) {
                 val seq = it + 1
@@ -115,7 +116,6 @@ class RunTrustedKeyCeremony {
             val trusteePublisher : Publisher = makePublisher(trusteeDir, false)
             trustees.forEach { trusteePublisher.writeTrustee(trusteeDir, it) }
 
-            println("RunTrustedKeyCeremony ${stopwatch.took()}")
             return Ok(true)
         }
     }

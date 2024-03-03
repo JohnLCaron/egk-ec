@@ -65,7 +65,6 @@ fun calculateGexpPiAtL(
         result *= term
         xcoordPower *= xcoordQ
     }
-    // println(" calculateGexpPiAtL for $guardianId at xcoord = $xcoord exps = ${coefficientCommitments.size}")
     return result
 }
 

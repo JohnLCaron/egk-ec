@@ -54,10 +54,11 @@ class RunAccumulateTally {
             )
             parser.parse(args)
 
-            println("RunAccumulateTally starting\n" +
-                    "   input= $inputDir\n" +
-                    "   outputDir = $outputDir\n" +
-                    "   encryptDir = $encryptDir")
+            val startupInfo = "RunAccumulateTally starting" +
+                    "   input= $inputDir" +
+                    "   outputDir = $outputDir" +
+                    "   encryptDir = $encryptDir"
+            logger.info { startupInfo }
 
             try {
                 runAccumulateBallots(
@@ -67,6 +68,7 @@ class RunAccumulateTally {
                     name ?: "RunAccumulateTally",
                     createdBy ?: "RunAccumulateTally"
                 )
+
             } catch (t: Throwable) {
                 logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }
                 t.printStackTrace()
@@ -85,7 +87,7 @@ class RunAccumulateTally {
             val consumerIn = makeConsumer(inputDir)
             val initResult = consumerIn.readElectionInitialized()
             if (initResult is Err) {
-                println("readElectionInitialized error ${initResult.error}")
+                logger.error { "readElectionInitialized error ${initResult.error}" }
                 return
             }
             val electionInit = initResult.unwrap()
@@ -101,8 +103,7 @@ class RunAccumulateTally {
                 val errs = ErrorMessages("RunAccumulateTally ballotId=${encryptedBallot.ballotId}")
                 accumulator.addCastBallot(encryptedBallot, errs)
                 if (errs.hasErrors()) {
-                    println(errs)
-                    logger.error{ errs.toString() }
+                    logger.error { errs.toString() }
                     countBad++
                 } else {
                     countOk++
@@ -122,7 +123,7 @@ class RunAccumulateTally {
                 )
             )
 
-            println("AccumulateTally processed $countOk good ballots, $countBad bad ballots, ${stopwatch.tookPer(countOk, "good ballot")}")
+            logger.info { "AccumulateTally processed $countOk good ballots, $countBad bad ballots, ${stopwatch.tookPer(countOk, "good ballot")}" }
         }
     }
 }
