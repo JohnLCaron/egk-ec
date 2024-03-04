@@ -9,7 +9,7 @@ class RunShowSystemTest {
         RunShowSystem.main(
             arrayOf(
                 "-set", "/usr/local/lib:/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib",
-                "-show", "eclib,hasVEC",
+                "-show", "hasVEC",
             )
         )
     }

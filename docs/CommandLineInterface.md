@@ -5,11 +5,13 @@ last update 03/02/2024
 <!-- TOC -->
 * [Workflow and Command Line Programs](#workflow-and-command-line-programs)
   * [Election workflow overview](#election-workflow-overview)
-  * [Make ekglib fatJar](#make-ekglib-fatjar)
+  * [Make ekglib uberJar](#make-ekglib-uberjar)
   * [Create a fake Election Manifest](#create-a-fake-election-manifest)
   * [Create an Election Configuration](#create-an-election-configuration)
   * [Run trusted KeyCeremony](#run-trusted-keyceremony)
   * [Create fake input ballots](#create-fake-input-ballots)
+  * [Run Encrypt Ballot](#run-encrypt-ballot)
+  * [Run Example Encryption](#run-example-encryption)
   * [Run Batch Encryption](#run-batch-encryption)
   * [Run Accumulate Tally](#run-accumulate-tally)
   * [Run trusted Tally Decryption](#run-trusted-tally-decryption)
@@ -70,9 +72,9 @@ last update 03/02/2024
 9. **Complete test Workflow**.
     1. A complete test workflow can be run from _org.cryptobiotic.eg.workflow.TestWorkflow_ (int the test code).
 
-## Make ekglib fatJar
+## Make ekglib uberJar
 
-For classpath simplicity, the examples below use the [ekglib fatJar](GettingStarted.md#building-a-library-with-all-dependencies-fat-jar).
+For classpath simplicity, the examples below use the [ekglib uberJar](GettingStarted.md#building-a-library-with-all-dependencies-uber-jar).
 
 ## Create a fake Election Manifest
 
@@ -90,7 +92,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunCreateTestManifest \
     -ncontests 3 \
     -nselections 11 \
@@ -117,7 +119,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunCreateElectionConfig \
     -manifest src/test/data/startManifest \
     -group P-256 \
@@ -146,7 +148,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunTrustedKeyCeremony \
     -in testOut/cliWorkflow/configEc \
     -trustees testOut/cliWorkflow/keyceremonyEc/trustees \
@@ -169,7 +171,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunCreateInputBallots \
     -manifest src/test/data/startManifest \
     -out testOut/generateInputBallots \
@@ -199,7 +201,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunEncryptBallot \
     -config src/test/data/encrypt/testBallotNoChain \
     -ballot src/test/data/fakeBallots/pballot-id153737325.json \
@@ -228,7 +230,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunExampleEncryption \
     -config src/test/data/encrypt/testBallotChain \
     -nballots 11 \
@@ -263,7 +265,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunBatchEncryption \
     -in testOut/cliWorkflow/keyceremonyEc \
     -ballots src/test/data/fakeBallots \
@@ -290,7 +292,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunAccumulateTally \
     -in testOut/cliWorkflow/electionRecordEc \
     -out testOut/cliWorkflow/electionRecordEc 
@@ -324,7 +326,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunTrustedTallyDecryption \
     -in testOut/cliWorkflow/electionRecordEc \
     -trustees testOut/cliWorkflow/keyceremonyEc/trustees \
@@ -362,7 +364,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunTrustedBallotDecryption \
     -in testOut/cliWorkflow/electionRecordEc \
     -trustees testOut/cliWorkflow/keyceremonyEc/trustees \
@@ -390,7 +392,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunVerifier \
   -in testOut/cliWorkflow/electionRecordEc
 ````

@@ -1,0 +1,55 @@
+
+> Task :dependencies
+
+------------------------------------------------------------
+Root project 'egk-ec'
+------------------------------------------------------------
+
+runtimeClasspath - Runtime classpath of null/main.
++--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+|    +--- org.jetbrains:annotations:13.0 -> 23.0.0
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0 -> 1.9.10 (c)
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22 (c)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0 -> 1.9.10 (c)
++--- com.michael-bull.kotlin-result:kotlin-result:1.1.18
+|    \--- com.michael-bull.kotlin-result:kotlin-result-jvm:1.1.18
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10 -> 1.9.10
+|         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.10 -> 1.9.22 (*)
+|         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10
+|         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.10 -> 1.9.22 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.10 -> 1.9.22
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
++--- org.jetbrains.kotlinx:kotlinx-cli:0.3.6
+|    \--- org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.6
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.10 -> 1.9.22 (*)
++--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0-RC2
+|    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0-RC2
+|         +--- org.jetbrains:annotations:23.0.0
+|         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0-RC2
+|         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0-RC2 (c)
+|         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0-RC2 (c)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 1.9.22 (*)
++--- org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
+|    \--- org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.5.0
+|         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 1.9.22 (*)
++--- org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2
+|    \--- org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.2
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 1.9.22 (*)
+|         +--- org.jetbrains.kotlinx:kotlinx-serialization-bom:1.6.2
+|         |    +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2 (c)
+|         |    +--- org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.2 (c)
+|         |    +--- org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2 (c)
+|         |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.6.2 (c)
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 1.9.22 (*)
+|         \--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
+|              \--- org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.6.2
+|                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 1.9.22 (*)
+|                   +--- org.jetbrains.kotlinx:kotlinx-serialization-bom:1.6.2 (*)
+|                   \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21 -> 1.9.22 (*)
++--- io.github.oshai:kotlin-logging:6.0.3
+|    \--- io.github.oshai:kotlin-logging-jvm:6.0.3
+|         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+\--- ch.qos.logback:logback-classic:1.4.14
+     +--- ch.qos.logback:logback-core:1.4.14
+     \--- org.slf4j:slf4j-api:2.0.7

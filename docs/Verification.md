@@ -8,11 +8,11 @@ or the existing CLI program.
 
 ## Run Verifier Command Line Interface
 
-See _Building a library fat jar_ in [GettingStarted](GettingStarted.md), then run the verifier like:
+See _Building a library uber jar_ in [GettingStarted](GettingStarted.md), then run the verifier like:
 
 ```
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunVerifier \
   -in /path/to/election_record
 ```
@@ -28,10 +28,10 @@ Options:
     --help, -h -> Usage info
 ````
 
-Since the main class of the fatJar is _org.cryptobiotic.eg.cli.RunVerifier_ you can also run the verifier as:
+Since the main class of the uberJar is _org.cryptobiotic.eg.cli.RunVerifier_ you can also run the verifier as:
 
 ```
 /usr/bin/java \
-  -jar build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -jar build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   -in /path/to/election_record
 ```

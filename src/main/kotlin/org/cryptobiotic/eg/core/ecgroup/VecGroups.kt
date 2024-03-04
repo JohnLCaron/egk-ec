@@ -28,6 +28,8 @@
  */
 
 package org.cryptobiotic.eg.core.ecgroup
+import com.verificatum.vecj.VEC
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.math.BigInteger
 import java.util.*
 
@@ -72,6 +74,8 @@ class VecGroups(
     }
 
     companion object {
+        private val logger = KotlinLogging.logger("VecGroups")
+
         /** Hashtable containing all named elliptic curve parameters. */
         val NAMED_PARAMS = mutableMapOf<String, VecGroups>()
 
@@ -330,9 +334,19 @@ class VecGroups(
             if (params == null) {
                 throw RuntimeException("Unknown named curve! ($name)")
             } else {
-                return if (useNative)
-                    VecGroupNative(name, params.a, params.b, primeModulus = params.p, order = params.n, params.gx, params.gy, params.h)
-                else {
+                return if (useNative) {
+                    val haveNative = try {
+                        VEC.getCurve(name)
+                        true
+                    } catch (t: Throwable) {
+                        logger.warn { "VECJ not installed, using non-native library" }
+                        false
+                    }
+                    if (haveNative)
+                        VecGroupNative(name, params.a, params.b, primeModulus = params.p, order = params.n, params.gx, params.gy, params.h)
+                    else
+                        VecGroup(name, params.a, params.b, primeModulus = params.p, order = params.n, params.gx, params.gy, params.h)
+                } else {
                     VecGroup(name, params.a, params.b, primeModulus = params.p, order = params.n, params.gx, params.gy, params.h)
                 }
             }

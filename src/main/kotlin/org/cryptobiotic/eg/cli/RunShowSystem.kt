@@ -6,10 +6,11 @@ import kotlinx.cli.ArgType
 import org.cryptobiotic.eg.core.ecgroup.EcElementModP
 import org.cryptobiotic.eg.core.ecgroup.EcElementModQ
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
+import org.cryptobiotic.eg.core.ecgroup.VecGroupNative
 import org.cryptobiotic.eg.core.productionGroup
 
 /*
- java -jar build/libs/egkec-0.1-SNAPSHOT-all.jar \
+ java -jar build/libs/egk-ec-0.1-SNAPSHOT-uber.jar \
     -set "/usr/local/lib:/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib" \
     -show "properties,eclib,hasVEC"
  */
@@ -22,7 +23,7 @@ class RunShowSystem {
             val show by parser.option(
                 ArgType.String,
                 shortName = "show",
-                description = "[eclib,properties,java.library.path,hasVEC]"
+                description = "[properties,java.library.path,hasVEC]"
             )
             val setPath by parser.option(
                 ArgType.String,
@@ -66,35 +67,30 @@ class RunShowSystem {
                 }
             }
 
-            if (showSet.has("eclib")) {
-                try {
-                    val names = VEC.getCurveNames()
-                    names.forEach {
-                        println(it)
-                    }
-                } catch (e: Exception) {
-                    println(" VEC.getCurveNames() failed = ${e.message}")
-                }
-            }
             if (showSet.has("hasVEC")) {
-                testVecDirectExp()
+                if (testVecDirectExp())
+                    println("VECJ, VEC and GMP are installed")
+                else
+                    println("VECJ, VEC and GMP are not installed")
             }
         }
 
         fun testVecDirectExp(): Boolean {
-            val group = productionGroup("P-256") as EcGroupContext
-            val curvePtr: ByteArray = VEC.getCurve("P-256")
-            val nonce = group.randomElementModQ()
-            val h = group.gPowP(group.randomElementModQ()) as EcElementModP
-            val hx = h.ec.x
-            val hy = h.ec.y
-            val scalar = (nonce as EcElementModQ).element
             try {
+                val group = productionGroup("P-256") as EcGroupContext
+                if (!(group.vecGroup is VecGroupNative)) {
+                    return false
+                }
+                val curvePtr: ByteArray = VEC.getCurve("P-256")
+                val nonce = group.randomElementModQ()
+                val h = group.gPowP(group.randomElementModQ()) as EcElementModP
+                val hx = h.ec.x
+                val hy = h.ec.y
+                val scalar = (nonce as EcElementModQ).element
                 VEC.mul(curvePtr, hx, hy, scalar)
-                println("VEC and GMP are installed")
                 return true
-            } catch (t: Exception) {
-                println("testVecDirectExp failed with message ${t.message}")
+
+            } catch (t: Throwable) {
                 return false
             }
         }
