@@ -54,10 +54,10 @@ class RunAccumulateTally {
             )
             parser.parse(args)
 
-            val startupInfo = "RunAccumulateTally starting" +
-                    "   input= $inputDir" +
-                    "   outputDir = $outputDir" +
-                    "   encryptDir = $encryptDir"
+            val startupInfo = "starting" +
+                    "\n   input= $inputDir" +
+                    "\n   outputDir = $outputDir" +
+                    "\n   encryptDir = $encryptDir"
             logger.info { startupInfo }
 
             try {
@@ -68,6 +68,7 @@ class RunAccumulateTally {
                     name ?: "RunAccumulateTally",
                     createdBy ?: "RunAccumulateTally"
                 )
+                logger.info {"success"}
 
             } catch (t: Throwable) {
                 logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }
@@ -123,7 +124,7 @@ class RunAccumulateTally {
                 )
             )
 
-            logger.info { "AccumulateTally processed $countOk good ballots, $countBad bad ballots, ${stopwatch.tookPer(countOk, "good ballot")}" }
+            logger.debug { "processed $countOk good ballots, $countBad bad ballots, ${stopwatch.tookPer(countOk, "good ballot")}" }
         }
     }
 }

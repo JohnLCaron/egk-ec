@@ -183,15 +183,17 @@ Example:
 Usage: RunEncryptBallot options_list
 Options: 
     --configDir, -config -> Directory containing election configuration (always required) { String }
-    --ballotFilename, -ballot -> Plaintext ballot filename (input) (always required) { String }
+    --ballotFilename, -ballot -> Plaintext ballot filename (or 'CLOSE') (always required) { String }
     --encryptBallotDir, -output -> Write encrypted ballot to this directory (always required) { String }
     --device, -device -> voting device name (always required) { String }
     --previousConfirmationCode, -previous -> previous confirmation code when chaining ballots { String }
     --help, -h -> Usage info 
 ````
 This reads one plaintext ballot from disk and writes its encryption into the specified directory.
-You may optionally do ballot chaining by sending the previous ballots confirmation code, taken as is from its
-json serialization.
+If the config file has chainConfirmationCodes = true, then you must do ballot chaining by sending the previous ballot's 
+confirmation code, taken as is from its json serialization. The ballot chaining must be closed when done.
+
+See RunExampleEncryption for working example code.
 
 Example:
 
@@ -199,9 +201,39 @@ Example:
 /usr/bin/java \
   -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
   org.cryptobiotic.eg.cli.RunEncryptBallot \
-    -config src/test/data/encrypt/testJsonSyncNoChain \
+    -config src/test/data/encrypt/testBallotNoChain \
     -ballot src/test/data/fakeBallots/pballot-id153737325.json \
-    -output testOut/encrypt/RunExampleEncryption \
+    -output testOut/encrypt/RunEncryptBallotTest \
+    -device device42
+````
+
+## Run Example Encryption
+
+````
+Usage: RunExampleEncryption options_list
+Options: 
+    --configDir, -config -> Directory containing election configuration (always required) { String }
+    --nballots, -nballots -> Number of test ballots to generate (always required) { Int }
+    --plaintextBallotDir, -pballotDir -> Write plaintext ballots to this directory (always required) { String }
+    --encryptBallotDir, -eballotDir -> Write encrypted ballots to this directory (always required) { String }
+    --device, -device -> voting device name (always required) { String }
+    --help, -h -> Usage info 
+
+````
+This is an example program that calls RunEncryptBallot to encrypt one ballot at a time, by generating fake, test ballots.
+If the config file has chainConfirmationCodes = true, then RunExampleEncryption will do ballot chaining by sending the 
+previous ballot's confirmation code, and closing the chain when done.
+
+Example:
+
+````
+/usr/bin/java \
+  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  org.cryptobiotic.eg.cli.RunExampleEncryption \
+    -config src/test/data/encrypt/testBallotChain \
+    -nballots 11 \
+    -pballotDir testOut/encrypt/RunExampleEncryptionTest/pballots \
+    -eballotDir testOut/encrypt/RunExampleEncryptionTest/eballots \
     -device device42
 ````
 

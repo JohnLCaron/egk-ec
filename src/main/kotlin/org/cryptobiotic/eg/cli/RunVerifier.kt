@@ -54,8 +54,8 @@ class RunVerifier {
                 stats.show(logger)
             }
 
-            logger.debug { "RunVerifier ${stopwatch.took()} OK = ${allOk}" }
-            logger.info { "RunVerifier ${stopwatch.took()} OK = ${allOk}" }
+            logger.debug { "${stopwatch.took()}" }
+            logger.info { "verified = ${allOk}" }
             return allOk
         }
 

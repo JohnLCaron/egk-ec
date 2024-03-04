@@ -95,7 +95,8 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
 
     private fun writePlaintextBallot(outputDir: String, plaintextBallot: PlaintextBallot) {
         val plaintextBallotJson = plaintextBallot.publishJson()
-        FileOutputStream(jsonPaths.plaintextBallotPath(outputDir, plaintextBallot.ballotId)).use { out ->
+        val ballotFilename = jsonPaths.plaintextBallotPath(outputDir, plaintextBallot.ballotId)
+        FileOutputStream(ballotFilename).use { out ->
             jsonReader.encodeToStream(plaintextBallotJson, out)
             out.close()
         }

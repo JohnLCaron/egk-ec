@@ -59,7 +59,7 @@ class RunTrustedTallyDecryption {
                 description = "missing guardians' xcoord, comma separated, eg '2,4'"
             )
             parser.parse(args)
-            val startupInfo = "RunTrustedTallyDecryption starting   input= $inputDir   trustees= $trusteeDir   output = $outputDir"
+            val startupInfo = "starting\n   input= $inputDir\n   trustees= $trusteeDir\n   output = $outputDir"
             logger.info { startupInfo }
 
             try {
@@ -155,12 +155,12 @@ class RunTrustedTallyDecryption {
                         )
                     )
                 )
+                logger.info { "success" }
             } catch (t: Throwable) {
                 errs.add("Exception= ${t.message} ${t.stackTraceToString()}")
                 logger.error { errs }
             }
 
-            logger.info { "DecryptTally ${stopwatch.took()}" }
         }
     }
 }

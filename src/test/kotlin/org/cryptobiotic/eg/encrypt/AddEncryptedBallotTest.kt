@@ -313,14 +313,16 @@ fun checkOutput(outputDir: String, expectedCount: Int, chained: Boolean) {
     }
     assertEquals(expectedCount, count)
 
-    consumer.encryptingDevices().forEach { device ->
-        val chain = consumer.readEncryptedBallotChain(device).unwrap()
-        var lastConfirmationCode: UInt256? = null
-        consumer.iterateEncryptedBallots(device, null).forEach { eballot ->
-            assertTrue(chain.ballotIds.contains(eballot.ballotId))
-            lastConfirmationCode = eballot.confirmationCode
+    if (chained) {
+        consumer.encryptingDevices().forEach { device ->
+            val chain = consumer.readEncryptedBallotChain(device).unwrap()
+            var lastConfirmationCode: UInt256? = null
+            consumer.iterateEncryptedBallots(device, null).forEach { eballot ->
+                assertTrue(chain.ballotIds.contains(eballot.ballotId))
+                lastConfirmationCode = eballot.confirmationCode
+            }
+            assertEquals(lastConfirmationCode, chain.lastConfirmationCode)
         }
-        assertEquals(lastConfirmationCode, chain.lastConfirmationCode)
     }
 
     val record = readElectionRecord(consumer)

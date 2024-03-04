@@ -148,9 +148,6 @@ class RunEncryptBallotTest {
             name.startsWith("eballot")
         }
         val ballots = consumerBallots.iterateEncryptedBallotsFromDir(ballotDir, pathFilter, null )
-        ballots.forEach {
-            println("  ballot = ${it.ballotId}")
-        }
         val errs = ErrorMessages("verifyBallots")
         val ok = verifier.verifyBallots(ballots, errs)
         println("  verifyEncryptedBallots: ok= $ok result= $errs")
