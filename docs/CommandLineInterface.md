@@ -5,11 +5,13 @@ last update 03/02/2024
 <!-- TOC -->
 * [Workflow and Command Line Programs](#workflow-and-command-line-programs)
   * [Election workflow overview](#election-workflow-overview)
-  * [Make ekglib fatJar](#make-ekglib-fatjar)
+  * [Make ekglib uberJar](#make-ekglib-uberjar)
   * [Create a fake Election Manifest](#create-a-fake-election-manifest)
   * [Create an Election Configuration](#create-an-election-configuration)
   * [Run trusted KeyCeremony](#run-trusted-keyceremony)
   * [Create fake input ballots](#create-fake-input-ballots)
+  * [Run Encrypt Ballot](#run-encrypt-ballot)
+  * [Run Example Encryption](#run-example-encryption)
   * [Run Batch Encryption](#run-batch-encryption)
   * [Run Accumulate Tally](#run-accumulate-tally)
   * [Run trusted Tally Decryption](#run-trusted-tally-decryption)
@@ -70,9 +72,9 @@ last update 03/02/2024
 9. **Complete test Workflow**.
     1. A complete test workflow can be run from _org.cryptobiotic.eg.workflow.TestWorkflow_ (int the test code).
 
-## Make ekglib fatJar
+## Make ekglib uberJar
 
-For classpath simplicity, the examples below use the [ekglib fatJar](GettingStarted.md#building-a-library-with-all-dependencies-fat-jar).
+For classpath simplicity, the examples below use the [ekglib uberJar](GettingStarted.md#building-a-library-with-all-dependencies-uber-jar).
 
 ## Create a fake Election Manifest
 
@@ -90,7 +92,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunCreateTestManifest \
     -ncontests 3 \
     -nselections 11 \
@@ -117,7 +119,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunCreateElectionConfig \
     -manifest src/test/data/startManifest \
     -group P-256 \
@@ -146,7 +148,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunTrustedKeyCeremony \
     -in testOut/cliWorkflow/configEc \
     -trustees testOut/cliWorkflow/keyceremonyEc/trustees \
@@ -169,7 +171,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunCreateInputBallots \
     -manifest src/test/data/startManifest \
     -out testOut/generateInputBallots \
@@ -183,25 +185,57 @@ Example:
 Usage: RunEncryptBallot options_list
 Options: 
     --configDir, -config -> Directory containing election configuration (always required) { String }
-    --ballotFilename, -ballot -> Plaintext ballot filename (input) (always required) { String }
+    --ballotFilename, -ballot -> Plaintext ballot filename (or 'CLOSE') (always required) { String }
     --encryptBallotDir, -output -> Write encrypted ballot to this directory (always required) { String }
     --device, -device -> voting device name (always required) { String }
     --previousConfirmationCode, -previous -> previous confirmation code when chaining ballots { String }
     --help, -h -> Usage info 
 ````
 This reads one plaintext ballot from disk and writes its encryption into the specified directory.
-You may optionally do ballot chaining by sending the previous ballots confirmation code, taken as is from its
-json serialization.
+If the config file has chainConfirmationCodes = true, then you must do ballot chaining by sending the previous ballot's 
+confirmation code, taken as is from its json serialization. The ballot chaining must be closed when done.
+
+See RunExampleEncryption for working example code.
 
 Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunEncryptBallot \
-    -config src/test/data/encrypt/testJsonSyncNoChain \
+    -config src/test/data/encrypt/testBallotNoChain \
     -ballot src/test/data/fakeBallots/pballot-id153737325.json \
-    -output testOut/encrypt/RunExampleEncryption \
+    -output testOut/encrypt/RunEncryptBallotTest \
+    -device device42
+````
+
+## Run Example Encryption
+
+````
+Usage: RunExampleEncryption options_list
+Options: 
+    --configDir, -config -> Directory containing election configuration (always required) { String }
+    --nballots, -nballots -> Number of test ballots to generate (always required) { Int }
+    --plaintextBallotDir, -pballotDir -> Write plaintext ballots to this directory (always required) { String }
+    --encryptBallotDir, -eballotDir -> Write encrypted ballots to this directory (always required) { String }
+    --device, -device -> voting device name (always required) { String }
+    --help, -h -> Usage info 
+
+````
+This is an example program that calls RunEncryptBallot to encrypt one ballot at a time, by generating fake, test ballots.
+If the config file has chainConfirmationCodes = true, then RunExampleEncryption will do ballot chaining by sending the 
+previous ballot's confirmation code, and closing the chain when done.
+
+Example:
+
+````
+/usr/bin/java \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
+  org.cryptobiotic.eg.cli.RunExampleEncryption \
+    -config src/test/data/encrypt/testBallotChain \
+    -nballots 11 \
+    -pballotDir testOut/encrypt/RunExampleEncryptionTest/pballots \
+    -eballotDir testOut/encrypt/RunExampleEncryptionTest/eballots \
     -device device42
 ````
 
@@ -231,7 +265,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunBatchEncryption \
     -in testOut/cliWorkflow/keyceremonyEc \
     -ballots src/test/data/fakeBallots \
@@ -258,7 +292,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunAccumulateTally \
     -in testOut/cliWorkflow/electionRecordEc \
     -out testOut/cliWorkflow/electionRecordEc 
@@ -292,7 +326,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunTrustedTallyDecryption \
     -in testOut/cliWorkflow/electionRecordEc \
     -trustees testOut/cliWorkflow/keyceremonyEc/trustees \
@@ -330,7 +364,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunTrustedBallotDecryption \
     -in testOut/cliWorkflow/electionRecordEc \
     -trustees testOut/cliWorkflow/keyceremonyEc/trustees \
@@ -358,7 +392,7 @@ Example:
 
 ````
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunVerifier \
   -in testOut/cliWorkflow/electionRecordEc
 ````

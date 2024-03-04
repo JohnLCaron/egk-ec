@@ -5,11 +5,9 @@ import org.cryptobiotic.eg.core.*
 // one for each encryption device
 data class EncryptedBallotChain(
     val encryptingDevice: String,
-    val baux0: ByteArray,
     val ballotIds: List<String>,
     val lastConfirmationCode: UInt256,
-    val chaining: Boolean,
-    val closingHash: UInt256?, // only if chaining == true
+    val closingHash: UInt256?,
     val metadata: Map<String, String> = emptyMap(),
 )
 

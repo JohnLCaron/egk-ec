@@ -54,7 +54,7 @@ class RunCreateElectionConfig {
                 ArgType.String,
                 shortName = "device",
                 description = "device information, used for B_aux,0 from eq 58-60"
-            ).default("device")
+            )
             val chainCodes by parser.option(
                 ArgType.Boolean,
                 shortName = "chainCodes",
@@ -62,15 +62,15 @@ class RunCreateElectionConfig {
             ).default(false)
             parser.parse(args)
 
-            val startupInfo = "RunCreateElectionConfig starting" +
-                        "   manifest= $electionManifest" +
-                        "   groupName= $groupName" +
-                        "   nguardians= $nguardians" +
-                        "   quorum= $quorum" +
-                        "   output = $outputDir" +
-                        "   createdBy = $createdBy" +
-                        "   baux0 = $baux0" +
-                        "   chainCodes = $chainCodes"
+            val startupInfo = "starting" +
+                        "\n   manifest= $electionManifest" +
+                        "\n   groupName= $groupName" +
+                        "\n   nguardians= $nguardians" +
+                        "\n   quorum= $quorum" +
+                        "\n   output = $outputDir" +
+                        "\n   createdBy = $createdBy" +
+                        "\n   baux0 = $baux0" +
+                        "\n   chainCodes = $chainCodes"
             logger.info { startupInfo }
 
             val group = productionGroup(groupName)
@@ -86,7 +86,7 @@ class RunCreateElectionConfig {
                     quorum,
                     manifestBytes,
                     chainCodes,
-                    baux0.encodeToByteArray(),
+                    baux0?.encodeToByteArray() ?: ByteArray(0), // use empty ByteArray if not specified
                     mapOf(
                         Pair("CreatedBy", createdBy),
                         Pair("CreatedOn", getSystemDate()),
@@ -96,7 +96,7 @@ class RunCreateElectionConfig {
             val publisher = makePublisher(outputDir, true)
             publisher.writeElectionConfig(config)
 
-            logger.info { "RunCreateElectionConfig success" }
+            logger.info { "success" }
         }
     }
 }

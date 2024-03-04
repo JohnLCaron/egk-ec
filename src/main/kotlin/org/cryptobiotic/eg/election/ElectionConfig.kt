@@ -23,7 +23,7 @@ data class ElectionConfig(
     val manifestBytes: ByteArray,
 
     val chainConfirmationCodes: Boolean = false,
-    val configBaux0: ByteArray, // B_aux,0 from eq 59,60 if chain_confirmation_codes = false
+    val configBaux0: ByteArray, // B_aux,0 from eq 59,60 may be empty if chain_confirmation_codes = false
 
     /** arbitrary key/value metadata. */
     val metadata: Map<String, String> = emptyMap(),

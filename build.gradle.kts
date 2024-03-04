@@ -63,6 +63,19 @@ tasks {
     }
 }
 
+tasks.register<Jar>("uberJar") {
+    archiveClassifier = "uber"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+}
+
+/*
 tasks.register("fatJar", Jar::class.java) {
     archiveClassifier.set("all")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -74,7 +87,13 @@ tasks.register("fatJar", Jar::class.java) {
     from(configurations.runtimeClasspath.get()
         .onEach { println("add from runtimeClasspath: ${it.name}") }
         .map { if (it.isDirectory) it else zipTree(it) })
-    val sourcesMain = sourceSets.main.get()
-    sourcesMain.allSource.forEach { println("add from sources: ${it.name}") }
+    val sourcesMain: SourceSet = sourceSets.main.get()
     from(sourcesMain.output)
+
+    val sourcesTest: SourceSet = sourceSets.test.get()
+    from(sourcesTest) {
+        include("resources/*.xml")
+    }
 }
+
+ */

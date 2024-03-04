@@ -9,6 +9,7 @@ import kotlinx.cli.required
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.Base64.fromBase64
 import org.cryptobiotic.eg.election.EncryptedBallot
+import org.cryptobiotic.eg.election.EncryptedBallotChain
 import org.cryptobiotic.eg.encrypt.Encryptor
 import org.cryptobiotic.eg.encrypt.submit
 import org.cryptobiotic.eg.input.ManifestInputValidation
@@ -17,6 +18,10 @@ import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.util.ErrorMessages
 
+/** Reads a plaintext ballot from disk and writes its encryption to disk.
+ * Note that the plaintext ballot must have the sn field set if you want the encrypted sn in the encrypted ballot.
+ * TODO optionally manage previousConfirmationCode here
+ */
 class RunEncryptBallot {
 
     companion object {
@@ -33,7 +38,7 @@ class RunEncryptBallot {
             val ballotFilename by parser.option(
                 ArgType.String,
                 shortName = "ballot",
-                description = "Plaintext ballot filename (input)"
+                description = "Plaintext ballot filename (or 'CLOSE')"
             ).required()
             val encryptBallotDir by parser.option(
                 ArgType.String,
@@ -53,18 +58,23 @@ class RunEncryptBallot {
             parser.parse(args)
 
             logger.info {
-                "RunEncryptBallot configDir= $configDir ballotFilename= $ballotFilename encryptBallotDir = $encryptBallotDir" +
-                        " device = $device previousConfirmationCode = $previousConfirmationCode"
+                "starting\n configDir= $configDir\n ballotFilename= $ballotFilename\n encryptBallotDir = $encryptBallotDir\n" +
+                        " device = $device\n previousConfirmationCode = $previousConfirmationCode"
             }
 
-            val retval = encryptBallot(
-                configDir,
-                ballotFilename,
-                encryptBallotDir,
-                device,
-                previousConfirmationCode?: "",
-            )
-            logger.info { "RunEncryptBallot returns $retval" }
+            if (ballotFilename == "CLOSE") {
+                terminateBallotChain(configDir, encryptBallotDir, device, previousConfirmationCode!!)
+                logger.info { "ballot chain closed" }
+            } else {
+                val retval = encryptBallot(
+                    configDir,
+                    ballotFilename,
+                    encryptBallotDir,
+                    device,
+                    previousConfirmationCode ?: "",
+                )
+                logger.info { "RunEncryptBallot returns $retval" }
+            }
         }
 
         fun encryptBallot(
@@ -73,7 +83,7 @@ class RunEncryptBallot {
             encryptBallotDir: String,
             device: String,
             previousConfirmationCode: String,
-            ): Int {
+        ): Int {
             val consumerIn = makeConsumer(configDir)
             val initResult = consumerIn.readElectionInitialized()
             if (initResult is Err) {
@@ -103,18 +113,21 @@ class RunEncryptBallot {
             }
             val ballot = result.unwrap()
 
+            // TODO do we have same behavior in AddEncryptedBallot ?
+            val chaining = electionInit.config.chainConfirmationCodes
             val configBaux0 = electionInit.config.configBaux0
-            val codeBaux = if (previousConfirmationCode.isEmpty()) { // TODO true when not chaining ??
+            val codeBaux = if (!chaining) {
+                configBaux0
+            } else if (previousConfirmationCode.isEmpty()) { // then its the first one
                 // H0 = H(HE ; 0x24, Baux,0 ), eq (59)
                 hashFunction(electionInit.extendedBaseHash.bytes, 0x24.toByte(), configBaux0).bytes
             } else {
                 val previousConfirmationCodeBytes = previousConfirmationCode.fromBase64()
                 if (previousConfirmationCodeBytes == null) {
-                    logger.error { "previousConfirmationCodeBytes invalid" }
+                    logger.error { "previousConfirmationCodeBytes '$previousConfirmationCode' invalid" }
                     return 4
                 }
-                // Baux,j = Hj−1 ∥ Baux,0 eq (60)
-                hashFunction(electionInit.extendedBaseHash.bytes, 0x24.toByte(), previousConfirmationCodeBytes, configBaux0).bytes
+                previousConfirmationCodeBytes + configBaux0
             }
 
             val errs = ErrorMessages("Encrypt ${ballot.ballotId}")
@@ -137,6 +150,52 @@ class RunEncryptBallot {
 
             // success
             logger.info {"Success encrypted ballot written to '$fileout' " }
+            return 0
+        }
+
+        fun terminateBallotChain(
+            configDir: String,
+            encryptBallotDir: String,
+            device: String,
+            finalConfirmationCode64: String,
+        ): Int {
+            val consumerIn = makeConsumer(configDir)
+            val initResult = consumerIn.readElectionInitialized()
+            if (initResult is Err) {
+                logger.error {"readElectionInitialized error ${initResult.error}"}
+                return 1
+            }
+            val electionInit = initResult.unwrap()
+            val manifest = consumerIn.makeManifest(electionInit.config.manifestBytes)
+            val errors = ManifestInputValidation(manifest).validate()
+            if (ManifestInputValidation(manifest).validate().hasErrors()) {
+                logger.error { "ManifestInputValidation error $errors" }
+                return 2
+            }
+
+            // The chain should be closed at the end of an election by forming and publishing
+            //    H = H(HE ; 0x24, Baux ) (61)
+            // using Baux = H(Bℓ ) ∥ Baux,0 ∥ b(“CLOSE”, 5), where H(Bℓ ) is the final confirmation code in the chain.
+
+            val configBaux0 = electionInit.config.configBaux0
+            val finalConfirmationCodeBytes = finalConfirmationCode64.fromBase64()
+            if (finalConfirmationCodeBytes == null) {
+                logger.error { "previousConfirmationCodeBytes '$finalConfirmationCode64' invalid" }
+                return 4
+            }
+            val finalConfirmationCode = finalConfirmationCodeBytes.toUInt256()!!
+            val bauxFinal = finalConfirmationCodeBytes + configBaux0 + "CLOSE".encodeToByteArray()
+            val hashFinal = hashFunction(electionInit.extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
+
+            // TODO write ballotIds
+            val closing =
+                EncryptedBallotChain(device, emptyList(), finalConfirmationCode, hashFinal)
+
+            val publisher = makePublisher(encryptBallotDir, false)
+            publisher.writeEncryptedBallotChain(closing)
+
+            // success
+            logger.info {"Success terminateBallotChain written to '$encryptBallotDir' " }
             return 0
         }
     }

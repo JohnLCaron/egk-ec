@@ -52,7 +52,7 @@ class RunTrustedKeyCeremony {
             ).default("RunTrustedKeyCeremony")
             parser.parse(args)
 
-            val startupInfo = "RunTrustedKeyCeremony starting\n   input= $inputDir\n   trustees= $trusteeDir\n   output = $outputDir"
+            val startupInfo = "starting\n   input= $inputDir\n   trustees= $trusteeDir\n   output = $outputDir"
             logger.info { startupInfo }
 
             val consumerIn = makeConsumer(inputDir)
@@ -73,7 +73,7 @@ class RunTrustedKeyCeremony {
                     consumerIn.isJson(),
                     createdBy
                 )
-                logger.info {"runKeyCeremony result = $result"}
+                logger.info {"result = $result"}
                 require(result is Ok)
 
             } catch (t: Throwable) {

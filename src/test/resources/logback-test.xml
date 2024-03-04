@@ -12,6 +12,7 @@
     </encoder>
   </appender>
 
+  <logger name="ch.qos.logback" level="WARN"/>
   <root level="info">
     <appender-ref ref="FILE" />
   </root>

@@ -8,9 +8,11 @@ _last update 02/25/2024_
   * [Building the egk-ec library](#building-the-egk-ec-library)
   * [Using the Verificatum library (optional)](#using-the-verificatum-library-optional)
     * [Installing or Building the GMP library](#installing-or-building-the-gmp-library)
-    * [Building the Verificatum Elliptic Curve library](#building-the-verificatum-elliptic-curve-library)
+    * [Building the Verificatum Elliptic Curve library (VEC)](#building-the-verificatum-elliptic-curve-library-vec)
+    * [Building the Verificatum Elliptic Curve Java library (VECJ)](#building-the-verificatum-elliptic-curve-java-library-vecj)
+    * [Make sure libraries are on the load path](#make-sure-libraries-are-on-the-load-path)
   * [Using the egk-ec library in your own project](#using-the-egk-ec-library-in-your-own-project)
-  * [Building a library with all dependencies ("fat jar")](#building-a-library-with-all-dependencies-fat-jar)
+  * [Building a library with all dependencies ("uber jar")](#building-a-library-with-all-dependencies-uber-jar)
 <!-- TOC -->
 
 ## Requirements
@@ -70,7 +72,7 @@ You should find that the library jar file is placed into:
 `build/libs/egk-ec-2.1-SNAPSHOT.jar
 `
 
-## Using the Verificatum library (optional)
+## Building the Verificatum library (optional)
 
 ### Installing or Building the GMP library
 
@@ -82,7 +84,9 @@ version is probably fine.
 3. Install into one of the library paths, usually /usr/lib.
 
 
-### Building the Verificatum Elliptic Curve library
+### Building the Verificatum Elliptic Curve library (VEC)
+
+While the C libraries in VEC, VECJ and GMP are optional, they are needed for good performance.
 
 ```
   cd devhome
@@ -99,19 +103,45 @@ Install into one of the library paths, usually _/usr/lib_. You can also use
 sudo make install
 ```
 
-which will install into _/usr/local/lib_. Make sure that directory is in your library paths, for example add this to 
-~/.bashrc :
+which will install into _/usr/local/lib_.
+
+### Building the Verificatum Elliptic Curve Java library (VECJ)
+
+```
+  cd devhome
+  git clone https://github.com/verificatum/verificatum-vecj.git
+  cd verificatum-vecj
+  make -f Makefile.build
+  ./configure
+  make
+```
+
+Install into one of the library paths, usually _/usr/lib_. You can also use
+
+```
+sudo make install
+```
+
+which will install into _/usr/local/lib_. 
+
+
+### Make sure libraries are on the load path
+
+Make sure that the directory you have installed is on your library load path. Usually the case for _/usr/lib_, 
+but may not be for _/usr/local/lib_.
+
+For example to add /usr/local/lib to the load path from  _~/.bashrc_ :
 
 ```
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 ```
 
-While VEC and GMP are optional, they are needed for good performance. If the libraries are available on the load path, 
-they will automatically be used. To check, build the fat jar (below) then run:
+If the libraries are available on the load path, 
+they will automatically be used. To check if this works, build the uber jar (below) then run:
 
 ```
 /usr/bin/java \
-  -classpath build/libs/egkec-2.1-SNAPSHOT-all.jar \
+  -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunShowSystem \
   -show hasVEC
 ```
@@ -139,26 +169,26 @@ of its dependencies, for example:
   }
 ```
 
-## Building a library with all dependencies ("fat jar")
+## Building a library with all dependencies ("uber jar")
 
 If you are using the electionguard library as standalone (eg for the command line tools), its easier to build a 
-"fat jar" that includes all of its dependencies: 
+"uber jar" that includes all of its dependencies: 
 
 ```
   cd devhome/egk-ec
-  ./gradlew fatJar
+  ./gradlew uberJar
 ```
 
-You should find that the fat jar file is placed into:
+You should find that the uber jar file is placed into:
 
-`build/libs/egkec-2.1-SNAPSHOT-all.jar
+`build/libs/egk-ec-2.1-SNAPSHOT-uber.jar
 `
 
 You can put this jar into your own gradle build like
 
 ```
   dependencies {
-    implementation(files("/egkhome/build/libs/egkec-2.1-SNAPSHOT-all.jar"))
+    implementation(files("/egkhome/build/libs/egk-ec-2.1-SNAPSHOT-uber.jar"))
      ...
   }
 ```
@@ -167,10 +197,10 @@ And you can add it to your classpath to execute [command line programs](CommandL
 
 ```
 /usr/bin/java \
-    -classpath /egkhome/build/libs/egkec-2.1-SNAPSHOT-all.jar \
+    -classpath /egkhome/build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
     org.cryptobiotic.eg.cli.RunVerifier \
     -in /path/to/election_record
 ```
 
-The fat jar includes logback as a logging implementation. The full set of included libraries are described
+The uber jar includes logback as a logging implementation. The full set of included libraries are described
 [here](../dependencies.txt).

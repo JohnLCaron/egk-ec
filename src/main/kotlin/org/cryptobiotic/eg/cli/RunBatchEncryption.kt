@@ -110,7 +110,7 @@ class RunBatchEncryption {
 
             parser.parse(args)
             val startupInfo =
-                "batchEncryption input= $inputDir\n   ballots = $ballotDir\n   device = $device" +
+                "input= $inputDir\n   ballots = $ballotDir\n   device = $device" +
                         "\n   outputDir = $outputDir" +
                         "\n   encryptDir = $encryptDir" +
                         "\n   nthreads = $nthreads" +
@@ -136,7 +136,7 @@ class RunBatchEncryption {
                 cleanOutput,
                 anonymize,
             )
-            logger.info { "RunBatchEncryption success" }
+            logger.info { "success" }
         }
 
         enum class CheckType { None, Verify, EncryptTwice, DecryptNonce }
@@ -279,9 +279,9 @@ class RunBatchEncryption {
                 logger.info{ " wrote ${invalidBallots.size} invalid ballots to $useInvalidDir" }
             }
 
-            logger.info{ "Encryption with nthreads = $nthreads ${stopwatch.tookPer(count, "ballot")}" }
+            logger.debug{ "Encryption with nthreads = $nthreads ${stopwatch.tookPer(count, "ballot")}" }
             val encryptionPerBallot = if (count == 0) 0 else (countEncryptions / count)
-            logger.info{ "  $countEncryptions total encryptions = $encryptionPerBallot per ballot ${stopwatch.tookPer(countEncryptions, "encryptions")}"}
+            logger.debug{ "  $countEncryptions total encryptions = $encryptionPerBallot per ballot ${stopwatch.tookPer(countEncryptions, "encryptions")}"}
         }
 
         private var codeBaux = ByteArray(0)
