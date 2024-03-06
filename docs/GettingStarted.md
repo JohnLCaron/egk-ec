@@ -157,7 +157,7 @@ of its dependencies, for example:
 
 ```
   dependencies {
-    implementation(files("devhome/egk-ec/build/libs/egk-ec-2.1-SNAPSHOT.jarr"))
+    implementation(files("devhome/egk-ec/build/libs/egk-ec-2.1-SNAPSHOT.jar"))
     implementation("io.github.microutils:kotlin-logging:3.0.5")
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.18")
     
@@ -171,7 +171,7 @@ of its dependencies, for example:
 
 ## Building a library with all dependencies ("uber jar")
 
-If you are using the electionguard library as standalone (eg for the command line tools), its easier to build a 
+If you are using the egk library as standalone (eg for the command line tools), its easier to build a 
 "uber jar" that includes all of its dependencies: 
 
 ```

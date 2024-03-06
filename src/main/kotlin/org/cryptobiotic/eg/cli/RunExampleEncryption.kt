@@ -10,6 +10,7 @@ import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
+import kotlin.system.exitProcess
 
 /**
  * Simulates using RunEncryptBallot one ballot at a time.
@@ -71,6 +72,7 @@ class RunExampleEncryption {
             val ballotChaining = electionInit.config.chainConfirmationCodes
             val publisher = makePublisher(plaintextBallotDir)
             var previousConfirmationCode = ""
+            var allOk = true
 
             val ballotProvider = RandomBallotProvider(manifest)
             repeat(nballots) {
@@ -78,13 +80,14 @@ class RunExampleEncryption {
                 publisher.writePlaintextBallot(plaintextBallotDir, listOf(pballot))
                 val pballotFilename = "$plaintextBallotDir/pballot-${pballot.ballotId}.json"
 
-                RunEncryptBallot.encryptBallot(
-                    configDir,
+                val retval = RunEncryptBallot.encryptBallot(
+                    consumerIn,
                     pballotFilename,
                     encryptBallotDir,
                     device,
                     previousConfirmationCode,
                 )
+                if (retval != 0) allOk = false
 
                 if (ballotChaining) {
                     // read the encrypted ballot back in to get its confirmationCode
@@ -99,16 +102,22 @@ class RunExampleEncryption {
             }
 
             if (ballotChaining) {
-                RunEncryptBallot.encryptBallot(
-                    configDir,
+                val retval = RunEncryptBallot.encryptBallot(
+                    consumerIn,
                     "CLOSE",
                     encryptBallotDir,
                     device,
                     previousConfirmationCode,
                 )
+                if (retval != 0) allOk = false
             }
 
-            logger.info { "success" }
+            if (allOk) {
+                logger.info { "success" }
+            } else {
+                logger.error { "success" }
+                exitProcess(10)
+            }
         }
     }
 }

@@ -372,7 +372,7 @@ data class Manifest(
         val geopoliticalUnitId: String,
         val voteVariation: VoteVariationType,
         val numberElected: Int,
-        val votesAllowed: Int, // contest selection limit = L, rename next breaking change
+        val votesAllowed: Int, // contest selection limit = L, TODO rename next breaking change
         val name: String,
         override val selections: List<SelectionDescription>,
         val ballotTitle: String?,

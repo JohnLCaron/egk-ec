@@ -7,6 +7,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.*
+import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.util.ErrorMessages
 

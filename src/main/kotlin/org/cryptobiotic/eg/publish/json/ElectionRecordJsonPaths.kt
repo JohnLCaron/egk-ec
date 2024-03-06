@@ -92,7 +92,11 @@ data class ElectionRecordJsonPaths(val topDir : String) {
         }
     }
 
-    fun encryptedBallotChain(device: String): String {
-        return "${encryptedBallotDir(device)}/${ENCRYPTED_BALLOT_CHAIN}${JSON_SUFFIX}"
+    fun encryptedBallotChain(device: String, ballotDir: String?): String {
+        return if (ballotDir == null) {
+            "${encryptedBallotDir(device)}/${ENCRYPTED_BALLOT_CHAIN}${JSON_SUFFIX}"
+        } else {
+            "${ballotDir}/${ENCRYPTED_BALLOT_CHAIN}${JSON_SUFFIX}"
+        }
     }
 }

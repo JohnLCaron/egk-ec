@@ -6,17 +6,17 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.election.*
+import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.publish.json.ConsumerJson
 import org.cryptobiotic.eg.publish.json.ElectionRecordJsonPaths
 import org.cryptobiotic.util.ErrorMessages
-import java.nio.file.Files
 import java.nio.file.Path
 import java.util.function.Predicate
 
 private val logger = KotlinLogging.logger("Consumer")
 
-/** public API to read from the election record */
+/** Public API to read from the election record */
 interface Consumer {
     val group : GroupContext
     fun topdir() : String
@@ -34,8 +34,11 @@ interface Consumer {
     fun hasEncryptedBallots() : Boolean
     /** The list of devices that have encrypted ballots. */
     fun encryptingDevices(): List<String>
-    /** The encrypted ballot chain for specified device. */
-    fun readEncryptedBallotChain(device: String) : Result<EncryptedBallotChain, ErrorMessages>
+    /**
+     * The encrypted ballot chain for the specified device.
+     * If the ballotDir is not overridden, then 'encrypted_ballots/device' will be used.
+     */
+    fun readEncryptedBallotChain(device: String, ballotDir: String? = null) : Result<EncryptedBallotChain, ErrorMessages>
     /** Read a specific file containing an encrypted ballot. */
     fun readEncryptedBallot(ballotDir: String, ballotId: String) : Result<EncryptedBallot, ErrorMessages>
     /** Read encrypted ballots for specified device. */
@@ -48,43 +51,31 @@ interface Consumer {
     /** Read all decrypted ballots, usually the challenged ones. */
     fun iterateDecryptedBallots(): Iterable<DecryptedTallyOrBallot>
 
-    //// outside  the election record
+    //// may be outside the election record
     /** read encrypted ballots in given directory. */
     fun iterateEncryptedBallotsFromDir(ballotDir: String, pathFilter: Predicate<Path>?, filter : Predicate<EncryptedBallot>? ): Iterable<EncryptedBallot>
     /** read plaintext ballots in given directory, private data. */
     fun iteratePlaintextBallots(ballotDir: String, filter : ((PlaintextBallot) -> Boolean)? ): Iterable<PlaintextBallot>
     /** read trustee in given directory for given guardianId, private data. */
     fun readTrustee(trusteeDir: String, guardianId: String): Result<DecryptingTrusteeIF, ErrorMessages>
-
     /** read plaintext ballot. */
     fun readPlaintextBallot(ballotFilename: String): Result<PlaintextBallot, ErrorMessages>
 }
 
+/**
+ * Read only access to an election record.
+ * There must at least be a constants.json and an election_config.json file. If not, then
+ * the caller must provide the group.
+ * [topDir] a directory or a zip file with the election record in it.
+ * [usegroup] caller may provide the group to be used. Must match the election record.
+ * Throw an Exception on failure.
+ */
 fun makeConsumer(
     topDir: String,
     usegroup: GroupContext? = null
 ): Consumer {
     return ConsumerJson(topDir, usegroup)
 }
-
-/*
-fun makeInputBallotSource(
-    ballotDir: String,
-    group: GroupContext,
-    isJson: Boolean? = null, // if not set, check if PLAINTEXT_BALLOT_FILE file exists
-): Consumer {
-    return ConsumerJson(ballotDir, group)
-}
-
-fun makeTrusteeSource(
-    trusteeDir: String,
-    group: GroupContext,
-    isJson: Boolean,
-): Consumer {
-    return ConsumerJson(trusteeDir, group)
-}
-
- */
 
 /**
  * Read the manifest and check that the file parses and validates.
@@ -135,6 +126,3 @@ fun readAndCheckManifest(manifestDirOrFile: String): Triple<Boolean, Manifest, B
     }
 
 }
-
-fun pathExists(path: String): Boolean = Files.exists(Path.of(path))
-fun isDirectory(path: String): Boolean = Files.isDirectory(Path.of(path))

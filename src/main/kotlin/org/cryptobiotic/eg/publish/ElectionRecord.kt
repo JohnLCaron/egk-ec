@@ -3,6 +3,7 @@ package org.cryptobiotic.eg.publish
 import com.github.michaelbull.result.Result
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.*
+import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.util.ErrorMessages
 
 /** Interface to the published election record.  */

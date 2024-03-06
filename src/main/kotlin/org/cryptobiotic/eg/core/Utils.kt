@@ -30,10 +30,10 @@ fun isBigEndian(): Boolean = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN
 
 fun getSystemTimeInMillis() : Long = System.currentTimeMillis()
 
-fun doesPathExist(path: String): Boolean = Files.exists(Path.of(path))
+fun pathExists(path: String): Boolean = Files.exists(Path.of(path))
 
 fun createDirectories(directory: String): Boolean {
-    if (doesPathExist(directory)) {
+    if (pathExists(directory)) {
         return true
     }
     return try {
