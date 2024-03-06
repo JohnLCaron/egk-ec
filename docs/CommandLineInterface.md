@@ -125,8 +125,7 @@ Example:
     -group P-256 \
     -nguardians 3 \
     -quorum 3 \
-    -out testOut/cliWorkflow/configEc \
-    --baux0 device42
+    -out testOut/cliWorkflow/configEc
 ````
 
 ## Run trusted KeyCeremony
@@ -185,15 +184,20 @@ Example:
 Usage: RunEncryptBallot options_list
 Options: 
     --configDir, -config -> Directory containing election configuration (always required) { String }
+    --device, -device -> voting device name (always required) { String }
     --ballotFilename, -ballot -> Plaintext ballot filename (or 'CLOSE') (always required) { String }
     --encryptBallotDir, -output -> Write encrypted ballot to this directory (always required) { String }
-    --device, -device -> voting device name (always required) { String }
     --previousConfirmationCode, -previous -> previous confirmation code when chaining ballots { String }
     --help, -h -> Usage info 
 ````
 This reads one plaintext ballot from disk and writes its encryption into the specified directory.
-If the config file has chainConfirmationCodes = true, then you must do ballot chaining by sending the previous ballot's 
-confirmation code, taken as is from its json serialization. The ballot chaining must be closed when done.
+
+If the config file has chainConfirmationCodes = true, then caller may
+  1) Do ballot chaining by sending the previous ballot's confirmation code, taken from the json serialization. 
+  2) Do not do send the previous ballot's confirmation code, then RunEncryptBallot will expect to be able to read
+     and write _ballot_chain.json_ in the encryptBallotDir directory.
+The ballot chaining should be closed by sending ballotFilename = "Close" when the chain is complete. 
+The previousConfirmationCode is sent for option 1, and not sent for option 2.
 
 See RunExampleEncryption for working example code.
 
@@ -204,9 +208,9 @@ Example:
   -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunEncryptBallot \
     -config src/test/data/encrypt/testBallotNoChain \
+    -device device42 \
     -ballot src/test/data/fakeBallots/pballot-id153737325.json \
-    -output testOut/encrypt/RunEncryptBallotTest \
-    -device device42
+    -output testOut/encrypt/RunEncryptBallotTest 
 ````
 
 ## Run Example Encryption

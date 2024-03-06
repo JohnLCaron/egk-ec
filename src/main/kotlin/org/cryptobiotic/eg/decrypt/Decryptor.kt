@@ -72,6 +72,7 @@ class Decryptor(
         return tally.decrypt(errs, isBallot = false, isPep = true)
     }
 
+    // TODO remove isPep?
     fun EncryptedTally.decrypt(errs : ErrorMessages, isBallot : Boolean = false, isPep : Boolean = false): DecryptedTallyOrBallot? {
         if (this.electionId != extendedBaseHash) {
             errs.add("Encrypted Tally/Ballot has wrong electionId = ${this.electionId}")

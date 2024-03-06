@@ -1,15 +1,8 @@
 package org.cryptobiotic.eg.election
 
-import org.cryptobiotic.eg.core.*
-
-// one for each encryption device
-data class EncryptedBallotChain(
-    val encryptingDevice: String,
-    val ballotIds: List<String>,
-    val lastConfirmationCode: UInt256,
-    val closingHash: UInt256?,
-    val metadata: Map<String, String> = emptyMap(),
-)
+import org.cryptobiotic.eg.core.ElGamalPublicKey
+import org.cryptobiotic.eg.core.ElementModQ
+import org.cryptobiotic.eg.core.UInt256
 
 /** Results of tallying some collection of ballots, namely an EncryptedTally. */
 data class TallyResult(

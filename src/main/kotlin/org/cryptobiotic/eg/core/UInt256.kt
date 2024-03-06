@@ -7,7 +7,7 @@ import kotlin.experimental.xor
 /**
  * Superficially similar to an [ElementModQ], but guaranteed to be exactly 32 bytes long. Use with
  * care, because [ByteArray] allows for mutation, and the internal representation is available for
- * external use.TODO generalize in case we need hash386??
+ * external use.
  */
 data class UInt256(val bytes: ByteArray) {
     init {
@@ -24,8 +24,8 @@ data class UInt256(val bytes: ByteArray) {
         return "UInt256(0x${bytes.toHex()})"
     }
 
-    fun toHex(): String = bytes.toHex() // TODO why?
-    fun toBase64(): String = bytes.toBase64() // TODO why?
+    fun toHex(): String = bytes.toHex()
+    fun toBase64(): String = bytes.toBase64()
 
     companion object {
         val ZERO = 0U.toUInt256()

@@ -25,7 +25,7 @@ class Nonces(seed: ElementModQ, vararg headers: Any) {
 
     override fun equals(other: Any?) =
         when (other) {
-            is Nonces -> internalSeed == other.internalSeed // TODO "dangerous array condition"
+            is Nonces -> internalSeed.contentEquals(other.internalSeed)
             else -> false
         }
 

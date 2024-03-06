@@ -5,6 +5,7 @@ import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
+import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.publish.DecryptedTallyOrBallotSinkIF
 import org.cryptobiotic.eg.publish.EncryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.Publisher
@@ -112,9 +113,9 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
 
     ////////////////////////////////////////////////
 
-    override fun writeEncryptedBallotChain(closing: EncryptedBallotChain) {
+    override fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotDir: String?) {
         val jsonChain = closing.publishJson()
-        val filename = jsonPaths.encryptedBallotChain(closing.encryptingDevice)
+        val filename = jsonPaths.encryptedBallotChain(closing.encryptingDevice, ballotDir)
         FileOutputStream(filename).use { out ->
             jsonReader.encodeToStream(jsonChain, out)
             out.close()

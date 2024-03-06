@@ -19,8 +19,7 @@ data class ElectionConfig(
     val manifestHash : UInt256, // Hm
     val electionBaseHash : UInt256,  // Hb
     // the raw bytes of the manifest. You must regenerate the manifest from this.
-    // TODO may need to specify serialization form, or detect it.
-    val manifestBytes: ByteArray,
+    val manifestBytes: ByteArray, // TODO may need to specify serialization form, or detect it.
 
     val chainConfirmationCodes: Boolean = false,
     val configBaux0: ByteArray, // B_aux,0 from eq 59,60 may be empty if chain_confirmation_codes = false

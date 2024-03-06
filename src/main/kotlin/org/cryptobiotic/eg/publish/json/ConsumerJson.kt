@@ -19,13 +19,21 @@ import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.core.GroupContext
 import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
+import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.publish.Consumer
 import org.cryptobiotic.util.ErrorMessages
 
-private val logger = KotlinLogging.logger("ConsumerJsonJvm")
 
-/** Can read both zipped and unzipped JSON election record */
+/**
+ * Read only access to an election record.
+ * There must at least be a constants.json and an election_config.json file. If not, then
+ * the caller must provide the group.
+ * [topDir] can be a directory or a zip file with the election record in it.
+ * [usegroup] caller may provide the group to be used. Must match the election record.
+ */
 class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consumer {
+    private val logger = KotlinLogging.logger("ConsumerJson")
+
     var fileSystem : FileSystem = FileSystems.getDefault()
     var fileSystemProvider : FileSystemProvider = fileSystem.provider()
     var jsonPaths = ElectionRecordJsonPaths(topDir)
@@ -34,7 +42,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
 
     init {
         if (!Files.exists(Path.of(topDir))) {
-            throw RuntimeException("Not existent directory $topDir")
+            throw RuntimeException("Directory '$topDir' does not exist")
         }
         if (topDir.endsWith(".zip")) {
             val filePath = Path.of(topDir)
@@ -47,17 +55,19 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
                 "\nmanifestPath = ${jsonPaths.manifestPath()} -> ${fileSystem.getPath(jsonPaths.manifestPath())}" +
                 "\nelectionConfigPath = ${jsonPaths.electionConfigPath()} -> ${fileSystem.getPath(jsonPaths.electionConfigPath())}" }
         }
-        // must have a config and constants
-        val readConfigResult = readElectionConfig()
-        if (readConfigResult is Ok) {
-            val config = readConfigResult.value
-            val constants = config.constants
-            group = productionGroup(constants.name)
-        } else if (usegroup != null) {
+
+        if (usegroup != null) {
             group = usegroup
         } else {
-            throw RuntimeException("Configuration and constants not found in $topDir")
-
+            // must have a config and constants
+            val readConfigResult = readElectionConfig()
+            if (readConfigResult is Ok) {
+                val config = readConfigResult.value
+                val constants = config.constants
+                group = productionGroup(constants.name)
+            } else {
+                throw RuntimeException("Configuration and constants not found in $topDir errs= ${readConfigResult} ")
+            }
         }
     }
 
@@ -142,9 +152,9 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         return deviceDirs.map { it.getName( it.nameCount - 1).toString() }.toList() // last name in the path
     }
 
-    override fun readEncryptedBallotChain(device: String) : Result<EncryptedBallotChain, ErrorMessages> {
+    override fun readEncryptedBallotChain(device: String, ballotDir: String?) : Result<EncryptedBallotChain, ErrorMessages> {
         val errs = ErrorMessages("readEncryptedBallotChain device '$device'")
-        val ballotChainPath = Path.of(jsonPaths.encryptedBallotChain(device))
+        val ballotChainPath = Path.of(jsonPaths.encryptedBallotChain(device, ballotDir))
         if (!Files.exists(ballotChainPath)) {
             return errs.add("'$ballotChainPath' file does not exist")
         }

@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.publish
 
 import org.cryptobiotic.eg.election.*
+import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import org.cryptobiotic.eg.publish.json.PublisherJson
 
@@ -15,8 +16,7 @@ interface Publisher {
     fun writeDecryptionResult(decryption: DecryptionResult)
 
     fun encryptedBallotSink(device: String?, batched : Boolean = false): EncryptedBallotSinkIF
-    fun writeEncryptedBallotChain(closing: EncryptedBallotChain)
-
+    fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotDir: String? = null)
     fun decryptedTallyOrBallotSink(): DecryptedTallyOrBallotSinkIF
 
     fun writePlaintextBallot(outputDir: String, plaintextBallots: List<PlaintextBallot>)

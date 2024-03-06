@@ -127,7 +127,7 @@ class RunTrustedBallotDecryption {
                         consumerIn.iterateAllEncryptedBallots { true }
                     }
 
-                    doesPathExist(decryptChallenged) -> {
+                    pathExists(decryptChallenged) -> {
                         logger.info {" use ballots in file '$decryptChallenged'"}
                         val wanted: List<String> = fileReadLines(decryptChallenged)
                         val wantedTrim: List<String> = wanted.map { it.trim() }
