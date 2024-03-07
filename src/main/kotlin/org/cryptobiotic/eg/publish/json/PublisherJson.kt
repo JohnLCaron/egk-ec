@@ -31,6 +31,7 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
     }
 
     override fun isJson() : Boolean = true
+    override fun topdir(): String = jsonPaths.topDir
 
     override fun writeManifest(manifest: Manifest)  : String {
         val manifestJson = manifest.publishJson()
@@ -113,9 +114,11 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
 
     ////////////////////////////////////////////////
 
-    override fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotDir: String?) {
+    override fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotOverrideDir: String?) {
         val jsonChain = closing.publishJson()
-        val filename = jsonPaths.encryptedBallotChain(closing.encryptingDevice, ballotDir)
+        val filename = jsonPaths.encryptedBallotChain(closing.encryptingDevice, ballotOverrideDir)
+        // println("   writeEncryptedBallotChain $filename")
+
         FileOutputStream(filename).use { out ->
             jsonReader.encodeToStream(jsonChain, out)
             out.close()

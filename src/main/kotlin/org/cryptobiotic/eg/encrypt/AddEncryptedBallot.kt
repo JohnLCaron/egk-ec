@@ -14,24 +14,31 @@ import org.cryptobiotic.eg.publish.EncryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.util.ErrorMessages
+import org.cryptobiotic.util.Stopwatch
 import java.io.Closeable
 
 private val logger = KotlinLogging.logger("AddEncryptedBallot")
 
-/** Encrypt a ballot and add to election record. Single threaded only. */
+/**
+ * Encrypt a ballot and add to election record. TODO Single threaded only?.
+ *  Note that chaining is controlled by config.chainConfirmationCodes, and handled here.
+ *  Note that this allows for benolah challenge, ie voter submits a ballot, gets a confirmation code
+ *  (with or without ballot chaining), then decide to challenge or cast.
+ */
 class AddEncryptedBallot(
     val manifest: Manifest, // should already be validated
     val chaining: Boolean,
     val configBaux0: ByteArray,
     val jointPublicKey: ElGamalPublicKey,
     val extendedBaseHash: UInt256,
-    val deviceName: String,
+    val device: String,
     val outputDir: String, // write ballots to outputDir/encrypted_ballots/deviceName, must not have multiple writers to same directory
     val invalidDir: String, // write plaintext ballots that fail validation
     val isJson: Boolean, // must match election record serialization type
 ) : Closeable {
     val ballotValidator = BallotInputValidation(manifest)
     val publisher = makePublisher(outputDir, false)
+    val consumerIn = makeConsumer(outputDir)
 
     // note that the encryptor doesnt know if its chained
     val encryptor = Encryptor(
@@ -39,7 +46,7 @@ class AddEncryptedBallot(
         manifest,
         jointPublicKey,
         extendedBaseHash,
-        deviceName,
+        device,
     )
     val decryptor = DecryptBallotWithNonce(
         jointPublicKey.context,
@@ -47,32 +54,12 @@ class AddEncryptedBallot(
         extendedBaseHash
     )
 
-    val sink: EncryptedBallotSinkIF = publisher.encryptedBallotSink(deviceName)
-    val baux0: ByteArray
+    val sink: EncryptedBallotSinkIF = publisher.encryptedBallotSink(device)
+    var currentChain: EncryptedBallotChain? = null
 
     private val ballotIds = mutableListOf<String>()
     private val pending = mutableMapOf<UInt256, CiphertextBallot>() // key = ccode.toHex()
-    private var lastConfirmationCode: UInt256 = UInt256.ZERO
-    private var first = true
     private var closed = false
-
-    init {
-        if (chaining) {
-            val consumer = makeConsumer(outputDir)
-            val chainResult = consumer.readEncryptedBallotChain(deviceName)
-            if (chainResult is Ok) {
-                // this is a restart on an existing chain
-                val chain: EncryptedBallotChain = chainResult.unwrap()
-                ballotIds.addAll(chain.ballotIds)
-                this.lastConfirmationCode = chain.lastConfirmationCode
-                first = false
-            }
-            // H0 = H(HE ; 0x24, Baux,0 ), eq (59)
-            baux0 = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), configBaux0).bytes
-        } else {
-            baux0 = configBaux0
-        }
-    }
 
     fun encrypt(ballot: PlaintextBallot, errs : ErrorMessages): CiphertextBallot? {
         if (closed) {
@@ -87,16 +74,35 @@ class AddEncryptedBallot(
             return null
         }
 
-        // Baux,j = Hj−1 ∥ Baux,0 eq (60)
-        val bauxj: ByteArray = if (!chaining || first) baux0 else lastConfirmationCode.bytes + configBaux0
-        first = false
+        val bauxj = if (!chaining) {
+            configBaux0
+        } else {
+            // this will read in an existing chain, and so recover from machine going down.
+            val pair = EncryptedBallotChain.makeCodeBaux(
+                consumerIn,
+                device,
+                null,
+                configBaux0,
+                extendedBaseHash,
+            )
+            currentChain = pair.second
+            pair.first!! // cant be null
+        }
 
         val ciphertextBallot = encryptor.encrypt(ballot, bauxj, errs)
-        if (errs.hasErrors()) {
+        if (ciphertextBallot == null || errs.hasErrors()) {
             return null
         }
-        ballotIds.add(ciphertextBallot!!.ballotId)
-        this.lastConfirmationCode = ciphertextBallot.confirmationCode
+        // challenged ballots are also in the chain
+        if (chaining) {
+            currentChain = EncryptedBallotChain.writeChain(
+                publisher,
+                null,
+                ciphertextBallot.ballotId,
+                ciphertextBallot.confirmationCode,
+                currentChain!!
+            )
+        }
 
         // hmmm you could write CiphertextBallot to a log, in case of crash
         pending[ciphertextBallot.confirmationCode] = ciphertextBallot
@@ -152,6 +158,16 @@ class AddEncryptedBallot(
         try {
             val eballot = cballot.spoil()
             sink.writeEncryptedBallot(eballot) // record the encrypted, challenged ballot
+            if (chaining) {
+                currentChain = EncryptedBallotChain.writeChain(
+                    publisher,
+                    null,
+                    eballot.ballotId,
+                    eballot.confirmationCode,
+                    currentChain!!
+                )
+            }
+
             with(decryptor) {
                 val dballotResult: Result<PlaintextBallot, String> = eballot.decrypt(cballot.ballotNonce)
                 if (dballotResult is Ok) {
@@ -176,21 +192,19 @@ class AddEncryptedBallot(
             }
         }
 
+        //             publisher: Publisher,
+        //            device: String,
+        //            ballotChainOverrideDir: String?,
+        //            currentChain: EncryptedBallotChain,
+        //            finalConfirmationCode: String? = null,
         if (chaining) {
-            val closing =
-                EncryptedBallotChain(deviceName, ballotIds, this.lastConfirmationCode, closeChain())
-            publisher.writeEncryptedBallotChain(closing)
+            val retval = EncryptedBallotChain.terminateChain(
+                publisher,
+                device,
+                null,
+                currentChain!!
+            )
         }
-    }
-
-    private fun closeChain(): UInt256? {
-        if (!chaining) return null
-
-        // Hbar = H(HE ; 0x24, Baux )
-        // Baux = H(Bℓ) ∥ Baux,0 ∥ b("CLOSE")   (eq 61)
-        // H(Bℓ) is the final confirmation code in the chain
-        val bauxFinal = lastConfirmationCode.bytes + configBaux0 + "CLOSE".encodeToByteArray()
-        return hashFunction(extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
     }
 
     override fun close() {

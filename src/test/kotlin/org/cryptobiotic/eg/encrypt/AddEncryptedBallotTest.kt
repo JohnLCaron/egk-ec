@@ -271,14 +271,14 @@ class AddEncryptedBallotTest {
     fun testMultipleDevicesChaining() {
         val outputDir = "$outputDir/testMultipleDevicesChaining"
 
-        val electionRecord = readElectionRecord(input)
+        val electionRecord = readElectionRecord( input)
         val configWithChaining = electionRecord.config().copy(chainConfirmationCodes = true)
         val electionInit = electionRecord.electionInit()!!.copy(config = configWithChaining)
 
         val publisher = makePublisher(outputDir, true)
         publisher.writeElectionInitialized(electionInit)
 
-        repeat(3) { it ->
+        repeat(3) {
             val encryptor = AddEncryptedBallot(
                 electionRecord.manifest(),
                 electionInit.config.chainConfirmationCodes,

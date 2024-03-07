@@ -42,7 +42,7 @@ import org.cryptobiotic.util.Stopwatch
  * Read ElectionConfig from inputDir, write electionInit to outputDir.
  * Read plaintext ballots from ballotDir.
  * All ballots will be cast.
- * TODO ballot chaining ??
+ * Ballot chaining cannot be used here.
  */
 class RunBatchEncryption {
 

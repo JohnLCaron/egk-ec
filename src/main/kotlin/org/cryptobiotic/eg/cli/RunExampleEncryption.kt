@@ -14,8 +14,9 @@ import kotlin.system.exitProcess
 
 /**
  * Simulates using RunEncryptBallot one ballot at a time.
- * Note that chaining is controlled by config.chainConfirmationCodes.
- */
+ * Note that chaining is controlled by config.chainConfirmationCodes, and handled by RunEncryptBallot.
+ * Note that this does not allow for benolah challenge, ie voter submits a ballot, gets a confirmation code
+ * (with or without ballot chaining), then decide to challenge or cast. */
 class RunExampleEncryption {
 
     companion object {
@@ -69,9 +70,7 @@ class RunExampleEncryption {
                 logger.error { "ManifestInputValidation error ${errors}" }
                 throw RuntimeException("ManifestInputValidation error $errors")
             }
-            val ballotChaining = electionInit.config.chainConfirmationCodes
             val publisher = makePublisher(plaintextBallotDir)
-            var previousConfirmationCode = ""
             var allOk = true
 
             val ballotProvider = RandomBallotProvider(manifest)
@@ -85,29 +84,6 @@ class RunExampleEncryption {
                     pballotFilename,
                     encryptBallotDir,
                     device,
-                    previousConfirmationCode,
-                )
-                if (retval != 0) allOk = false
-
-                if (ballotChaining) {
-                    // read the encrypted ballot back in to get its confirmationCode
-                    val result = consumerIn.readEncryptedBallot(encryptBallotDir, pballot.ballotId)
-                    if (result is Err) {
-                        logger.warn { "readEncryptedBallot error ${result}" }
-                    } else {
-                        val eballot = result.unwrap()
-                        previousConfirmationCode = eballot.confirmationCode.toBase64()
-                    }
-                }
-            }
-
-            if (ballotChaining) {
-                val retval = RunEncryptBallot.encryptBallot(
-                    consumerIn,
-                    "CLOSE",
-                    encryptBallotDir,
-                    device,
-                    previousConfirmationCode,
                 )
                 if (retval != 0) allOk = false
             }

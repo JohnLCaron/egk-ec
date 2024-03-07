@@ -115,6 +115,11 @@ Options:
     --help, -h -> Usage info 
 ````
 
+If chainCodes is true, and baux0 is omitted, then the device name UTF-8 bytes will be used when creating the 
+confirmation codes during encryption. This allows the configuration file to be used across multiple devices, 
+and still have the device name as part of the ballot chaining as required in the spec. 
+So, in general we recommend ommitting baux0 here, unless you have special requirements.
+
 Example:
 
 ````
