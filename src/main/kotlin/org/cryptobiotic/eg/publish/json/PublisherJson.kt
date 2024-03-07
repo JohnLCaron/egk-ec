@@ -117,7 +117,6 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
     override fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotOverrideDir: String?) {
         val jsonChain = closing.publishJson()
         val filename = jsonPaths.encryptedBallotChain(closing.encryptingDevice, ballotOverrideDir)
-        // println("   writeEncryptedBallotChain $filename")
 
         FileOutputStream(filename).use { out ->
             jsonReader.encodeToStream(jsonChain, out)
