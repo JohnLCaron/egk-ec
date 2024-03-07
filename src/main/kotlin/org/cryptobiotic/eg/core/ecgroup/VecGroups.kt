@@ -328,7 +328,9 @@ class VecGroups(
                 Arrays.sort(res)
                 return res
             }
-        
+
+        // BTW, setting LD_LIBRARY_PATH to /usr/local/lib doesnt work when debugging, add to /usr/lib directly.
+        // Ok when running from CLI, though.
         fun getEcGroup(name: String, useNative: Boolean = true): VecGroup {
             val params: VecGroups? = NAMED_PARAMS.get(name)
             if (params == null) {

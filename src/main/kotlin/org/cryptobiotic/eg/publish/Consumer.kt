@@ -19,6 +19,7 @@ private val logger = KotlinLogging.logger("Consumer")
 /** Public API to read from the election record */
 interface Consumer {
     val group : GroupContext
+
     fun topdir() : String
     fun isJson() : Boolean
 

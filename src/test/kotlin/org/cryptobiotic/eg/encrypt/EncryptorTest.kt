@@ -8,7 +8,7 @@ import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
 
-class EncryptTest {
+class EncryptorTest {
     val input = "src/test/data/workflow/allAvailableEc"
 
     // sanity check that encryption doesnt barf

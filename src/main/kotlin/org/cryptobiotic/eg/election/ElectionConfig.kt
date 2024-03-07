@@ -5,7 +5,7 @@ import org.cryptobiotic.eg.core.hashFunction
 
 const val currentConfigVersion = "2.1.0"
 
-/** Configuration input for KeyCeremony. */
+/** Configuration input. */
 data class ElectionConfig(
     val configVersion: String,
     val constants: ElectionConstants,
@@ -22,7 +22,7 @@ data class ElectionConfig(
     val manifestBytes: ByteArray, // TODO may need to specify serialization form, or detect it.
 
     val chainConfirmationCodes: Boolean = false,
-    val configBaux0: ByteArray, // B_aux,0 from eq 59,60 may be empty if chain_confirmation_codes = false
+    val configBaux0: ByteArray, // B_aux,0 from eq 59,60 may be empty
 
     /** arbitrary key/value metadata. */
     val metadata: Map<String, String> = emptyMap(),

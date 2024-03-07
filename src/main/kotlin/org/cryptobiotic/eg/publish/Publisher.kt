@@ -8,6 +8,7 @@ import org.cryptobiotic.eg.publish.json.PublisherJson
 /** Write the Election Record as protobuf or json files. */
 interface Publisher {
     fun isJson() : Boolean
+    fun topdir() : String
 
     fun writeManifest(manifest: Manifest) : String // return filename
     fun writeElectionConfig(config: ElectionConfig)
@@ -16,7 +17,7 @@ interface Publisher {
     fun writeDecryptionResult(decryption: DecryptionResult)
 
     fun encryptedBallotSink(device: String?, batched : Boolean = false): EncryptedBallotSinkIF
-    fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotDir: String? = null)
+    fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotOverrideDir: String? = null)
     fun decryptedTallyOrBallotSink(): DecryptedTallyOrBallotSinkIF
 
     fun writePlaintextBallot(outputDir: String, plaintextBallots: List<PlaintextBallot>)
