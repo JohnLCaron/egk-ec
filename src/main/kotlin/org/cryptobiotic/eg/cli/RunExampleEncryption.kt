@@ -6,10 +6,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.required
+import org.cryptobiotic.eg.core.createDirectories
 import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
+import kotlin.random.Random
 import kotlin.system.exitProcess
 
 /**
@@ -40,21 +42,27 @@ class RunExampleEncryption {
                 shortName = "pballotDir",
                 description = "Write plaintext ballots to this directory"
             ).required()
+            val deviceNames by parser.option(
+                ArgType.String,
+                shortName = "device",
+                description = "voting device name(s), comma delimited"
+            ).required()
             val encryptBallotDir by parser.option(
                 ArgType.String,
                 shortName = "eballotDir",
                 description = "Write encrypted ballots to this directory"
             ).required()
-            val device by parser.option(
-                ArgType.String,
-                shortName = "device",
-                description = "voting device name"
+            val addDeviceNameToDir by parser.option(
+                ArgType.Boolean,
+                shortName = "deviceDir",
+                description = "Add device name to encrypted ballots directory"
             ).required()
             parser.parse(args)
 
+            val devices = deviceNames.split(",")
             logger.info {
                 "starting\n configDir= $configDir\n  nballots= $nballots\n  plaintextBallotDir = $plaintextBallotDir\n" +
-                        "  encryptBallotDir = $encryptBallotDir\n  device = $device"
+                        "  encryptBallotDir = $encryptBallotDir\n  devices = $devices\n  addDeviceNameToDir= $addDeviceNameToDir"
             }
 
             val consumerIn = makeConsumer(configDir)
@@ -78,20 +86,30 @@ class RunExampleEncryption {
                 val pballot = ballotProvider.getFakeBallot(manifest, "ballotStyle", "ballot$it")
                 publisher.writePlaintextBallot(plaintextBallotDir, listOf(pballot))
                 val pballotFilename = "$plaintextBallotDir/pballot-${pballot.ballotId}.json"
+                val deviceIdx = if(devices.size == 1) 0 else Random.nextInt(devices.size)
+                val device = devices[deviceIdx]
+                val eballotDir = if (addDeviceNameToDir) "$encryptBallotDir/$device" else encryptBallotDir
+                createDirectories(eballotDir)
 
                 val retval = RunEncryptBallot.encryptBallot(
                     consumerIn,
                     pballotFilename,
-                    encryptBallotDir,
+                    eballotDir,
                     device,
                 )
                 if (retval != 0) allOk = false
+            }
+            if (electionInit.config.chainConfirmationCodes) {
+                devices.forEach { device ->
+                    val eballotDir = if (addDeviceNameToDir) "$encryptBallotDir/$device" else encryptBallotDir
+                    if (RunEncryptBallot.close(consumerIn.group, device, eballotDir) != 0) allOk = false
+                }
             }
 
             if (allOk) {
                 logger.info { "success" }
             } else {
-                logger.error { "success" }
+                logger.error { "failure" }
                 exitProcess(10)
             }
         }

@@ -1,6 +1,6 @@
 # Workflow and Command Line Programs
 
-last update 03/02/2024
+last update 03/08/2024
 
 <!-- TOC -->
 * [Workflow and Command Line Programs](#workflow-and-command-line-programs)
@@ -192,19 +192,18 @@ Options:
     --device, -device -> voting device name (always required) { String }
     --ballotFilename, -ballot -> Plaintext ballot filename (or 'CLOSE') (always required) { String }
     --encryptBallotDir, -output -> Write encrypted ballot to this directory (always required) { String }
-    --previousConfirmationCode, -previous -> previous confirmation code when chaining ballots { String }
     --help, -h -> Usage info 
 ````
 This reads one plaintext ballot from disk and writes its encryption into the specified directory.
 
-If the config file has chainConfirmationCodes = true, then caller may
-  1) Do ballot chaining by sending the previous ballot's confirmation code, taken from the json serialization. 
-  2) Do not do send the previous ballot's confirmation code, then RunEncryptBallot will expect to be able to read
-     and write _ballot_chain.json_ in the encryptBallotDir directory.
-The ballot chaining should be closed by sending ballotFilename = "Close" when the chain is complete. 
-The previousConfirmationCode is sent for option 1, and not sent for option 2.
+The standard place to write encrypted ballots is to _workingDir/encrypted_ballots/device/_. The encrypted file is always
+named _eballot-ballotId.json_, where _ballotId_ is taken from the plaintext ballot.
 
-See RunExampleEncryption for working example code.
+If the config file has chainConfirmationCodes = true, then RunEncryptBallot will expect to be able to read
+and write _ballot_chain.json_ in the encryptBallotDir directory. The ballot chaining should be closed by sending 
+ballotFilename = "Close" when the chain is complete. 
+
+See RunExampleEncryption below for working example code.
 
 Example:
 
@@ -215,7 +214,7 @@ Example:
     -config src/test/data/encrypt/testBallotNoChain \
     -device device42 \
     -ballot src/test/data/fakeBallots/pballot-id153737325.json \
-    -output testOut/encrypt/RunEncryptBallotTest 
+    -output testOut/encrypted_ballots/device42/ 
 ````
 
 ## Run Example Encryption
@@ -226,14 +225,18 @@ Options:
     --configDir, -config -> Directory containing election configuration (always required) { String }
     --nballots, -nballots -> Number of test ballots to generate (always required) { Int }
     --plaintextBallotDir, -pballotDir -> Write plaintext ballots to this directory (always required) { String }
+    --deviceNames, -device -> voting device name(s), comma delimited (always required) { String }
     --encryptBallotDir, -eballotDir -> Write encrypted ballots to this directory (always required) { String }
-    --device, -device -> voting device name (always required) { String }
+    --addDeviceNameToDir, -deviceDir -> Add device name to encrypted ballots directory (always required) 
     --help, -h -> Usage info 
-
 ````
-This is an example program that calls RunEncryptBallot to encrypt one ballot at a time, by generating fake, test ballots.
-If the config file has chainConfirmationCodes = true, then RunExampleEncryption will do ballot chaining by sending the 
-previous ballot's confirmation code, and closing the chain when done.
+This is an example program that calls RunEncryptBallot to encrypt one ballot at a time, by generating fake ballots.
+
+You can generate multiple chains by having multiple device names. In that case we recooment using --addDeviceNameToDir
+so that the file layout is standard.
+
+Chaining is controlled by the config file flag chainConfirmationCodes = true. If true, then RunExampleEncryption will
+close the chain when done.
 
 Example:
 
@@ -242,10 +245,11 @@ Example:
   -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunExampleEncryption \
     -config src/test/data/encrypt/testBallotChain \
-    -nballots 11 \
-    -pballotDir testOut/encrypt/RunExampleEncryptionTest/pballots \
-    -eballotDir testOut/encrypt/RunExampleEncryptionTest/eballots \
-    -device device42
+    -nballots 33 \
+    -pballotDir testOut/encrypt/RunExampleEncryptionTest/plaintext_ballots \
+    -eballotDir testOut/encrypt/RunExampleEncryptionTest/encrypted_ballots \
+    -device device42,device11,yrnameHere \
+    --addDeviceNameToDir
 ````
 
 ## Run Batch Encryption
@@ -264,11 +268,12 @@ Options:
     --device, -device -> voting device name (always required) { String }
     --cleanOutput, -clean [false] -> clean output dir 
     --anonymize, -anon [false] -> anonymize ballot 
-    --help, -h -> Usage info
+    --help, -h -> Usage info 
 ````
 You must specify outputDir or encryptDir. The former copies ElectionInit and writes encrypted ballots to standard election record.
 The latter writes just the encrypted ballots to the specified directory.
 
+This run multithreaded, and you cannot use it to do ballot chaining.
 
 Example:
 
@@ -276,7 +281,7 @@ Example:
 /usr/bin/java \
   -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunBatchEncryption \
-    -in testOut/cliWorkflow/keyceremonyEc \
+    -in src/test/data/keyceremony/runFakeKeyCeremonyAllEc \
     -ballots src/test/data/fakeBallots \
     -out testOut/cliWorkflow/electionRecordEc \
     -device device42 \

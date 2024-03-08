@@ -5,11 +5,11 @@ import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
+import org.cryptobiotic.eg.core.removeAllFiles
 import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.publish.DecryptedTallyOrBallotSinkIF
 import org.cryptobiotic.eg.publish.EncryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.Publisher
-import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.nio.file.Files
@@ -165,18 +165,6 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
         }
     }
 
-}
-
-/** Delete everything in the given directory, but leave that directory.  */
-fun removeAllFiles(path: Path) {
-    if (!path.toFile().exists()) {
-        return
-    }
-    Files.walk(path)
-        .filter { p: Path -> p != path }
-        .map { obj: Path -> obj.toFile() }
-        .sorted { o1: File, o2: File? -> -o1.compareTo(o2) }
-        .forEach { f: File -> f.delete() }
 }
 
 // not used for now, keep for proto or batch
