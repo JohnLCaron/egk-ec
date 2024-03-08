@@ -21,6 +21,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.yield
 import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
+import org.cryptobiotic.eg.encrypt.EncryptedBallotChain.Companion.assembleChain
 import org.cryptobiotic.eg.publish.Consumer
 import org.cryptobiotic.eg.publish.ElectionRecord
 import org.cryptobiotic.util.Stopwatch
@@ -43,7 +44,7 @@ class VerifyEncryptedBallots(
         ballots: Iterable<EncryptedBallot>,
         errs: ErrorMessages,
         stats: Stats = Stats(),
-    ): Boolean {
+    ): Pair<Boolean, Int> {
         val stopwatch = Stopwatch()
 
         runBlocking {
@@ -73,14 +74,14 @@ class VerifyEncryptedBallots(
         }
 
         logger.info { "verified $count ballots ${stopwatch.tookPer(count, "ballots")}" }
-        return !errs.hasErrors()
+        return Pair(!errs.hasErrors(), count)
     }
 
     fun verifyEncryptedBallot(
         ballot: EncryptedBallot,
         errs: ErrorMessages,
         stats: Stats
-    ) : Boolean {
+    ): Boolean {
         val stopwatch = Stopwatch()
 
         if (ballot.electionId != extendedBaseHash) {
@@ -119,12 +120,12 @@ class VerifyEncryptedBallots(
         errs: ErrorMessages
     ) {
         contest.selections.forEach {
-            verifySelection( it, manifest.optionLimit(contest.contestId), errs.nested("Selection ${it.selectionId}"))
+            verifySelection(it, manifest.optionLimit(contest.contestId), errs.nested("Selection ${it.selectionId}"))
         }
 
         // Verification 6 (Adherence to vote limits)
         val texts: List<ElGamalCiphertext> = contest.selections.map { it.encryptedVote }
-        val ciphertextAccumulation: ElGamalCiphertext = texts.encryptedSum()?: 0.encrypt(jointPublicKey)
+        val ciphertextAccumulation: ElGamalCiphertext = texts.encryptedSum() ?: 0.encrypt(jointPublicKey)
         val cvalid = contest.proof.verify(
             ciphertextAccumulation,
             this.jointPublicKey,
@@ -198,7 +199,7 @@ class VerifyEncryptedBallots(
                 var ballotCount = 0
                 ballots.forEach { ballot ->
                     val expectedBaux = prevCC + baux0  // eq 7.D and 7.E
-                    println( "expectedBaux ${expectedBaux.contentToString()}")
+                    println("expectedBaux ${expectedBaux.contentToString()}")
 
                     if (!expectedBaux.contentEquals(ballot.codeBaux)) {
                         errs.add("    7.E. additional input byte array Baux != H(Bj−1 ) ∥ Baux,0 for ballot=${ballot.ballotId}")
@@ -208,7 +209,7 @@ class VerifyEncryptedBallots(
                 }
                 // 7.F The final additional input byte array is equal to Baux = H(Bℓ ) ∥ Baux,0 ∥ b(“CLOSE”, 5) and
                 //      H(Bℓ ) is the final confirmation code on this device.
-                val bauxFinal = prevCC + baux0+ "CLOSE".encodeToByteArray()
+                val bauxFinal = prevCC + baux0 + "CLOSE".encodeToByteArray()
 
                 // 7.G The closing hash is correctly computed as H = H(HE ; 0x24, Baux )
                 val expectedClosingHash = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
@@ -225,128 +226,75 @@ class VerifyEncryptedBallots(
 
     //////////////////////////////////////////////////////////////////////////////
     // ballot chaining without EncryptedBallotChain
-    // where does closing hash get stored?
-    // is there a separate config for every device ?? barf
 
-    private val showChain = false
     fun verifyConfirmationChain2(consumer: Consumer, errs: ErrorMessages): Boolean {
         var allOk = true
         consumer.encryptingDevices().forEach { device ->
-            val ballotChainResult = consumer.readEncryptedBallotChain(device)
-            if (ballotChainResult is Err) {
-                errs.add(ballotChainResult.toString())
-            } else {
-                val ballotChain: EncryptedBallotChain = ballotChainResult.unwrap()
-                if (showChain) {
-                    println("ballotChainOld for $device")
-                    ballotChain.ballotIds.forEach { println("  $it") }
-                }
-
-                val ok = !verifyOneChain(device, ballotChain, consumer.iterateEncryptedBallots(device){ true }, errs )
-                if (showChain) println(" device '$device' is ok = $ok")
-                if (!ok) allOk = false
+            verifyOneChain(consumer, device, errs)
+            if (errs.hasErrors()) {
+                println(" device '$device' has errors $errs")
+                allOk = false
             }
         }
         return allOk
     }
 
-    fun verifyOneChain(device: String, ballotChain: EncryptedBallotChain?, encryptedBallots: Iterable<EncryptedBallot>, errs: ErrorMessages): Boolean {
-        var err = false
-        val bauxMap = mutableMapOf<Int, BallotChainEntry>()
+    fun verifyOneChain(consumer: Consumer, device: String, errs: ErrorMessages) {
+        val ballotChain: EncryptedBallotChain? =
+            assembleChain(consumer, device, null, config.configBaux0, extendedBaseHash, errs)
+        if (ballotChain == null) {
+            errs.add("Cant assembleChain")
+            return
+        }
+        val ballotDir = "wtf"
 
-        // If chainCodes is true, and baux0 is omitted, then the device name UTF-8 bytes will be used when creating the
+        // If chainCodes is true, and configBaux0 is empty, then the device name UTF-8 bytes will be used when creating the
         // confirmation codes during encryption. This allows the configuration file to be used across multiple devices,
         // and still have the device name as part of the ballot chaining as required in the spec.
         val baux0 = if (config.configBaux0.isEmpty()) device.encodeToByteArray() else config.configBaux0
-
-        val start = BallotChainEntry("START", 0)
-        bauxMap[baux0.contentHashCode()] = start
-        encryptedBallots.map { eballot ->
-            val bauxj: ByteArray = eballot.confirmationCode.bytes + baux0
-            bauxMap[bauxj.contentHashCode()] = BallotChainEntry(eballot.ballotId, eballot.codeBaux.contentHashCode())
-        }
-
-        if (showChain) {
-            println("ballotChainNew")
-            bauxMap.forEach { println("  $it") }
-        }
-
-        encryptedBallots.forEach { eballot ->
-            val prev = bauxMap[eballot.codeBaux.contentHashCode()]
-            if (prev != null) {
-                if (prev.nextBallot != null) {
-                    errs.add("    VerifyChain ${prev.ballotId} already has next")
-                    err = true
-                } else {
-                    prev.nextBallot = ConfirmationCode(eballot)
-                }
-            } else {
-                errs.add("    VerifyChain ${eballot.ballotId} cant find ${eballot.codeBaux.contentHashCode()}")
-                err = true
-            }
-        }
-
-        if (showChain) {
-            println("ballotChainAfter")
-            bauxMap.values.forEach { println("  $it") }
-        }
-
 
         // 7.D The initial hash code H0 satisfies H0 = H(HE ; 0x24, Baux,0 )
         // "and Baux,0 contains the unique voting device information". TODO ambiguous, change spec wording
         val H0 = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), baux0).bytes
 
+        // (7.E) For all 1 ≤ j ≤ ℓ, the additional input byte array used to compute Hj = H(Bj) is equal to
+        //       Baux,j = H(Bj−1) ∥ Baux,0 .
         var prevCC = H0
-        var first = true
+        var ballotCount = 0
 
-        val chainMap: Map<String, BallotChainEntry> = bauxMap.values.associateBy { it.ballotId }
-        var ccount = 0
-        var chain = start
-        while (chain.nextBallot != null) {
-            val nextBallot = chain.nextBallot!!
-            if (ballotChain != null) {
-                val check = (ballotChain.ballotIds[ccount] == nextBallot.ballotId)
-                if (!check) err = true
+        ballotChain.ballotIds.forEach { ballotId ->
+            val eballotResult = consumer.readEncryptedBallot(ballotDir, ballotId)
+            if (eballotResult is Err) {
+                errs.add("Cant find $ballotId")
+            } else {
+                val eballot = eballotResult.unwrap()
+                val expectedBaux = prevCC + baux0  // eq 7.D and 7.E
+                // println("  expectedBaux ${expectedBaux.contentToString()}")
+
+                if (!expectedBaux.contentEquals(eballot.codeBaux)) {
+                    errs.add("    7.E. additional input byte array Baux != H(Bj−1 ) ∥ Baux,0 for ballot=${eballot.ballotId}")
+                }
+                prevCC = eballot.confirmationCode.bytes
+
+                // 7.F The final additional input byte array is equal to Baux = H(Bℓ ) ∥ Baux,0 ∥ b(“CLOSE”, 5) and
+                //      H(Bℓ ) is the final confirmation code on this device.
+                val bauxFinal = prevCC + baux0 + "CLOSE".encodeToByteArray()
+
+                // 7.G The closing hash is correctly computed as H = H(HE ; 0x24, Baux )
+                val expectedClosingHash = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
+                if (expectedClosingHash != ballotChain.closingHash) {
+                    errs.add("    7.G. The closing hash is not equal to H = H(HE ; 24, bauxFinal ) for encrypting device=$device")
+                }
+                ballotCount++
             }
-
-            // (7.E) For all 1 ≤ j ≤ ℓ, the additional input byte array used to compute Hj = H(Bj) is equal to
-            //       Baux,j = H(Bj−1) ∥ Baux,0 .
-            val expectedBaux = if (first) H0 else prevCC + baux0  // eq 7.D and 7.E
-            first = false
-            if (!expectedBaux.contentEquals(nextBallot.codeBaux)) {
-                errs.add("    7.E. additional input byte array Baux != H(Bj−1 ) ∥ Baux,0 for ballot=${nextBallot.ballotId}")
-            }
-            prevCC = nextBallot.code.bytes
-
-            chain = chainMap[nextBallot.ballotId]!!
-            ccount++
-        }
-        // 7.F The final additional input byte array is equal to Baux = H(Bℓ ) ∥ Baux,0 ∥ b(“CLOSE”, 5) and
-        //      H(Bℓ ) is the final confirmation code on this device.
-        val bauxFinal = prevCC + baux0 + "CLOSE".encodeToByteArray()
-
-        // 7.G The closing hash is correctly computed as H = H(HE ; 0x24, Baux )
-        // TODO where does the closing hash get stored ?? Must be by device??
-        val expectedClosingHash = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
-        if (ballotChain != null && expectedClosingHash != ballotChain.closingHash) {
-            errs.add("    7.G. The closing hash is not equal to H = H(HE ; 24, bauxFinal ) for encrypting device=$device")
-        }
-
-        logger.info { "verified $ccount chained ballots for device $device" }
-        return err || errs.hasErrors()
-    }
-
-    class BallotChainEntry(val ballotId: String, val bauxHash: Int, var nextBallot: ConfirmationCode? = null) {
-        override fun toString(): String {
-            return "BallotChainEntry(ballotId='$ballotId', bauxHash = $bauxHash, nextBallot=${nextBallot})"
         }
     }
 
     data class ConfirmationCode(val ballotId: String, val code: UInt256, val codeBaux: ByteArray) {
-        constructor(ballot: EncryptedBallot): this(ballot.ballotId, ballot.confirmationCode, ballot.codeBaux)
+        constructor(ballot: EncryptedBallot) : this(ballot.ballotId, ballot.confirmationCode, ballot.codeBaux)
 
         override fun toString(): String {
-            return "$ballotId"
+            return ballotId
         }
     }
 
@@ -378,7 +326,7 @@ class VerifyEncryptedBallots(
             mutex.withLock {
                 if (result) {
                     aggregator.add(ballot) // this slows down the ballot parallelism: nselections * (2 (modP multiplication))
-                    confirmationCodes.add( ConfirmationCode(ballot))
+                    confirmationCodes.add(ConfirmationCode(ballot))
                 }
             }
             yield()

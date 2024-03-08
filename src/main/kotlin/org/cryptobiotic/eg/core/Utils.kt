@@ -26,8 +26,6 @@ fun randomBytes(length: Int): ByteArray {
     return bytes
 }
 
-fun isBigEndian(): Boolean = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN
-
 fun getSystemTimeInMillis() : Long = System.currentTimeMillis()
 
 fun pathExists(path: String): Boolean = Files.exists(Path.of(path))
@@ -44,6 +42,20 @@ fun createDirectories(directory: String): Boolean {
         false
     }
 }
+
+/** Delete everything in the given directory, but leave that directory.  */
+fun removeAllFiles(path: Path) {
+    if (!path.toFile().exists()) {
+        return
+    }
+    Files.walk(path)
+        .filter { p: Path -> p != path }
+        .map { obj: Path -> obj.toFile() }
+        .sorted { o1: File, o2: File? -> -o1.compareTo(o2) }
+        .forEach { f: File -> f.delete() }
+}
+
+fun isBigEndian(): Boolean = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN
 
 fun isDirectory(path: String): Boolean = Files.isDirectory(Path.of(path))
 

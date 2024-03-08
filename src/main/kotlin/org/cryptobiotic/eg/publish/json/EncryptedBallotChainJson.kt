@@ -8,7 +8,7 @@ import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 @Serializable
 data class EncryptedBallotChainJson(
     val encrypting_device: String,
-    val config_baux0: ByteArray,
+    val baux0: ByteArray,
     val election_base_hash: UInt256Json, // Hb
     val ballot_ids: List<String>,
     val last_confirmation_code: UInt256Json,
@@ -18,7 +18,7 @@ data class EncryptedBallotChainJson(
 
 fun EncryptedBallotChain.publishJson() = EncryptedBallotChainJson(
     this.encryptingDevice,
-    this.configBaux0,
+    this.baux0,
     this.extendedBaseHash.publishJson(),
     this.ballotIds,
     this.lastConfirmationCode.publishJson(),
@@ -34,7 +34,7 @@ fun EncryptedBallotChainJson.import(errs : ErrorMessages): EncryptedBallotChain?
     return if (errs.hasErrors()) null
     else EncryptedBallotChain(
         this.encrypting_device,
-        this.config_baux0,
+        this.baux0,
         base_hash!!,
         this.ballot_ids,
         last!!,

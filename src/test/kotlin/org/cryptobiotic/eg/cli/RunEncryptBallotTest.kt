@@ -1,8 +1,10 @@
 package org.cryptobiotic.eg.cli
 
 import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
 import org.cryptobiotic.eg.core.ElGamalPublicKey
+import org.cryptobiotic.eg.core.removeAllFiles
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
@@ -10,7 +12,6 @@ import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.verifier.VerifyEncryptedBallots
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.testOut
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.function.Predicate
@@ -20,7 +21,7 @@ import kotlin.test.*
 class RunEncryptBallotTest {
 
     @Test
-    fun testRunEncryptBallotNoChaining() {
+    fun testRunEncryptOneBallotNoChaining() {
         val inputDir = "src/test/data/encrypt/testBallotNoChain"
         val outputDir = "$testOut/encrypt/testRunEncryptBallotNoChaining"
         val ballotId = "3842034"
@@ -32,6 +33,7 @@ class RunEncryptBallotTest {
         val ballotProvider = RandomBallotProvider(manifest)
         val ballot = ballotProvider.getFakeBallot(manifest, "ballotStyle", ballotId)
 
+        removeAllFiles(Path.of(outputDir))
         val publisher = makePublisher(outputDir, true)
         publisher.writePlaintextBallot(outputDir, listOf(ballot))
 
@@ -46,7 +48,8 @@ class RunEncryptBallotTest {
 
         assertTrue(Files.exists(Path.of("$outputDir/eballot-$ballotId.json")))
 
-        verifyOutput(inputDir, outputDir, false)
+        val count = verifyOutput(inputDir, outputDir, false)
+        assertEquals(1, count)
     }
 
     @Test
@@ -58,11 +61,12 @@ class RunEncryptBallotTest {
         val consumerIn = makeConsumer(inputDir)
         val record = readElectionRecord(consumerIn)
         val manifest = record.manifest()
+
+        removeAllFiles(Path.of(outputDir))
         val publisher = makePublisher(outputDir, true)
 
         val ballotProvider = RandomBallotProvider(manifest)
-        var prevCC = ""
-        repeat (nballots) {
+        repeat(nballots) {
             val ballotId = Random.nextInt().toString()
             val ballot = ballotProvider.getFakeBallot(manifest, "ballotStyle", ballotId)
 
@@ -75,7 +79,6 @@ class RunEncryptBallotTest {
                     "--ballotFilename", ballotFilename,
                     "--encryptBallotDir", outputDir,
                     "-device", "device42",
-                    "-previous", prevCC,
                 )
             )
 
@@ -83,12 +86,10 @@ class RunEncryptBallotTest {
             if (result is Err) {
                 println(result)
                 fail()
-            } else {
-                val eballot = result.unwrap()
-                prevCC = eballot.confirmationCode.toBase64()
             }
         }
-        verifyOutput(inputDir, outputDir, true)
+        val count = verifyOutput(inputDir, outputDir, true)
+        assertEquals(nballots, count)
     }
 
 
@@ -104,8 +105,7 @@ class RunEncryptBallotTest {
         val publisher = makePublisher(outputDir, true)
 
         val ballotProvider = RandomBallotProvider(manifest)
-        var prevCC = ""
-        repeat (nballots) {
+        repeat(nballots) {
             val ballotId = Random.nextInt().toString()
             val ballot = ballotProvider.getFakeBallot(manifest, "ballotStyle", ballotId)
 
@@ -118,50 +118,52 @@ class RunEncryptBallotTest {
                     "--ballotFilename", ballotFilename,
                     "--encryptBallotDir", outputDir,
                     "-device", "device42",
-                    "-previous", prevCC,
                 )
             )
 
             val result = consumerIn.readEncryptedBallot(outputDir, ballotId)
-            val eballot = result.unwrap()
-            prevCC = eballot.confirmationCode.toBase64()
+            assertTrue( result is Ok)
         }
-        verifyOutput(inputDir, outputDir, true)
+        val count = verifyOutput(inputDir, outputDir, true)
+        assertEquals(nballots, count)
     }
-
-    fun verifyOutput(inputDir: String, ballotDir: String, chained: Boolean = false) {
-        val consumer = makeConsumer(inputDir)
-        val record = readElectionRecord(consumer)
-
-        val verifier = VerifyEncryptedBallots(
-            consumer.group,
-            record.manifest(),
-            ElGamalPublicKey(record.jointPublicKey()!!),
-            record.extendedBaseHash()!!,
-            record.config(), 1
-        )
-
-        val consumerBallots = makeConsumer(ballotDir, consumer.group)
-        // TODO should this be standard filter?
-        val pathFilter = Predicate<Path> {
-            val name = it.getFileName().toString()
-            name.startsWith("eballot")
-        }
-        val ballots = consumerBallots.iterateEncryptedBallotsFromDir(ballotDir, pathFilter, null )
-        val errs = ErrorMessages("verifyBallots")
-        val ok = verifier.verifyBallots(ballots, errs)
-        println("  verifyEncryptedBallots: ok= $ok result= $errs")
-        assertFalse(errs.hasErrors())
-
-        if (chained) {
-            val chainErrs = ErrorMessages("verifyConfirmationChain")
-            val chainOk = verifier.verifyConfirmationChain2(consumerBallots, chainErrs)
-            println("  verifyConfirmationChain: ok= $chainOk result= $errs")
-            assertFalse(chainErrs.hasErrors())
-        }
-        println("Success")
-    }
-
-
 }
+
+fun verifyOutput(inputDir: String, ballotDir: String, chained: Boolean = false): Int {
+    val consumer = makeConsumer(inputDir)
+    val record = readElectionRecord(consumer)
+
+    val verifier = VerifyEncryptedBallots(
+        consumer.group,
+        record.manifest(),
+        ElGamalPublicKey(record.jointPublicKey()!!),
+        record.extendedBaseHash()!!,
+        record.config(), 1
+    )
+
+    val consumerBallots = makeConsumer(ballotDir, consumer.group)
+    // TODO should this be standard filter?
+    val pathFilter = Predicate<Path> {
+        val name = it.getFileName().toString()
+        name.startsWith("eballot")
+    }
+    val ballots = consumerBallots.iterateEncryptedBallotsFromDir(ballotDir, pathFilter, null )
+    val errs = ErrorMessages("verifyBallots")
+    val (ok, count) = verifier.verifyBallots(ballots, errs)
+    println("  verifyEncryptedBallots $ballotDir: ok= $ok result= $errs")
+    assertFalse(errs.hasErrors())
+
+    if (chained) {
+        val chainErrs = ErrorMessages("verifyConfirmationChain2")
+        val chainOk = verifier.verifyConfirmationChain2(consumerBallots, chainErrs)
+        println("  verifyConfirmationChain2 $ballotDir: ok= $chainOk result= $errs")
+        if (chainErrs.hasErrors()) {
+            println(chainErrs)
+        }
+        assertFalse(chainErrs.hasErrors())
+    }
+    println("Success")
+    return count
+}
+
 

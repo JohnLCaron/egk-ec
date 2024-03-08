@@ -1,13 +1,8 @@
 package org.cryptobiotic.eg.cli
 
-import org.cryptobiotic.eg.core.ElGamalPublicKey
-import org.cryptobiotic.eg.publish.makeConsumer
-import org.cryptobiotic.eg.publish.readElectionRecord
-import org.cryptobiotic.eg.verifier.VerifyEncryptedBallots
-import org.cryptobiotic.util.ErrorMessages
+import org.cryptobiotic.eg.core.removeAllFiles
 import org.cryptobiotic.util.testOut
 import java.nio.file.Path
-import java.util.function.Predicate
 import kotlin.test.*
 
 class RunExampleEncryptionTest {
@@ -16,57 +11,49 @@ class RunExampleEncryptionTest {
     fun testExampleEncryptionWithChaining() {
         val inputDir = "src/test/data/encrypt/testBallotChain"
         val outputDir = "$testOut/encrypt/testExampleEncryptionWithChaining"
-        val nballots = 10
+        val nballots = 33
+
+        removeAllFiles(Path.of("$outputDir/encrypted_ballots"))
 
         RunExampleEncryption.main(
                 arrayOf(
                     "--configDir", inputDir,
                     "--nballots", nballots.toString(),
                     "--plaintextBallotDir", "$outputDir/plaintext",
-                    "--encryptBallotDir", "$outputDir/encrypted",
-                    "-device", "device42",
+                    "--encryptBallotDir", "$outputDir/encrypted_ballots",
+                    "-device", "device42,device11",
+                    "--addDeviceNameToDir",
                 )
             )
 
-        verifyOutput(inputDir, "$outputDir/encrypted", true)
+        val count1 = verifyOutput(inputDir, "$outputDir/encrypted_ballots/device11", true)
+        val count2 = verifyOutput(inputDir, "$outputDir/encrypted_ballots/device42", true)
+        assertEquals(nballots, count1 + count2)
     }
 
-    fun verifyOutput(inputDir: String, eballotDir: String, chained: Boolean = false) {
-        val consumer = makeConsumer(inputDir)
-        val record = readElectionRecord(consumer)
+    @Test
+    fun testExampleEncryptionWithNoChaining() {
+        val inputDir = "src/test/data/encrypt/testBallotNoChain"
+        val outputDir = "$testOut/encrypt/testExampleEncryptionNoChaining"
+        val nballots = 33
 
-        val verifier = VerifyEncryptedBallots(
-            consumer.group,
-            record.manifest(),
-            ElGamalPublicKey(record.jointPublicKey()!!),
-            record.extendedBaseHash()!!,
-            record.config(), 1
+        removeAllFiles(Path.of("$outputDir/encrypted_ballots"))
+
+        RunExampleEncryption.main(
+            arrayOf(
+                "--configDir", inputDir,
+                "--nballots", nballots.toString(),
+                "--plaintextBallotDir", "$outputDir/plaintext",
+                "-device", "device42,device11",
+                "--encryptBallotDir", "$outputDir/encrypted_ballots",
+                "--addDeviceNameToDir",
+            )
         )
 
-        val consumerBallots = makeConsumer(eballotDir, consumer.group)
-        // TODO should this be standard filter?
-        val pathFilter = Predicate<Path> {
-            val name = it.getFileName().toString()
-            name.startsWith("eballot")
-        }
-        val eballots = consumerBallots.iterateEncryptedBallotsFromDir(eballotDir, pathFilter, null )
-        val errs = ErrorMessages("verifyBallots")
-        val ok = verifier.verifyBallots(eballots, errs)
-        println("  verifyEncryptedBallots: ok= $ok result= $errs")
-        assertFalse(errs.hasErrors())
-
-        if (chained) {
-            val chainErrs = ErrorMessages("verifyConfirmationChain")
-            val chainOk =  verifier.verifyOneChain("device42", null, eballots, chainErrs)
-            println("  verifyConfirmationChain: ok= $chainOk result= $errs")
-            if (chainErrs.hasErrors()) {
-                println(chainErrs)
-            }
-            assertFalse(chainErrs.hasErrors())
-        }
-        println("Success")
+        val count1 = verifyOutput(inputDir, "$outputDir/encrypted_ballots/device11", false)
+        val count2 = verifyOutput(inputDir, "$outputDir/encrypted_ballots/device42", false)
+        assertEquals(nballots, count1 + count2)
     }
-
 
 }
 

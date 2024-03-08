@@ -7,6 +7,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.required
+import org.cryptobiotic.eg.core.GroupContext
 import org.cryptobiotic.eg.election.EncryptedBallot
 import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.encrypt.EncryptedBallotChain.Companion.makeCodeBaux
@@ -55,44 +56,22 @@ class RunEncryptBallot {
                 shortName = "output",
                 description = "Write encrypted ballot to this directory"
             ).required()
-            val previousConfirmationCode by parser.option(
-                ArgType.String,
-                shortName = "previous",
-                description = "previous confirmation code for chaining ballots"
-            )
             parser.parse(args)
 
             logger.info {
-                "starting\n configDir= $configDir\n ballotFilename= $ballotFilename\n encryptBallotDir = $encryptBallotDir\n" +
-                        " device = $device\n previousConfirmationCode = $previousConfirmationCode"
+                "starting\n configDir= $configDir\n ballotFilename= $ballotFilename\n encryptBallotDir = $encryptBallotDir\n device = $device"
             }
 
+            val consumerIn = makeConsumer(configDir)
             try {
-                val consumerIn = makeConsumer(configDir)
-
                 if (ballotFilename == "CLOSE") {
-                    val consumer = makeConsumer(encryptBallotDir)
-                    val chainResult = consumer.readEncryptedBallotChain(device, encryptBallotDir)
-                    if (chainResult is Ok) {
-                        val chain = chainResult.unwrap()
-                        val publisher = makePublisher(encryptBallotDir)
-                        val retval = terminateChain(publisher, device, encryptBallotDir, chain, previousConfirmationCode,)
-                        if (retval != 0) {
-                            logger.info { "Cant terminateBallotChain retval=$retval" }
-                            exitProcess(retval)
-                        }
-                    } else {
-                        logger.error { "Cant readEncryptedBallotChain err=$chainResult" }
-                        exitProcess(11)
-                    }
-
+                    exitProcess( close(consumerIn.group, device, encryptBallotDir))
                 } else {
                     val retval = encryptBallot(
                         consumerIn,
                         ballotFilename,
                         encryptBallotDir,
                         device,
-                        previousConfirmationCode,
                     )
                     if (retval != 0) {
                         logger.info { "encryptBallot retval=$retval" }
@@ -111,7 +90,6 @@ class RunEncryptBallot {
             ballotFilename: String,
             encryptBallotDir: String,
             device: String,
-            previousConfirmationCode: String? = null,
         ): Int {
             val initResult = consumerIn.readElectionInitialized()
             if (initResult is Err) {
@@ -149,9 +127,9 @@ class RunEncryptBallot {
             if (!chaining) {
                 codeBaux = configBaux0
             } else {
-                val consumerChain = makeConsumer(encryptBallotDir)
+                val consumerChain = makeConsumer(encryptBallotDir, consumerIn.group)
                 // this will read in an existing chain, and so recover from machine going down.
-                val pair = makeCodeBaux(consumerChain, device, encryptBallotDir, configBaux0, electionInit.extendedBaseHash, previousConfirmationCode, )
+                val pair = makeCodeBaux(consumerChain, device, encryptBallotDir, configBaux0, electionInit.extendedBaseHash, )
                 codeBaux = pair.first
                 currentChain = pair.second
             }
@@ -192,6 +170,29 @@ class RunEncryptBallot {
                 return 6
             }
             return 0
+        }
+
+        fun close(
+            group: GroupContext,
+            device: String,
+            encryptBallotDir: String,
+        ): Int {
+            val consumer = makeConsumer(encryptBallotDir, group)
+            val chainResult = consumer.readEncryptedBallotChain(device, encryptBallotDir)
+            val retval = if (chainResult is Ok) {
+                val chain = chainResult.unwrap()
+                val publisher = makePublisher(encryptBallotDir) // TODO not placing it into the device directory?
+                val termval = terminateChain(publisher, device, encryptBallotDir, chain,)
+                if (termval != 0) {
+                    logger.info { "Cant terminateBallotChain retval=$termval" }
+                }
+                termval
+
+            } else {
+                logger.error { "Cant readEncryptedBallotChain err=$chainResult" }
+                11
+            }
+            return retval
         }
     }
 }

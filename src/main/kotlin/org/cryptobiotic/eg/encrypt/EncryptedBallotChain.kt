@@ -32,7 +32,7 @@ import org.cryptobiotic.util.ErrorMessages
 
 data class EncryptedBallotChain(
     val encryptingDevice: String,
-    val configBaux0: ByteArray,
+    val baux0: ByteArray,  // has device name if configBaux0 is empty
     val extendedBaseHash: UInt256,
     val ballotIds: List<String>,
     val lastConfirmationCode: UInt256,
@@ -42,7 +42,7 @@ data class EncryptedBallotChain(
 
     companion object {
         private val logger = KotlinLogging.logger("EncryptedBallotChain")
-        private val showChain = true
+        private val showChain = false
 
         // calculate codeBaux from previousConfirmationCode to be used in the current confirmationCode
         fun makeCodeBaux(
@@ -51,7 +51,6 @@ data class EncryptedBallotChain(
             ballotChainOverrideDir: String?,
             configBaux0: ByteArray,
             extendedBaseHash: UInt256,
-            previousConfirmationCode: String? = null, // TODO maybe remove this option to simplify things?
         ): Pair<ByteArray?, EncryptedBallotChain> {
             var chain: EncryptedBallotChain? = null
 
@@ -60,33 +59,24 @@ data class EncryptedBallotChain(
             // and still have the device name as part of the ballot chaining as required in the spec.
             val baux0 = if (configBaux0.isEmpty()) device.encodeToByteArray() else configBaux0
 
-            val codeBaux = if (previousConfirmationCode == null) {
-                val chainResult = consumer.readEncryptedBallotChain(device, ballotChainOverrideDir)
-                if (chainResult is Ok) {
-                    if (showChain) print(" next ")
-                    chain = chainResult.unwrap()
-                    // Baux,j = Hj−1 ∥ Baux,0
-                    chain.lastConfirmationCode.bytes + baux0
-                } else {
-                    if (showChain) print(" first ")
-                    // otherwise this is the first one in the chain
-                    // H0 = H(HE ; 0x24, Baux,0 ), eq (59)
-                    // Baux,1 = H0 ∥ Baux,0
-                    hashFunction(extendedBaseHash.bytes, 0x24.toByte(), baux0).bytes + baux0
-                }
-            } else { // caller is supplying the previousConfirmationCode
-                val previousConfirmationCodeBytes = previousConfirmationCode.fromBase64()
-                if (previousConfirmationCodeBytes == null) {
-                    logger.error { "previousConfirmationCodeBytes '$previousConfirmationCode' invalid" }
-                    null // TODO return empty byte array ?? or just remove this feature
-                } else {
-                    previousConfirmationCodeBytes + baux0
-                }
+            val chainResult = consumer.readEncryptedBallotChain(device, ballotChainOverrideDir)
+            val codeBaux = if (chainResult is Ok) {
+                if (showChain) print(" next ")
+                chain = chainResult.unwrap()
+                // Baux,j = Hj−1 ∥ Baux,0
+                chain.lastConfirmationCode.bytes + baux0
+            } else {
+                if (showChain) print(" first ")
+                // otherwise this is the first one in the chain
+                // H0 = H(HE ; 0x24, Baux,0 ), eq (59)
+                // Baux,1 = H0 ∥ Baux,0
+                hashFunction(extendedBaseHash.bytes, 0x24.toByte(), baux0).bytes + baux0
             }
+
             if (showChain) println( " makeCodeBaux ${codeBaux.contentToString()}")
 
             if (chain == null)
-                chain = EncryptedBallotChain(device, configBaux0, extendedBaseHash, emptyList(), UInt256.ZERO, null)
+                chain = EncryptedBallotChain(device, baux0, extendedBaseHash, emptyList(), UInt256.ZERO, null)
 
             return Pair(codeBaux, chain)
         }
@@ -117,32 +107,16 @@ data class EncryptedBallotChain(
             device: String,
             ballotChainOverrideDir: String?,
             currentChain: EncryptedBallotChain,
-            finalConfirmationCode: String? = null,
         ): Int {
             // The chain should be closed at the end of an election by forming and publishing
             //    H = H(HE ; 0x24, Baux ) (61) "closing hash"
             // using Baux = H(Bℓ ) ∥ Baux,0 ∥ b(“CLOSE”, 5), where H(Bℓ ) is the final confirmation code in the chain.
 
             val extendedBaseHash: UInt256 = currentChain.extendedBaseHash
-            val baux0 = if (currentChain.configBaux0.isEmpty()) device.encodeToByteArray() else currentChain.configBaux0
-
-            val ballotChain = if (finalConfirmationCode == null) {
-                val finalConfirmationCode = currentChain.lastConfirmationCode
-                val bauxFinal = finalConfirmationCode.bytes + baux0 + "CLOSE".encodeToByteArray()
-                val hashFinal = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
-                currentChain.copy(closingHash = hashFinal)
-
-            } else { // caller is supplying the finalConfirmationCode64
-                val finalConfirmationCodeBytes = finalConfirmationCode.fromBase64()
-                if (finalConfirmationCodeBytes == null) {
-                    logger.error { "previousConfirmationCodeBytes '$finalConfirmationCode' invalid" }
-                    return 4
-                }
-                val finalConfirmationCode = finalConfirmationCodeBytes.toUInt256()!!
-                val bauxFinal = finalConfirmationCodeBytes + baux0 + "CLOSE".encodeToByteArray()
-                val hashFinal = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
-                currentChain.copy(lastConfirmationCode = finalConfirmationCode, closingHash = hashFinal)
-            }
+            val finalConfirmationCode = currentChain.lastConfirmationCode
+            val bauxFinal = finalConfirmationCode.bytes + currentChain.baux0 + "CLOSE".encodeToByteArray()
+            val hashFinal = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
+            val ballotChain =  currentChain.copy(closingHash = hashFinal)
 
             try {
                 publisher.writeEncryptedBallotChain(ballotChain, ballotChainOverrideDir)
@@ -153,7 +127,7 @@ data class EncryptedBallotChain(
             return 0
         }
 
-        // read encrypted ballots and (re)create the chain
+        // read encrypted ballots and (re)create the chain from the eballot.codeBaux
         fun assembleChain(
             consumer: Consumer,
             device: String,
@@ -221,7 +195,7 @@ data class EncryptedBallotChain(
             val bauxFinal = lastCC.bytes + baux0 + "CLOSE".encodeToByteArray()
             val hashFinal = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
 
-            return EncryptedBallotChain(device, configBaux0, extendedBaseHash, ballotIdList, lastCC, hashFinal)
+            return EncryptedBallotChain(device, baux0, extendedBaseHash, ballotIdList, lastCC, hashFinal)
         }
 
     }
