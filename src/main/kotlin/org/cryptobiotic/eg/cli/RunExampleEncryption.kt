@@ -5,6 +5,7 @@ import com.github.michaelbull.result.unwrap
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
+import kotlinx.cli.default
 import kotlinx.cli.required
 import org.cryptobiotic.eg.core.createDirectories
 import org.cryptobiotic.eg.input.ManifestInputValidation
@@ -56,7 +57,7 @@ class RunExampleEncryption {
                 ArgType.Boolean,
                 shortName = "deviceDir",
                 description = "Add device name to encrypted ballots directory"
-            ).required()
+            ).default(false)
             parser.parse(args)
 
             val devices = deviceNames.split(",")
