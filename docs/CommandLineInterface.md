@@ -227,7 +227,7 @@ Options:
     --plaintextBallotDir, -pballotDir -> Write plaintext ballots to this directory (always required) { String }
     --deviceNames, -device -> voting device name(s), comma delimited (always required) { String }
     --encryptBallotDir, -eballotDir -> Write encrypted ballots to this directory (always required) { String }
-    --addDeviceNameToDir, -deviceDir -> Add device name to encrypted ballots directory (always required) 
+    --addDeviceNameToDir, -deviceDir -> Add device name to encrypted ballots directory [false] 
     --help, -h -> Usage info 
 ````
 This is an example program that calls RunEncryptBallot to encrypt one ballot at a time, by generating fake ballots.
