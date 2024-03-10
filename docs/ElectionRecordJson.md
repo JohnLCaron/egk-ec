@@ -1,6 +1,6 @@
 # EGK Election Record JSON directory and file layout
 
-draft 7/15/2023
+draft 03/10/2024
 
 ## Public Election Record files
 
@@ -46,12 +46,11 @@ One or more of the above files may be present, depending on the output stage.
 | tally.json                | DecryptedTallyJson      | decryption output   |
 | dballot-\<ballotId>.json  | DecryptedBallotJson     | decryption output   |
 
-* The encrypted_ballots directory contain all ballots, cast or challenged.
+* The encrypted_ballots director(ies) contain all ballots, cast or challenged.
 * The challenged_ballots directory contain only challenged ballots.
 * DecryptedTallyJson and DecryptedBallotJson use the same schema (DecryptedTallyOrBallotJson)
 
 ## Private files
-encrypt
 
 These files are not part of the election record, but are generated for internal use.
 In production, these must be stored in a secure place.
