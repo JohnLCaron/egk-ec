@@ -1,4 +1,4 @@
-# Workflow and Command Line Programs
+# EGK Workflow and Command Line Programs
 
 last update 03/08/2024
 

@@ -2,7 +2,6 @@ package org.cryptobiotic.eg.publish.json
 
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.*
-import org.cryptobiotic.util.ErrorMessages
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -59,8 +58,78 @@ fun ManifestJson.import(): Manifest {
 /////////////////////////
 
 @Serializable
+data class ContestJson(
+    val object_id: String, // aka contest_id
+    val sequence_order: Int,
+    val electoral_district_id: String,
+    val vote_variation: String,
+    val number_elected: Int,
+    val votes_allowed: Int, // aka contest_selection_limit
+    val name: String,
+    val ballot_selections: List<BallotSelectionJson>,
+    val ballot_title: String?,
+    val ballot_subtitle: String?,
+    val option_selection_limit: Int?,
+)
+
+fun Manifest.ContestDescription.publishJson() = ContestJson(
+    this.contestId,
+    this.sequenceOrder,
+    this.geopoliticalUnitId,
+    this.voteVariation.name,
+    this.numberElected,
+    this.contestSelectionLimit,
+    this.name,
+    this.selections.map { it.publishJson() },
+    this.ballotTitle,
+    this.ballotSubtitle,
+    this.optionSelectionLimit,
+)
+
+fun ContestJson.import() : Manifest.ContestDescription {
+    val voteVariation = safeEnumValueOf(this.vote_variation) ?: Manifest.VoteVariationType.other
+
+    return Manifest.ContestDescription(
+        this.object_id,
+        this.sequence_order,
+        this.electoral_district_id,
+        voteVariation,
+        this.number_elected,
+        this.votes_allowed,
+        this.name,
+        this.ballot_selections.map { it.import() },
+        this.ballot_title,
+        this.ballot_subtitle,
+        this.option_selection_limit?: 1,
+    )
+}
+
+/////////////////////////
+
+@Serializable
+data class BallotSelectionJson(
+    val object_id: String, // aka selection_id
+    val sequence_order: Int,
+    val candidate_id: String,
+)
+
+fun Manifest.SelectionDescription.publishJson() = BallotSelectionJson(
+    this.selectionId,
+    this.sequenceOrder,
+    this.candidateId,
+)
+
+fun BallotSelectionJson.import() = Manifest.SelectionDescription(
+    this.object_id,
+    this.sequence_order,
+    this.candidate_id,
+)
+
+/////////////////////////
+
+@Serializable
 data class BallotStyleJson(
-    val object_id: String,
+    val object_id: String, // aka ballot_style_id
     val geopolitical_unit_ids: List<String>,
     val party_ids: List<String>,
     val image_url: String?,
@@ -86,7 +155,7 @@ fun BallotStyleJson.import() : Manifest.BallotStyle {
 
 @Serializable
 data class CandidateJson(
-    val object_id: String,
+    val object_id: String, // aka candidate_id
     val name: String?,
     val party_id: String?,
     val image_url: String?,
@@ -141,7 +210,7 @@ fun ContactJson.import() =
 
 @Serializable
 data class GeopoliticalUnitJson(
-    val object_id: String,
+    val object_id: String, // aka geopolitical_unit_id
     val name: String,
     val type: String,
     val contact_information: String?,
@@ -168,7 +237,7 @@ fun GeopoliticalUnitJson.import() : Manifest.GeopoliticalUnit {
 
 @Serializable
 data class PartyJson(
-    val object_id: String,
+    val object_id: String, // aka party_id
     val name: String,
     val abbreviation: String?,
     val color: String?,
@@ -213,67 +282,4 @@ fun LanguageJson.import() =
 
 /////////////////////////
 
-@Serializable
-data class ContestJson(
-    val object_id: String,
-    val sequence_order: Int,
-    val electoral_district_id: String,
-    val vote_variation: String,
-    val number_elected: Int,
-    val votes_allowed: Int,
-    val name: String,
-    val ballot_selections: List<BallotSelectionJson>,
-    val ballot_title: String?,
-    val ballot_subtitle: String?,
-)
 
-fun Manifest.ContestDescription.publishJson() = ContestJson(
-    this.contestId,
-    this.sequenceOrder,
-    this.geopoliticalUnitId,
-    this.voteVariation.name,
-    this.numberElected,
-    this.votesAllowed,
-    this.name,
-    this.selections.map { it.publishJson() },
-    this.ballotTitle,
-    this.ballotSubtitle,
-)
-
-fun ContestJson.import() : Manifest.ContestDescription {
-    val voteVariation = safeEnumValueOf(this.vote_variation) ?: Manifest.VoteVariationType.other
-
-    return Manifest.ContestDescription(
-        this.object_id,
-        this.sequence_order,
-        this.electoral_district_id,
-        voteVariation,
-        this.number_elected,
-        this.votes_allowed,
-        this.name,
-        this.ballot_selections.map { it.import() },
-        this.ballot_title,
-        this.ballot_subtitle,
-    )
-}
-
-/////////////////////////
-
-@Serializable
-data class BallotSelectionJson(
-    val object_id: String,
-    val sequence_order: Int,
-    val candidate_id: String,
-)
-
-fun Manifest.SelectionDescription.publishJson() = BallotSelectionJson(
-    this.selectionId,
-    this.sequenceOrder,
-    this.candidateId,
-)
-
-fun BallotSelectionJson.import() = Manifest.SelectionDescription(
-    this.object_id,
-    this.sequence_order,
-    this.candidate_id,
-)

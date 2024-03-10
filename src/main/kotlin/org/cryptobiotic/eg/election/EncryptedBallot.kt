@@ -75,7 +75,6 @@ data class EncryptedBallot(
     data class Contest(
         override val contestId: String, // matches ContestDescription.contestIdd
         override val sequenceOrder: Int, // matches ContestDescription.sequenceOrder
-        val votesAllowed: Int, // matches ContestDescription.votesAllowed TODO remove/rename
         val contestHash: UInt256, // eq 58
         override val selections: List<Selection>,
         val proof: ChaumPedersenRangeProofKnownNonce,

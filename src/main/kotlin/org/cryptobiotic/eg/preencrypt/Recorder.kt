@@ -2,9 +2,8 @@ package org.cryptobiotic.eg.preencrypt
 
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.*
-import org.cryptobiotic.eg.encrypt.CiphertextBallot
+import org.cryptobiotic.eg.encrypt.PendingEncryptedBallot
 import org.cryptobiotic.util.ErrorMessages
-
 
 /**
  * The crypto part of the "The Recording Tool".
@@ -42,7 +41,7 @@ class Recorder(
         ballotNonce: UInt256,
         errs: ErrorMessages,
         codeBaux: ByteArray = ByteArray(0),
-    ): Pair<RecordedPreBallot, CiphertextBallot>? {
+    ): Pair<RecordedPreBallot, PendingEncryptedBallot>? {
 
         // uses the primary nonce ξ to regenerate all of the encryptions on the ballot
         val preEncryptedBallot = preEncryptor.preencrypt(this.ballotId, this.ballotStyleId, ballotNonce)
@@ -58,7 +57,7 @@ class Recorder(
         }
         if (errs.hasErrors()) return null
 
-        val ciphertextBallot =  CiphertextBallot(
+        val pendingEncryptedBallot =  PendingEncryptedBallot(
             ballotId,
             ballotStyleId,
             votingDevice,
@@ -73,10 +72,10 @@ class Recorder(
         )
 
         val recordPreBallot = makeRecordedPreBallot(preBallot)
-        return Pair(recordPreBallot, ciphertextBallot)
+        return Pair(recordPreBallot, pendingEncryptedBallot)
     }
 
-    private fun PreContest.makeContest(ballotNonce: UInt256, preeContest: PreEncryptedContest, errs: ErrorMessages): CiphertextBallot.Contest {
+    private fun PreContest.makeContest(ballotNonce: UInt256, preeContest: PreEncryptedContest, errs: ErrorMessages): PendingEncryptedBallot.Contest {
 
         // Find the pre-encryptions corresponding to the selections made by the voter and, using
         // the encryption nonces derived from the primary nonce, generate proofs of ballot correctness as in
@@ -99,7 +98,7 @@ class Recorder(
 
         val proof = ciphertextAccumulation.makeChaumPedersen(
             totalVotes,      // (ℓ in the spec)
-            preeContest.votesAllowed,  // (L in the spec) TODO remove ?
+            manifest.contestLimit(contestId),  // (L in the spec)
             aggNonce,
             publicKeyEG,
             extendedBaseHash,
@@ -112,7 +111,7 @@ class Recorder(
         )
 
         val contestDataEncrypted = contestData.encrypt(publicKeyEG, extendedBaseHash, preeContest.contestId,
-            preeContest.sequenceOrder, ballotNonce, preeContest.votesAllowed)
+            preeContest.sequenceOrder, ballotNonce, manifest.contestLimit(contestId))
 
         // we are going to substitute preencryptionHash (eq 94) instead of eq 57 when we validate TODO WTF?
         // χl = H(HE ; 0x23, indc (Λl ), K, α1 , β1 , α2 , β2 . . . , αm , βm ) ; spec 2.0.0 eq 57
@@ -124,16 +123,15 @@ class Recorder(
         }
         val contestHash = hashFunction(extendedBaseHashQ.byteArray(), 0x23.toByte(), this.contestIndex, publicKey, ciphers)
 
-        return CiphertextBallot.Contest(preeContest.contestId, preeContest.sequenceOrder, preeContest.votesAllowed,
+        return PendingEncryptedBallot.Contest(preeContest.contestId, preeContest.sequenceOrder,
             contestHash, selections, proof, contestDataEncrypted)
     }
 
-    private fun PreContest.makeSelections(preeContest: PreEncryptedContest, errs: ErrorMessages): List<CiphertextBallot.Selection> {
-
-        val nselections = preeContest.selections.size - preeContest.votesAllowed
+    private fun PreContest.makeSelections(preeContest: PreEncryptedContest, errs: ErrorMessages): List<PendingEncryptedBallot.Selection> {
+        val nselections = preeContest.selections.size - preeContest.contestLimit
         val nvectors = this.selectedVectors.size
-        if (nvectors != preeContest.votesAllowed) {
-            errs.add("nvectors $nvectors != ${preeContest.votesAllowed} preeContest.votesAllowed")
+        if (nvectors != preeContest.contestLimit) {
+            errs.add("nvectors $nvectors != ${preeContest.contestLimit} preeContest.votesAllowed")
         }
 
         // homomorphically combine the selected pre-encryption vectors by component wise multiplication
@@ -151,7 +149,7 @@ class Recorder(
             combinedNonces.add( aggNonce )
         }
 
-        if (preeContest.votesAllowed == 1) {
+        if (preeContest.contestLimit == 1) {
             if (nselections != combinedEncryption.size) {
                 errs.add("nselections $nselections != ${combinedEncryption.size} combinedEncryption.size")
             }
@@ -164,7 +162,7 @@ class Recorder(
             }
         }
 
-        val result = mutableListOf<CiphertextBallot.Selection>()
+        val result = mutableListOf<PendingEncryptedBallot.Selection>()
         combinedEncryption.forEachIndexed { idx, encryption ->
             val selection = preeContest.selections[idx]
 
@@ -175,7 +173,7 @@ class Recorder(
                 publicKeyEG,
                 extendedBaseHash
             )
-            result.add( CiphertextBallot.Selection(selection.selectionId, selection.sequenceOrder, encryption, proof, combinedNonces[idx]))
+            result.add( PendingEncryptedBallot.Selection(selection.selectionId, selection.sequenceOrder, encryption, proof, combinedNonces[idx]))
         }
         return result
     }

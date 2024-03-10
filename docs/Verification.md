@@ -1,9 +1,9 @@
-# Verification
+# EGK Verification
 
 _last update 02.25.2024_
 
-ElectionGuard-Kotlin fully implements the **Verifier** section 6 of the ElectionGuard specification.
-Use the classes in the _src/main/kotlin/electionguard/verifier_ package in your own program, 
+EGK fully implements the **Verifier** section 6 of the ElectionGuard specification.
+Use the classes in the _org.cryptobiotic.eg.verifier_ package in your own program, 
 or the existing CLI program.
 
 ## Run Verifier Command Line Interface

@@ -6,7 +6,7 @@ import org.cryptobiotic.util.ErrorMessages
 
 /**
  * Determine if a ballot is valid and well-formed for the given manifest.
- * See [ElectionGuard Input Validation](https://github.com/danwallach/electionguard-kotlin-multiplatform/blob/main/docs/InputValidation.md)
+ * See [ElectionGuard Input Validation](https://github.com/JohnLCaron/egk-ec/blob/main/docs/InputValidation.md)
  */
 class BallotInputValidation(val manifest: Manifest) {
     private val logger = KotlinLogging.logger("BallotInputValidation")
@@ -117,7 +117,7 @@ class BallotInputValidation(val manifest: Manifest) {
         val sequenceOrder = contest.sequenceOrder
         val geopoliticalUnitId = contest.geopoliticalUnitId
         val selectionMap = contest.selections.associateBy { it.selectionId }
-        val contestLimit = contest.votesAllowed
+        val contestLimit = contest.contestSelectionLimit
         val optionLimit = contest.optionSelectionLimit
     }
 }

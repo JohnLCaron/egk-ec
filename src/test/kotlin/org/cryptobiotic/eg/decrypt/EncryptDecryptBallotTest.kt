@@ -3,9 +3,6 @@ package org.cryptobiotic.eg.decrypt
 import com.github.michaelbull.result.unwrap
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.decrypt.DecryptingTrustee
-import org.cryptobiotic.eg.decrypt.Decryptor
-import org.cryptobiotic.eg.decrypt.Guardians
 import org.cryptobiotic.eg.encrypt.Encryptor
 import org.cryptobiotic.eg.encrypt.submit
 import org.cryptobiotic.eg.input.RandomBallotProvider
@@ -142,7 +139,7 @@ fun testEncryptDecryptVerify(
         // contestData matches
         ballot.contests.forEach { orgContest ->
             val mcontest = manifest.contests.find { it.contestId == orgContest.contestId }!!
-            val orgContestData = makeContestData(mcontest.votesAllowed, orgContest.selections, orgContest.writeIns)
+            val orgContestData = makeContestData(mcontest.contestSelectionLimit, orgContest.selections, orgContest.writeIns)
 
             val dcontest = decryptedBallot.contests.find { it.contestId == orgContest.contestId }
             assertNotNull(dcontest)

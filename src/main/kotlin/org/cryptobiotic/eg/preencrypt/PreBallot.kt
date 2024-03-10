@@ -74,7 +74,7 @@ internal fun MarkedPreEncryptedBallot.makePreBallot(preeBallot : PreEncryptedBal
         }
         if (errs.hasErrors()) return null
 
-        val nselections = preeContest.selections.size - preeContest.votesAllowed
+        val nselections = preeContest.selections.size - preeContest.contestLimit
         val votedFor = mutableListOf<Boolean>()
         repeat(nselections) { idx ->
             val selection = preeContest.selections[idx]
@@ -82,7 +82,7 @@ internal fun MarkedPreEncryptedBallot.makePreBallot(preeBallot : PreEncryptedBal
         }
 
         // add null vectors on undervote
-        val votesMissing = preeContest.votesAllowed - preSelections.size
+        val votesMissing = preeContest.contestLimit - preSelections.size
         repeat (votesMissing) {
             val nullVector = findNullVectorNotSelected(preeContest.selections, preSelections)
             if (nullVector == null) {
@@ -92,8 +92,8 @@ internal fun MarkedPreEncryptedBallot.makePreBallot(preeBallot : PreEncryptedBal
             }
         }
         if (errs.hasErrors()) return null
-        if (preSelections.size != preeContest.votesAllowed) {
-            errs.add("preSelections.size ${preSelections.size } != preeContest.votesAllowed ${preeContest.votesAllowed}")
+        if (preSelections.size != preeContest.contestLimit) {
+            errs.add("preSelections.size ${preSelections.size } != preeContest.votesAllowed ${preeContest.contestLimit}")
             return null
         }
 

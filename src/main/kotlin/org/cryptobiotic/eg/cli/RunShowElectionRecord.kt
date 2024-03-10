@@ -9,6 +9,7 @@ import kotlinx.cli.ArgType
 import kotlinx.cli.required
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
+import org.cryptobiotic.eg.decrypt.LagrangeCoordinate
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.Consumer
 import org.cryptobiotic.eg.publish.ElectionRecord
@@ -163,7 +164,7 @@ class RunShowElectionRecord {
             this.forEach { contest ->
                 if (details) {
                     builder.append("  Contest ${contest.sequenceOrder} '${contest.contestId}': geo=${contest.geopoliticalUnitId}, ")
-                    if (contest.votesAllowed != 1 || contest.optionSelectionLimit != 1)  builder.append("limits=${contest.votesAllowed}/${contest.optionSelectionLimit}")
+                    if (contest.contestSelectionLimit != 1 || contest.optionSelectionLimit != 1)  builder.append("limits=${contest.contestSelectionLimit}/${contest.optionSelectionLimit}")
                     if (contest.voteVariation != Manifest.VoteVariationType.one_of_m) builder.append(", ${contest.voteVariation}")
                     builder.appendLine()
                     contest.selections.forEach {

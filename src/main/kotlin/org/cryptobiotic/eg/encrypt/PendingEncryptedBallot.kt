@@ -3,9 +3,10 @@ package org.cryptobiotic.eg.encrypt
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.EncryptedBallot
 
-/** Intermediate stage while encrypting. Does not have the extra Pre-encryption info, nor the state.
+/**
+ * Intermediate stage while encrypting. Does not have the extra Pre-encryption info, nor the state.
  * Contains nonces which are discarded when converted to EncryptedBallot. */
-data class CiphertextBallot(
+data class PendingEncryptedBallot(
     val ballotId: String,
     val ballotStyleId: String,
     val encryptingDevice: String,
@@ -21,7 +22,6 @@ data class CiphertextBallot(
     data class Contest(
         val contestId: String, // matches ContestDescription.contestIdd
         val sequenceOrder: Int, // matches ContestDescription.sequenceOrder
-        val votesAllowed: Int, // TODO remove
         val contestHash: UInt256, // eq 57
         val selections: List<Selection>,
         val proof: ChaumPedersenRangeProofKnownNonce,
@@ -37,15 +37,15 @@ data class CiphertextBallot(
     )
 }
 
-fun CiphertextBallot.cast(): EncryptedBallot {
+fun PendingEncryptedBallot.cast(): EncryptedBallot {
     return this.submit(EncryptedBallot.BallotState.CAST)
 }
 
-fun CiphertextBallot.spoil(): EncryptedBallot {
+fun PendingEncryptedBallot.spoil(): EncryptedBallot {
     return this.submit(EncryptedBallot.BallotState.SPOILED)
 }
 
-fun CiphertextBallot.submit(state: EncryptedBallot.BallotState): EncryptedBallot {
+fun PendingEncryptedBallot.submit(state: EncryptedBallot.BallotState): EncryptedBallot {
     return EncryptedBallot(
         this.ballotId,
         this.ballotStyleId,
@@ -61,11 +61,10 @@ fun CiphertextBallot.submit(state: EncryptedBallot.BallotState): EncryptedBallot
     )
 }
 
-fun CiphertextBallot.Contest.submit(): EncryptedBallot.Contest {
+fun PendingEncryptedBallot.Contest.submit(): EncryptedBallot.Contest {
     return EncryptedBallot.Contest(
         this.contestId,
         this.sequenceOrder,
-        this.votesAllowed, // TODO remove
         this.contestHash,
         this.selections.map { it.submit() },
         this.proof,
@@ -73,7 +72,7 @@ fun CiphertextBallot.Contest.submit(): EncryptedBallot.Contest {
     )
 }
 
-fun CiphertextBallot.Selection.submit(): EncryptedBallot.Selection {
+fun PendingEncryptedBallot.Selection.submit(): EncryptedBallot.Selection {
     return EncryptedBallot.Selection(
         this.selectionId,
         this.sequenceOrder,

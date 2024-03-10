@@ -190,7 +190,7 @@ class VerifyEncryptedBallots(
                 val baux0 = if (config.configBaux0.isEmpty()) device.encodeToByteArray() else config.configBaux0
 
                 // 7.D The initial hash code H0 satisfies H0 = H(HE ; 0x24, Baux,0 )
-                // "and Baux,0 contains the unique voting device information". TODO ambiguous, change spec wording
+                // "and Baux,0 contains the unique voting device information".
                 val H0 = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), baux0).bytes
 
                 // (7.E) For all 1 ≤ j ≤ ℓ, the additional input byte array used to compute Hj = H(Bj) is equal to

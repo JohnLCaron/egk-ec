@@ -1,8 +1,6 @@
 package org.cryptobiotic.eg.election
 
-/**
- * The Election Manifest: defines the candidates, contests, and associated information for a specific election.
- */
+/** The ElectionGuard Manifest: defines the candidates, contests, and associated information for a specific election. */
 data class Manifest(
     val electionScopeId: String,
     val specVersion: String,
@@ -43,7 +41,7 @@ data class Manifest(
     }
 
     override fun contestLimit(contestId : String) : Int {
-        return contestMap[contestId]?.votesAllowed ?: 1
+        return contestMap[contestId]?.contestSelectionLimit ?: 1
     }
 
     override fun optionLimit(contestId : String) : Int {
@@ -61,6 +59,34 @@ data class Manifest(
     lazy {
         contests.map { contest -> contest.selections.map { "${contest.contestId}/${it.selectionId}" to it.candidateId } }.flatten().toMap()
     }
+
+    /**
+     * The structure and type of one contest in the election.
+     * @see [Civics Common Standard Data Specification](https://developers.google.com/elections-data/reference/contest)
+     */
+    data class ContestDescription(
+        override val contestId: String,
+        override val sequenceOrder: Int,
+        val geopoliticalUnitId: String,
+        val voteVariation: VoteVariationType,
+        val numberElected: Int,
+        val contestSelectionLimit: Int, // contest selection limit = L, spec 2.0 p 17.
+        val name: String,
+        override val selections: List<SelectionDescription>,
+        val ballotTitle: String?,
+        val ballotSubtitle: String?,
+        val optionSelectionLimit: Int = 1, // option selection limit = R, spec 2.0 p 17.
+    ) : ManifestIF.Contest
+
+    /**
+     * A ballot selection for a specific candidate in a contest.
+     * @see [Civics Common Standard Data Specification](https://developers.google.com/elections-data/reference/ballot-selection)
+     */
+    data class SelectionDescription(
+        override val selectionId: String,
+        override val sequenceOrder: Int,
+        val candidateId: String,
+    ) : ManifestIF.Selection
 
     /**
      * The type of election.
@@ -361,32 +387,4 @@ data class Manifest(
     ) {
         constructor(partyId: String) : this(partyId,"",null, null, null)
     }
-
-    /**
-     * The structure and type of one contest in the election.
-     * @see [Civics Common Standard Data Specification](https://developers.google.com/elections-data/reference/contest)
-     */
-    data class ContestDescription(
-        override val contestId: String,
-        override val sequenceOrder: Int,
-        val geopoliticalUnitId: String,
-        val voteVariation: VoteVariationType,
-        val numberElected: Int,
-        val votesAllowed: Int, // contest selection limit = L, TODO rename next breaking change
-        val name: String,
-        override val selections: List<SelectionDescription>,
-        val ballotTitle: String?,
-        val ballotSubtitle: String?,
-        val optionSelectionLimit : Int = 1, // option selection limit = R, spec 2.0 p 17.
-    ) : ManifestIF.Contest
-
-    /**
-     * A ballot selection for a specific candidate in a contest.
-     * @see [Civics Common Standard Data Specification](https://developers.google.com/elections-data/reference/ballot-selection)
-     */
-    data class SelectionDescription(
-        override val selectionId: String,
-        override val sequenceOrder: Int,
-        val candidateId: String,
-    ) : ManifestIF.Selection
 }

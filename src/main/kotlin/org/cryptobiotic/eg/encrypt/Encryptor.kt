@@ -25,7 +25,7 @@ class Encryptor(
         errs: ErrorMessages,
         ballotNonce: UInt256? = null,
         timestampOverride: Long? = null,
-    ): CiphertextBallot? {
+    ): PendingEncryptedBallot? {
         return ballot.encryptBallot(codeBaux, errs, ballotNonce ?: UInt256.random(), timestampOverride)
     }
 
@@ -34,10 +34,10 @@ class Encryptor(
         errs: ErrorMessages,
         ballotNonce: UInt256,
         timestampOverride: Long? = null,
-    ): CiphertextBallot? {
+    ): PendingEncryptedBallot? {
         val plaintextContests = this.contests.associateBy { it.contestId }
 
-        val encryptedContests = mutableListOf<CiphertextBallot.Contest>()
+        val encryptedContests = mutableListOf<PendingEncryptedBallot.Contest>()
         val manifestContests = manifest.contestsForBallotStyle(this.ballotStyle)
         if (manifestContests == null || manifestContests.isEmpty()) {
             errs.add("Manifest does not have ballotStyle ${this.ballotStyle} or it has no contests for that ballotStyle")
@@ -65,7 +65,7 @@ class Encryptor(
             this.sn.encrypt(jointPublicKey, snNonce) // eq 24
         } else null
 
-        return CiphertextBallot(
+        return PendingEncryptedBallot(
             ballotId,
             ballotStyle,
             encryptingDevice,
@@ -90,7 +90,7 @@ class Encryptor(
         contestLimit: Int,
         optionLimit: Int,
         ballotNonce: UInt256,
-    ): CiphertextBallot.Contest {
+    ): PendingEncryptedBallot.Contest {
         val ballotSelections = this.selections.associateBy { it.selectionId }
 
         val votedFor = mutableListOf<Int>()
@@ -112,7 +112,7 @@ class Encryptor(
             else if (totalVotedFor < contestLimit)  ContestDataStatus.under_vote
             else ContestDataStatus.normal
 
-        val encryptedSelections = mutableListOf<CiphertextBallot.Selection>()
+        val encryptedSelections = mutableListOf<PendingEncryptedBallot.Selection>()
         for (mselection: ManifestIF.Selection in mcontest.selections) {
             var plaintextSelection = ballotSelections[mselection.selectionId]
 
@@ -159,7 +159,7 @@ class Encryptor(
         ballotNonce: UInt256,
         contestIndex: Int,
         optionLimit : Int,
-        ): CiphertextBallot.Selection {
+        ): PendingEncryptedBallot.Selection {
 
         // ξi,j = H(HE ; 0x20, ξB , indc (Λi ), indo (λj )) ; spec 2.0.0 eq 25
         val selectionNonce = hashFunction(extendedBaseHashB, 0x20.toByte(), ballotNonce, contestIndex, this.sequenceOrder)
@@ -180,9 +180,9 @@ fun PlaintextBallot.Contest.encryptContest(
     extendedBaseHash: UInt256,
     votesAllowed: Int, // The number of allowed votes for this contest
     totalVotedFor: Int, // The actual number of selections voted for, for the range proof
-    encryptedSelections: List<CiphertextBallot.Selection>,
+    encryptedSelections: List<PendingEncryptedBallot.Selection>,
     extendedDataCiphertext: HashedElGamalCiphertext,
-): CiphertextBallot.Contest {
+): PendingEncryptedBallot.Contest {
 
     val ciphertexts: List<ElGamalCiphertext> = encryptedSelections.map { it.ciphertext }
     val ciphertextAccumulation: ElGamalCiphertext = ciphertexts.encryptedSum()?: 0.encrypt(jointPublicKey) // LOOK deterministic?
@@ -205,10 +205,9 @@ fun PlaintextBallot.Contest.encryptContest(
     }
     val contestHash = hashFunction(extendedBaseHash.bytes, 0x23.toByte(), this.sequenceOrder, jointPublicKey, ciphers)
 
-    return CiphertextBallot.Contest(
+    return PendingEncryptedBallot.Contest(
         this.contestId,
         this.sequenceOrder,
-        votesAllowed,
         contestHash,
         encryptedSelections,
         proof,
@@ -222,7 +221,7 @@ fun PlaintextBallot.Selection.encryptSelection(
     cryptoExtendedBaseHash: UInt256,
     selectionNonce: ElementModQ,
     optionLimit : Int,
-): CiphertextBallot.Selection {
+): PendingEncryptedBallot.Selection {
     val elgamalEncryption: ElGamalCiphertext = vote.encrypt(jointPublicKey, selectionNonce) // eq 24
 
     val proof = elgamalEncryption.makeChaumPedersen(
@@ -233,7 +232,7 @@ fun PlaintextBallot.Selection.encryptSelection(
         cryptoExtendedBaseHash
     )
 
-    return CiphertextBallot.Selection(
+    return PendingEncryptedBallot.Selection(
         this.selectionId,
         this.sequenceOrder,
         elgamalEncryption,

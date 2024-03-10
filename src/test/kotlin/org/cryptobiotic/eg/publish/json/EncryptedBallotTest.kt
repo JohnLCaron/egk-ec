@@ -71,7 +71,6 @@ class EncryptedBallotTest {
         return EncryptedBallot.Contest(
             "contest" + cseq,
             cseq,
-            1,
             generateUInt256(context),
             selections,
             generateRangeChaumPedersenProofKnownNonce(context),

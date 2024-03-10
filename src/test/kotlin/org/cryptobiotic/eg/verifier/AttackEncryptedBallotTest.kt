@@ -137,7 +137,6 @@ class AttackEncryptedBallotTest {
         return EncryptedBallot.Contest(
             contest.contestId,
             contest.sequenceOrder,
-            contest.votesAllowed,
             contest.contestHash,
             selections2,
             contest.proof,

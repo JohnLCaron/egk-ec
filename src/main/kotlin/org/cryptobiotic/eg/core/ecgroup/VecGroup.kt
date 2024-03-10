@@ -133,7 +133,7 @@ open class VecGroup(
                 val fx = equationf(x)
 
                 if (jacobiSymbol(fx, primeModulus) == 1) {
-                    val y2 = sqrt(fx) // TODO so y is always positive
+                    val y2 = sqrt(fx)
                     return makeVecModP(x, y2, true)
                 }
             } catch (e: RuntimeException) {
@@ -300,7 +300,7 @@ open class VecGroup(
     // Applies the curve's formula f(x) = x^3 + ax + b on the given parameter.
     // 3 mult, 2 add, 5 mod
     fun equationf(x: BigInteger): BigInteger {
-        var right = x.multiply(x).mod(primeModulus) // TODO  can skip primeModulus on some intermediate terms ?
+        var right = x.multiply(x).mod(primeModulus) // TODO  can we skip primeModulus on some intermediate terms ?
         right = right.multiply(x).mod(primeModulus)
         val aterm = x.multiply(a).mod(primeModulus)
         right = right.add(aterm).mod(primeModulus) // maybe skip on the add ?

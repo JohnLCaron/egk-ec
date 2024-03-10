@@ -14,7 +14,6 @@ import org.cryptobiotic.eg.publish.EncryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.util.ErrorMessages
-import org.cryptobiotic.util.Stopwatch
 import java.io.Closeable
 
 private val logger = KotlinLogging.logger("AddEncryptedBallot")
@@ -58,10 +57,10 @@ class AddEncryptedBallot(
     var currentChain: EncryptedBallotChain? = null
 
     private val ballotIds = mutableListOf<String>()
-    private val pending = mutableMapOf<UInt256, CiphertextBallot>() // key = ccode.toHex()
+    private val pending = mutableMapOf<UInt256, PendingEncryptedBallot>() // key = ccode.toHex()
     private var closed = false
 
-    fun encrypt(ballot: PlaintextBallot, errs : ErrorMessages): CiphertextBallot? {
+    fun encrypt(ballot: PlaintextBallot, errs : ErrorMessages): PendingEncryptedBallot? {
         if (closed) {
             errs.add("Trying to add ballot after chain has been closed")
             return null

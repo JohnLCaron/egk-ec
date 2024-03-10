@@ -30,7 +30,6 @@ data class EncryptedBallotJson(
 data class EncryptedContestJson(
     val contest_id: String,
     val sequence_order: Int,
-    val votes_allowed: Int,
     val contest_hash: UInt256Json,
     val selections: List<EncryptedSelectionJson>,
     val proof: RangeProofJson,
@@ -52,7 +51,6 @@ fun EncryptedBallot.publishJson(primaryNonce : UInt256? = null): EncryptedBallot
         EncryptedContestJson(
             econtest.contestId,
             econtest.sequenceOrder,
-            econtest.votesAllowed,
             econtest.contestHash.publishJson(),
             econtest.selections.map {
                 EncryptedSelectionJson(
@@ -120,7 +118,6 @@ fun EncryptedContestJson.import(group : GroupContext, errs : ErrorMessages): Enc
     else EncryptedBallot.Contest(
         this.contest_id,
         this.sequence_order,
-        this.votes_allowed,
         contestHash!!,
         selections.filterNotNull(),
         proof!!,
@@ -168,7 +165,6 @@ private fun EncryptedBallot.Contest.publishJson(recordedPreBallot: RecordedPreBa
     return EncryptedContestJson(
             this.contestId,
             this.sequenceOrder,
-            this.votesAllowed,
             this.contestHash.publishJson(),
             this.selections.map {
                 EncryptedSelectionJson(

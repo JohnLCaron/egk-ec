@@ -41,7 +41,7 @@ open class KeyCeremonyTrustee(
 
     override fun xCoordinate(): Int = xCoordinate
 
-    override fun guardianPublicKey(): ElementModP = polynomial.coefficientCommitments[0] // TODO make sure this is accelerated
+    override fun guardianPublicKey(): ElementModP = polynomial.coefficientCommitments[0]
 
     override fun coefficientCommitments(): List<ElementModP> = polynomial.coefficientCommitments
 
