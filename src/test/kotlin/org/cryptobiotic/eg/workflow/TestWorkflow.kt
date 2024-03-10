@@ -19,10 +19,11 @@ import kotlin.test.assertTrue
 /**
  * Run complete workflow starting from ElectionConfig in the start directory, all the way through verify.
  * (See RunCreateTestManifestTest to regenerate Manifest)
- * (See RunCreateConfigTest/RunCreateElectionConfig to regenerate ElectionConfig)
+ * (See CreateElectionConfig to regenerate ElectionConfig)
+ * (See FakeKeyCeremonyTest to regenerate keyceremony data)
+ * (See AddBallotSyncTest to regenerate encrypt test data)
  * Note that TestWorkflow uses RunFakeKeyCeremonyTest, not real KeyCeremony.
- *  1. The results can be copied to the test data sets "src/test/data/workflow" whenever the
- *     election record changes.
+ *   1. The results can be copied to the test data sets "src/test/data/workflow" whenever the election record changes.
  */
 class TestWorkflow {
     private val nballots = 42
@@ -31,9 +32,9 @@ class TestWorkflow {
     @Test
     fun runWorkflow() {
         runWorkflow("src/test/data/startConfig", "$testOut/workflow/allAvailable", false)
-    //    runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/allAvailableEc", false)
-    //    runWorkflow("src/test/data/startConfig", "$testOut/workflow/someAvailable", true)
-    //    runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/someAvailableEc", true)
+        runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/allAvailableEc", false)
+        runWorkflow("src/test/data/startConfig", "$testOut/workflow/someAvailable", true)
+        runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/someAvailableEc", true)
     }
 
     fun runWorkflow(configDirJson: String, workingDir: String, onlySome: Boolean, chained: Boolean = false) {

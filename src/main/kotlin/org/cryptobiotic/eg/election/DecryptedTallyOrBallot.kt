@@ -13,7 +13,7 @@ import org.cryptobiotic.eg.core.*
 data class DecryptedTallyOrBallot(
     val id: String,
     val contests: List<Contest>,
-    val electionId : UInt256,
+    val electionId : UInt256, // threw this in to prevent accidental mixups
 ) {
 
     data class Contest(

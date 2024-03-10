@@ -1,6 +1,8 @@
 package org.cryptobiotic.eg.publish.json
 
 import kotlinx.serialization.Serializable
+import org.cryptobiotic.eg.core.Base64.fromBase64
+import org.cryptobiotic.eg.core.Base64.toBase64
 
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.util.ErrorMessages
@@ -18,7 +20,7 @@ data class ElectionConfigJson(
     val election_base_hash: UInt256Json, // Hb
 
     val chain_confirmation_codes: Boolean,
-    val baux0: ByteArray, // B_aux,0 from eq 59,60
+    val baux0: String, // // base64 encoded ByteArray, B_aux,0 from eq 59,60
     val metadata: Map<String, String> = emptyMap(), // arbitrary key, value pairs
 )
 
@@ -30,7 +32,7 @@ fun ElectionConfig.publishJson() = ElectionConfigJson(
     this.manifestHash.publishJson(),
     this.electionBaseHash.publishJson(),
     this.chainConfirmationCodes,
-    this.configBaux0,
+    this.configBaux0.toBase64(),
     this.metadata,
 )
 
@@ -38,6 +40,7 @@ fun ElectionConfigJson.import(constants: ElectionConstants?, manifestBytes: Byte
     if (this.parameter_base_hash.import() == null) errs.add("malformed parameter_base_hash")
     if (this.manifest_hash.import() == null) errs.add("malformed manifest_hash")
     if (this.election_base_hash.import() == null) errs.add("malformed election_base_hash")
+    if (this.baux0.fromBase64() == null) errs.add("malformed baux0")
 
     return if (errs.hasErrors() || constants == null || manifestBytes == null) null
     else ElectionConfig(
@@ -50,7 +53,7 @@ fun ElectionConfigJson.import(constants: ElectionConstants?, manifestBytes: Byte
                 this.election_base_hash.import()!!,
                 manifestBytes,
                 this.chain_confirmation_codes,
-                this.baux0,
+                this.baux0.fromBase64()!!,
                 this.metadata,
             )
 }

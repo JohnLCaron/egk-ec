@@ -1,4 +1,4 @@
-# 🗳 Election Record JSON directory and file layout
+# EGK Election Record JSON directory and file layout
 
 draft 7/15/2023
 

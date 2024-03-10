@@ -41,7 +41,7 @@ class AddEncryptedUnorderedTest {
         )
         val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 
-        val cballots = mutableListOf<CiphertextBallot>()
+        val cballots = mutableListOf<PendingEncryptedBallot>()
         repeat(nballots) {
             val ballot = ballotProvider.makeBallot()
             val result = encryptor.encrypt(ballot, ErrorMessages("testJustOneDevice"))
@@ -78,7 +78,7 @@ class AddEncryptedUnorderedTest {
             )
             val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 
-            val cballots = mutableListOf<CiphertextBallot>()
+            val cballots = mutableListOf<PendingEncryptedBallot>()
             repeat(nballots) {
                 val ballot = ballotProvider.makeBallot()
                 val result = encryptor.encrypt(ballot, ErrorMessages("testMultipleDevices"))
@@ -118,7 +118,7 @@ class AddEncryptedUnorderedTest {
         )
         val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 
-        val cballots = mutableListOf<CiphertextBallot>()
+        val cballots = mutableListOf<PendingEncryptedBallot>()
         repeat(nballots) {
             val ballot = ballotProvider.makeBallot()
             val result = encryptor.encrypt(ballot, ErrorMessages("testOneWithChain"))
@@ -157,7 +157,7 @@ class AddEncryptedUnorderedTest {
             )
             val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 
-            val cballots = mutableListOf<CiphertextBallot>()
+            val cballots = mutableListOf<PendingEncryptedBallot>()
             repeat(nballots) {
                 val ballot = ballotProvider.makeBallot()
                 val result = encryptor.encrypt(ballot, ErrorMessages("testMultipleDevicesChaining"))
@@ -220,7 +220,7 @@ class AddEncryptedUnorderedTest {
                 )
                 val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 
-                val cballots = mutableListOf<CiphertextBallot>()
+                val cballots = mutableListOf<PendingEncryptedBallot>()
                 repeat(nballots) {
                     val ballot = ballotProvider.makeBallot()
                     val result = encryptor.encrypt(ballot, ErrorMessages("testMultipleCalls"))

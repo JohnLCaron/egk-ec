@@ -92,7 +92,7 @@ class VerifyEmbeddedNonces(
     val extendedBaseHash: UInt256
 ) {
 
-    fun CiphertextBallot.decrypt(): PlaintextBallot {
+    fun PendingEncryptedBallot.decrypt(): PlaintextBallot {
         val ballotNonce: UInt256 = this.ballotNonce
 
         val plaintext_contests = mutableListOf<PlaintextBallot.Contest>()
@@ -111,7 +111,7 @@ class VerifyEmbeddedNonces(
 
     private fun verifyContestNonces(
         ballotNonce: UInt256,
-        contest: CiphertextBallot.Contest
+        contest: PendingEncryptedBallot.Contest
     ): PlaintextBallot.Contest {
 
         val plaintextSelections = mutableListOf<PlaintextBallot.Selection>()
@@ -130,7 +130,7 @@ class VerifyEmbeddedNonces(
     private fun verifySelectionNonces(
         ballotNonce: UInt256,
         contestIndex: Int,
-        selection: CiphertextBallot.Selection
+        selection: PendingEncryptedBallot.Selection
     ): PlaintextBallot.Selection? {
         val selectionNonce = hashFunction(
             extendedBaseHash.bytes,

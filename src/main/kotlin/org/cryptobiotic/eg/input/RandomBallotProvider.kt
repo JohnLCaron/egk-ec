@@ -53,7 +53,7 @@ class RandomBallotProvider(val manifest: Manifest, val nballots: Int = 11) {
         val nselections = contest.selections.size
 
         for (selection_description in contest.selections) {
-            val selection: PlaintextBallot.Selection = getRandomVoteForSelection(selection_description, nselections, voted < contest.votesAllowed)
+            val selection: PlaintextBallot.Selection = getRandomVoteForSelection(selection_description, nselections, voted < contest.contestSelectionLimit)
             selections.add(selection)
             voted += selection.vote
         }

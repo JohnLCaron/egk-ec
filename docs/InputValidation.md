@@ -1,4 +1,4 @@
-# 🗳 Input Validation
+# EGK Input Validation
 _last changed: Oct 3, 2023_
 
 The election manifest and each input plaintext ballot are expected to be validated before being passed to the 
@@ -71,7 +71,7 @@ For additional safety, Manifest Validation may be run during other workflow step
 Input Ballot Validation can be run to catch problems while developing the Manifest; a ballot for each ballot style
 should be generated and tested.
 
-Input Ballots are generated external to the electionguard library, so Input Ballot Validation must be run on each
+Input Ballots are generated external to the egk library, so Input Ballot Validation must be run on each
 ballot, before accepting the ballot for encryption. 
 
 If an Input Ballot fails validation, it is annotated as to why it failed, and placed in the invalid ballot directory for examination.

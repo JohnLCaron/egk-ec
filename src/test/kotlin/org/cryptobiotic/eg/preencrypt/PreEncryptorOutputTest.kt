@@ -122,7 +122,7 @@ class PreEncryptorOutputTest {
             val nselections = pcontest.selections.size
             val doneIdx = mutableSetOf<Int>()
 
-            while (doneIdx.size < pcontest.votesAllowed) {
+            while (doneIdx.size < pcontest.contestLimit) {
                 val idx = random.nextInt(nselections)
                 if (!doneIdx.contains(idx)) {
                     shortCodes.add(sigma(pcontest.selections[idx].selectionHash.toUInt256safe()))

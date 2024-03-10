@@ -2,10 +2,7 @@ package org.cryptobiotic.eg.preencrypt
 
 import org.cryptobiotic.eg.core.*
 
-
-/**
- * The result of PreEncryptor.preencrypt(), for use by the "Encrypting Tool" to make a pre-encrypted ballot.
- */
+/** The result of PreEncryptor.preencrypt(), for use by the "Encrypting Tool" to make a pre-encrypted ballot. */
 data class PreEncryptedBallot(
     val ballotId: String,
     val ballotStyleId: String,
@@ -16,7 +13,7 @@ data class PreEncryptedBallot(
     fun show() {
         println("\nPreEncryptedBallot $ballotId code = $confirmationCode")
         for (pcontest in this.contests) {
-            println(" contest ${pcontest.contestId} (votesAllowed=${pcontest.votesAllowed}) = ${pcontest.preencryptionHash.toHex()}")
+            println(" contest ${pcontest.contestId} = ${pcontest.preencryptionHash.toHex()}")
             for (pselection in pcontest.selections) {
                 println("  selection ${pselection.selectionId} (${pselection.sequenceOrder}) = ${pselection.shortCode}")
                 pselection.selectionVector.forEach { println("   encryption ${it}") }
@@ -29,7 +26,7 @@ data class PreEncryptedBallot(
 data class PreEncryptedContest(
     val contestId: String, // could just pass the manifest contest, in case other info is needed
     val sequenceOrder: Int,
-    val votesAllowed: Int, // TODO remove
+    val contestLimit: Int,
     val selections: List<PreEncryptedSelection>, // nselections + limit, in sequenceOrder, eq 92,93
     val preencryptionHash: UInt256, // eq 95
 )

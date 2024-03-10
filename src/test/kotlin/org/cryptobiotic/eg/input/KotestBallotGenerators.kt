@@ -395,7 +395,7 @@ object KotestBallotGenerators {
             geopoliticalUnitId = geoUnit.geopoliticalUnitId,
             voteVariation = voteVariation,
             numberElected = n,
-            votesAllowed = n,
+            contestSelectionLimit = n,
             name = "Contest $sequenceOrder",
             selections = selectionDescriptions,
             ballotTitle =  "Title $sequenceOrder",

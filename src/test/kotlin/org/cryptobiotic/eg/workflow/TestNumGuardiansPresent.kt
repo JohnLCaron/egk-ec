@@ -74,7 +74,7 @@ class TestNumGuardiansPresent {
         )
 
         // key ceremony
-        val (_, init) = runFakeKeyCeremony(workingDir, workingDir, trusteeDir, nguardians, quorum, false)
+        runFakeKeyCeremony(workingDir, workingDir, trusteeDir, nguardians, quorum, false)
         println("FakeKeyCeremony created ElectionInitialized, missing guardians = $missing")
         println(group.showOpCountResults("----------- after keyCeremony"))
 

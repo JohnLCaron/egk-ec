@@ -7,7 +7,7 @@ import org.cryptobiotic.util.ErrorMessages
 
 /**
  * Validate an election manifest, return human readable error information.
- * See [Input Validation](https://github.com/votingworks/electionguard-kotlin-multiplatform/blob/main/docs/InputValidation.md)
+ * See [Input Validation](https://github.com/JohnLCaron/egk-ec/blob/main/docs/InputValidation.md)
  */
 class ManifestInputValidation(val manifest: Manifest) {
     private val logger = KotlinLogging.logger("ManifestInputValidation")
@@ -112,22 +112,22 @@ class ManifestInputValidation(val manifest: Manifest) {
         }
 
         when (contest.voteVariation) {
-            one_of_m -> if (contest.votesAllowed != 1) {
-                val msg = "Manifest.C.2 one_of_m Contest contest_limit (${contest.votesAllowed}) must be 1"
+            one_of_m -> if (contest.contestSelectionLimit != 1) {
+                val msg = "Manifest.C.2 one_of_m Contest contest_limit (${contest.contestSelectionLimit}) must be 1"
                 contestMesses.add(msg)
                 logger.warn { msg }
             }
             n_of_m -> {
-                if (contest.votesAllowed > contest.selections.size) {
-                    val msg = "Manifest.C.3 n_of_m Contest contest_limit (${contest.votesAllowed}) must be <= selections" +
+                if (contest.contestSelectionLimit > contest.selections.size) {
+                    val msg = "Manifest.C.3 n_of_m Contest contest_limit (${contest.contestSelectionLimit}) must be <= selections" +
                             " (${contest.selections.size})"
                     contestMesses.add(msg)
                     logger.warn { msg }
                 }
             }
             approval -> {
-                if (contest.votesAllowed != contest.selections.size) {
-                    val msg = "Manifest.C.4 approval Contest contest_limit (${contest.votesAllowed}) must equal " +
+                if (contest.contestSelectionLimit != contest.selections.size) {
+                    val msg = "Manifest.C.4 approval Contest contest_limit (${contest.contestSelectionLimit}) must equal " +
                             "number of selections (${contest.selections.size})"
                     contestMesses.add(msg)
                     logger.warn { msg }
@@ -136,14 +136,14 @@ class ManifestInputValidation(val manifest: Manifest) {
             else -> {}
         }
 
-        if (contest.votesAllowed < 1) {
-            val msg = "Manifest.C.5 Contest contest_limit (${contest.votesAllowed}) must be > 0"
+        if (contest.contestSelectionLimit < 1) {
+            val msg = "Manifest.C.5 Contest contest_limit (${contest.contestSelectionLimit}) must be > 0"
             contestMesses.add(msg)
             logger.warn { msg }
         }
 
-        if (contest.optionSelectionLimit < 1 || contest.optionSelectionLimit > contest.votesAllowed) {
-            val msg = "Manifest.C.6 contest option_limit (${contest.optionSelectionLimit}) must be > 0 and <= contest_limit (${contest.votesAllowed})"
+        if (contest.optionSelectionLimit < 1 || contest.optionSelectionLimit > contest.contestSelectionLimit) {
+            val msg = "Manifest.C.6 contest option_limit (${contest.optionSelectionLimit}) must be > 0 and <= contest_limit (${contest.contestSelectionLimit})"
             contestMesses.add(msg)
             logger.warn { msg }
         }

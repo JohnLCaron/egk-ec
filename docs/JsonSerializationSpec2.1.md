@@ -1,8 +1,8 @@
 # Egk Election Record JSON 2.1 serialization (proposed specification)
 
-draft 03/06/2024
+draft 03/10/2024
 
-### constants.json
+### Constants
 
 ````
 {
@@ -15,11 +15,38 @@ draft 03/06/2024
 ````
 * addition of a "name" field, contests are implementation dependent
 
-### manifest.json
 
-* unchanged
+### Elements
 
-### election_config.json
+All elements are byte arrays encoded in JSON as base64 Strings. 
+They have leading zeros (if needed) to make them exactly nbytes, where nbytes depends on the Element type and the Group, 
+as follows.
+
+#### UInt256Json
+
+UInt256 is the output of the SHA-256 hash function. It is 32 bytes.
+
+#### ElementModQJson
+
+ElementModQ is an element of the Z_q modular group. 
+For both "Integer4096" and "P-256" its serialization is a byte array of 32 bytes long.
+
+#### ElementModPJson
+
+ElementModP is an element of the Z_p modular group. 
+
+For "Integer4096" its serialization is a byte array of 512 bytes. 
+
+For group "P-256" its serialization is a byte array of 33 bytes, encoded as a point-compressed elliptic curve coordinate as specified in
+[The Elliptic Curve Digital Signature Algorithm (ECDSA)](https://safecurves.cr.yp.to/grouper.ieee.org/groups/1363/private/x9-62-09-20-98.pdf)
+, section 4.2.1.
+
+
+### Manifest
+
+TODO
+
+### ElectionConfig
 
 ````
 @Serializable
@@ -27,16 +54,13 @@ data class ElectionConfigJson(
     val config_version: String,
     val number_of_guardians: Int,
     val quorum: Int,
-    val election_date: String,
-    val jurisdiction_info: String,
 
     val parameter_base_hash: UInt256Json, // Hp
     val manifest_hash: UInt256Json, // Hm
     val election_base_hash: UInt256Json, // Hb
 
-    val baux0: ByteArray, // B_aux,0 from eq 59,60
-    val voting_device: String, // the device information from eq 61, and section 3.7
     val chain_confirmation_codes: Boolean,
+    val baux0: String, // // base64 encoded ByteArray, B_aux,0 from eq 59,60
     val metadata: Map<String, String> = emptyMap(), // arbitrary key, value pairs
 )
 ````
@@ -45,22 +69,24 @@ Example:
 
 ````
 {
-    "config_version": "v2.0",
+    "config_version": "2.1.0",
     "number_of_guardians": 3,
     "quorum": 3,
-    "election_date": "2023-07-08T10:03:21.866816846",
-    "jurisdiction_info": "N/A",
-    "parameter_base_hash": "AB91D83C3DC3FEB76E57C2783CFE2CA85ADB4BC01FC5123EEAE3124CC3FB6CDE",
-    "manifest_hash": "E69B574C48087CF4E4914C3C4CDBBCB9368255F9373EFCF9EE923AF6B23C7CD2",
-    "election_base_hash": "C7C5EC51E7CB411F4CDCEDF891203B1B6A18DEF7178B1584A30F8578C611801D",
-    "baux0": [ 100, 101, 118, 105, 99, 101, 32, 105, 110, 102, 111, 114, 109, 97, 116, 105, 111, 110 ],
-    "device": "device information"
+    "parameter_base_hash": "wB7G5Kj3nStxFddTM6xJxHJo1djDXMWrdomcy5yZA68=",
+    "manifest_hash": "sXriYJtSs8669Ee18XIgOcEat+Ywaie/ncc4KnlkJMg=",
+    "election_base_hash": "oEwLY84o6a+NXBvh2iuwQAky++OKPx02yU1a3BVbmBg=",
+    "chain_confirmation_codes": false,
+    "baux0": "",
+    "metadata": {
+        "CreatedBy": "RunCreateElectionConfig",
+        "CreatedOn": "2024-03-08T17:44:27.432346094"
+    }
 }
 ````
 
 * as specified in section 3.1
 
-### election_initialized.json
+### ElectionInitialized
 
 ````
 @Serializable
@@ -226,11 +252,13 @@ data class EncryptedBallotJson(
     val ballot_id: String,
     val ballot_style_id: String,
     val voting_device: String,
-    val timestamp: Long, // Timestamp at which the ballot encryption is generated, in seconds since the epoch UTC.
+    val timestamp: Long,  // Timestamp at which the ballot encryption is generated, in seconds since the epoch UTC.
     val code_baux: String, // Baux in eq 59
     val confirmation_code: UInt256Json,
+    val election_id: UInt256Json,
     val contests: List<EncryptedContestJson>,
     val state: String, // BallotState
+    val encrypted_sn: ElGamalCiphertextJson?,
     val is_preencrypt: Boolean,
     val primary_nonce: UInt256Json?, // only when uncast
 )
@@ -239,7 +267,6 @@ data class EncryptedBallotJson(
 data class EncryptedContestJson(
     val contest_id: String,
     val sequence_order: Int,
-    val votes_allowed: Int,
     val contest_hash: UInt256Json,
     val selections: List<EncryptedSelectionJson>,
     val proof: RangeProofJson,
@@ -253,6 +280,12 @@ data class EncryptedSelectionJson(
     val sequence_order: Int,
     val encrypted_vote: ElGamalCiphertextJson,
     val proof: RangeProofJson,
+)
+
+@Serializable
+data class ElGamalCiphertextJson(
+    val pad: ElementModPJson,
+    val data: ElementModPJson
 )
 
 @Serializable
@@ -287,6 +320,8 @@ data class SelectionVectorJson(
     val short_code : String,
     val encryptions: List<ElGamalCiphertextJson>, // Ej, size = nselections, in order by sequence_order
 )
+
+Note EncryptedBallotJson.primary_nonce, election_id
 
 ````
 
@@ -355,7 +390,7 @@ Example:
 }
 ````
 
-### encrypted_tally.json
+### EncryptedTally
 
 ````
 @Serializable
@@ -363,6 +398,7 @@ data class EncryptedTallyJson(
     val tally_id: String,
     val contests: List<EncryptedTallyContestJson>,
     val cast_ballot_ids: List<String>,
+    val election_id: UInt256Json,
 )
 
 @Serializable
@@ -414,7 +450,7 @@ Example:
 }
 ````
 
-### decryptedTallyOrBallot
+### DecryptedTallyOrBallot
 
 The only difference between a DecryptedTally and a DecryptedBallot is the presence of
 decrypted_contest_data for the ballot.
@@ -424,6 +460,7 @@ decrypted_contest_data for the ballot.
 data class DecryptedTallyOrBallotJson(
     val id: String,
     val contests: List<DecryptedContestJson>,
+    val election_id: UInt256Json,     // unique election identifier
 )
 
 @Serializable

@@ -1,6 +1,6 @@
-# ElectionGuard-Kotlin Getting Started
+# EGK Getting Started
 
-_last update 02/25/2024_
+_last update 03/10/2024_
 
 <!-- TOC -->
 * [ElectionGuard-Kotlin Getting Started](#electionguard-kotlin-getting-started)

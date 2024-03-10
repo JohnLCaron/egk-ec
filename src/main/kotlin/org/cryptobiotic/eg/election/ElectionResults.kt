@@ -1,7 +1,6 @@
 package org.cryptobiotic.eg.election
 
 import org.cryptobiotic.eg.core.ElGamalPublicKey
-import org.cryptobiotic.eg.core.ElementModQ
 import org.cryptobiotic.eg.core.UInt256
 
 /** Results of tallying some collection of ballots, namely an EncryptedTally. */
@@ -31,14 +30,3 @@ data class DecryptionResult(
     val decryptedTally: DecryptedTallyOrBallot,
     val metadata: Map<String, String> = emptyMap(),
 )
-
-data class LagrangeCoordinate(
-    var guardianId: String,
-    var xCoordinate: Int,
-    var lagrangeCoefficient: ElementModQ, // wℓ, spec 2.0.0 eq 67
-) {
-    init {
-        require(guardianId.isNotEmpty())
-        require(xCoordinate > 0)
-    }
-}
