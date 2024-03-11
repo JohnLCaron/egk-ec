@@ -40,7 +40,8 @@ fun ElectionConfigJson.import(constants: ElectionConstants?, manifestBytes: Byte
     if (this.parameter_base_hash.import() == null) errs.add("malformed parameter_base_hash")
     if (this.manifest_hash.import() == null) errs.add("malformed manifest_hash")
     if (this.election_base_hash.import() == null) errs.add("malformed election_base_hash")
-    if (this.baux0.fromBase64() == null) errs.add("malformed baux0")
+    val baux0 = if (this.baux0.isEmpty()) ByteArray(0) else this.baux0.fromBase64()
+    if (baux0 == null) errs.add("malformed baux0 = ${this.baux0}")
 
     return if (errs.hasErrors() || constants == null || manifestBytes == null) null
     else ElectionConfig(
@@ -53,7 +54,7 @@ fun ElectionConfigJson.import(constants: ElectionConstants?, manifestBytes: Byte
                 this.election_base_hash.import()!!,
                 manifestBytes,
                 this.chain_confirmation_codes,
-                this.baux0.fromBase64()!!,
+                baux0!!,
                 this.metadata,
             )
 }
