@@ -106,4 +106,31 @@ class ElectionConfigTest {
         assertTrue(errs.contains("malformed election_base_hash"))
     }
 
+    @Test
+    fun emptyBauxTest() {
+        val group = EcGroupContext("P-256")
+        val constants = group.constants
+        val manifestBytes = "1234ABC".fromHex()!!
+        val config = ElectionConfig(
+            "emptyBauxTest",
+            constants,
+            7, 4,
+            UInt256.random(),
+            UInt256.random(),
+            UInt256.random(),
+            manifestBytes,
+            true,
+            ByteArray(0)
+        )
+        val json = config.publishJson()
+
+        val errs = ErrorMessages("emptyBauxTest")
+        val roundtrip = json.import(constants, manifestBytes, errs)
+        assertNotNull(roundtrip)
+        assertNotNull(roundtrip.configBaux0)
+        assertTrue(roundtrip.configBaux0.size == 0)
+        assertFalse(errs.hasErrors())
+        assertEquals(config, roundtrip)
+    }
+
 }

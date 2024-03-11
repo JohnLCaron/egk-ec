@@ -30,7 +30,6 @@ class CreateElectionConfig {
                 "-nguardians", "3",
                 "-quorum", "3",
                 "-out", "$testOut/config/startConfigEc",
-                "-device", "device information",
             )
         )
     }
