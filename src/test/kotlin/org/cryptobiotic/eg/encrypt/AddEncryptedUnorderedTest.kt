@@ -5,6 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 import org.cryptobiotic.eg.election.*
+import org.cryptobiotic.eg.input.BallotInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
@@ -30,6 +31,7 @@ class AddEncryptedUnorderedTest {
 
         val encryptor = AddEncryptedBallot(
             electionRecord.manifest(),
+            BallotInputValidation(electionRecord.manifest()),
             electionInit.config.chainConfirmationCodes,
             electionInit.config.configBaux0,
             electionInit.jointPublicKey(),
@@ -67,6 +69,7 @@ class AddEncryptedUnorderedTest {
         repeat(3) { it ->
             val encryptor = AddEncryptedBallot(
                 electionRecord.manifest(),
+                BallotInputValidation(electionRecord.manifest()),
                 electionInit.config.chainConfirmationCodes,
                 electionInit.config.configBaux0,
                 electionInit.jointPublicKey(),
@@ -107,6 +110,7 @@ class AddEncryptedUnorderedTest {
 
         val encryptor = AddEncryptedBallot(
             electionRecord.manifest(),
+            BallotInputValidation(electionRecord.manifest()),
             electionInit.config.chainConfirmationCodes,
             electionInit.config.configBaux0,
             electionInit.jointPublicKey(),
@@ -146,6 +150,7 @@ class AddEncryptedUnorderedTest {
         repeat(3) { it ->
             val encryptor = AddEncryptedBallot(
                 electionRecord.manifest(),
+                BallotInputValidation(electionRecord.manifest()),
                 electionInit.config.chainConfirmationCodes,
                 electionInit.config.configBaux0,
                 electionInit.jointPublicKey(),
@@ -209,6 +214,7 @@ class AddEncryptedUnorderedTest {
             repeat(3) {
                 val encryptor = AddEncryptedBallot(
                     electionRecord.manifest(),
+                    BallotInputValidation(electionRecord.manifest()),
                     electionInit.config.chainConfirmationCodes,
                     electionInit.config.configBaux0,
                     electionInit.jointPublicKey(),

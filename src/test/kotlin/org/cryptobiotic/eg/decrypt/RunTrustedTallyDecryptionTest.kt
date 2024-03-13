@@ -41,4 +41,19 @@ class RunTrustedTallyDecryptionTest {
             )
         )
     }
+
+
+    @Test
+    fun testDecryptionFromFile() {
+        RunTrustedTallyDecryption.main(
+            arrayOf(
+                "-in", "src/test/data/workflow/someAvailableEc",
+                "-trustees", "src/test/data/workflow/someAvailableEc/private_data/trustees",
+                "-out", "$testOut/decrypt/testDecryptionFromFile",
+                "--encryptedTallyFile", "src/test/data/workflow/someAvailableEc/encrypted_tally.json",
+                "-createdBy", "testDecryptionFromFile",
+                "-missing", "1,4"
+            )
+        )
+    }
 }

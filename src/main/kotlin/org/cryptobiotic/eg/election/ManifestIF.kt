@@ -2,12 +2,12 @@ package org.cryptobiotic.eg.election
 
 /** Interface used in the crypto routines for easy mocking. */
 interface ManifestIF {
-    val contests: List<Contest>
+    val contests: List<Contest> // in order by sequence number
 
     interface Contest {
         val contestId: String
         val sequenceOrder: Int
-        val selections: List<Selection>
+        val selections: List<Selection> // in order by sequence number
     }
 
     interface Selection {
@@ -25,5 +25,4 @@ interface ManifestIF {
 
     /** get the option selection limit for the given contest id */
     fun optionLimit(contestId : String): Int
-
 }

@@ -18,6 +18,7 @@ data class EncryptedTallyContestJson(
     val contest_id: String,
     val sequence_order: Int,
     val selections: List<EncryptedTallySelectionJson>,
+    val ballot_count: Int = 0,                 // number of ballots voting on this contest
 )
 
 @Serializable
@@ -39,7 +40,9 @@ fun EncryptedTally.publishJson(): EncryptedTallyJson {
                     it.sequenceOrder,
                     it.encryptedVote.publishJson(),
                 )
-            })
+            },
+            pcontest.ballot_count,
+        )
     }
     return EncryptedTallyJson(
         this.tallyId,
@@ -56,7 +59,7 @@ fun EncryptedTallyJson.import(group: GroupContext, errs : ErrorMessages): Encryp
     val electionId = this.election_id.import() ?: errs.addNull("EncryptedTally malformed election_id") as UInt256?
 
     return if (errs.hasErrors()) null
-    else  EncryptedTally(
+    else EncryptedTally(
         this.tally_id,
         contests.filterNotNull(),
         this.cast_ballot_ids,
@@ -71,7 +74,8 @@ fun EncryptedTallyContestJson.import(group: GroupContext, errs : ErrorMessages):
     else EncryptedTally.Contest(
         this.contest_id,
         this.sequence_order,
-        selections.filterNotNull()
+        selections.filterNotNull(),
+        this.ballot_count,
     )
 }
 

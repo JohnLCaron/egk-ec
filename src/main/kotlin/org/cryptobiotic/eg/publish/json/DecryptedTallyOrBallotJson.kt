@@ -16,6 +16,7 @@ data class DecryptedTallyOrBallotJson(
 data class DecryptedContestJson(
     val contest_id: String,
     val selections: List<DecryptedSelectionJson>,
+    val ballot_count: Int = 0,                 // number of ballots voting on this contest
     val decrypted_contest_data: DecryptedContestDataJson?, //  ballot decryption only
 )
 
@@ -42,6 +43,7 @@ fun DecryptedTallyOrBallot.publishJson() = DecryptedTallyOrBallotJson(
                     selection.proof.publishJson(),
                 )
             },
+            contest.ballot_count,
             contest.decryptedContestData?.publishJson(),
         )
     },
@@ -71,6 +73,7 @@ fun DecryptedContestJson.import(group: GroupContext, errs: ErrorMessages): Decry
     else DecryptedTallyOrBallot.Contest(
             this.contest_id,
             selections.filterNotNull(),
+            this.ballot_count,
             decryptedContestData,
         )
 }

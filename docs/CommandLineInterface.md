@@ -1,9 +1,9 @@
 # EGK Workflow and Command Line Programs
 
-last update 03/08/2024
+last update 03/11/2024
 
 <!-- TOC -->
-* [Workflow and Command Line Programs](#workflow-and-command-line-programs)
+* [EGK Workflow and Command Line Programs](#egk-workflow-and-command-line-programs)
   * [Election workflow overview](#election-workflow-overview)
   * [Make ekglib uberJar](#make-ekglib-uberjar)
   * [Create a fake Election Manifest](#create-a-fake-election-manifest)
@@ -298,6 +298,7 @@ Options:
     --outputDir, -out -> Directory to write output election record (always required) { String }
     --encryptDir, -eballots -> Read encrypted ballots here (optional) { String }
     --name, -name -> Name of tally { String }
+    --countNumberOfBallots, -count [false] -> count number of ballots for each contest 
     --createdBy, -createdBy -> who created { String }
     --help, -h -> Usage info 
 ````
@@ -331,6 +332,7 @@ Options:
     --inputDir, -in -> Directory containing input election record (always required) { String }
     --trusteeDir, -trustees -> Directory to read private trustees (always required) { String }
     --outputDir, -out -> Directory to write output election record (always required) { String }
+    --encryptedTallyFile, -encryptedTally -> encryptedTally file (if different from the one in the election record) { String }
     --createdBy, -createdBy -> who created { String }
     --missing, -missing -> missing guardians' xcoord, comma separated, eg '2,4' { String }
     --help, -h -> Usage info 

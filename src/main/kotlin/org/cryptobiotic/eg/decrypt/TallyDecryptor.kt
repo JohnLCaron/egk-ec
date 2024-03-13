@@ -46,7 +46,8 @@ internal class TallyDecryptor(
                 errs.addNull("'$id' share not found") as DecryptedTallyOrBallot.Selection?
             else decryptSelection(it, shares, contest.contestId, stats, errs.nested("Selection ${it.selectionId}"))
         }
-        return if (errs.hasErrors()) null else DecryptedTallyOrBallot.Contest(contest.contestId, selections.filterNotNull(), decryptedContestData)
+        return if (errs.hasErrors()) null
+               else DecryptedTallyOrBallot.Contest(contest.contestId, selections.filterNotNull(), contest.ballot_count, decryptedContestData)
     }
 
     private fun decryptContestData(

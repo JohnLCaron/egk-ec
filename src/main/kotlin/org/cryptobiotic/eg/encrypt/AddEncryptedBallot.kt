@@ -25,7 +25,8 @@ private val logger = KotlinLogging.logger("AddEncryptedBallot")
  *  (with or without ballot chaining), then decide to challenge or cast.
  */
 class AddEncryptedBallot(
-    val manifest: Manifest, // should already be validated
+    val manifest: ManifestIF, // should already be validated
+    val ballotValidator: BallotInputValidation,
     val chaining: Boolean,
     val configBaux0: ByteArray,
     val jointPublicKey: ElGamalPublicKey,
@@ -35,7 +36,6 @@ class AddEncryptedBallot(
     val invalidDir: String, // write plaintext ballots that fail validation
     val isJson: Boolean, // must match election record serialization type
 ) : Closeable {
-    val ballotValidator = BallotInputValidation(manifest)
     val publisher = makePublisher(outputDir, false)
     val consumerIn = makeConsumer(outputDir)
 
@@ -55,8 +55,6 @@ class AddEncryptedBallot(
 
     val sink: EncryptedBallotSinkIF = publisher.encryptedBallotSink(device)
     var currentChain: EncryptedBallotChain? = null
-
-    private val ballotIds = mutableListOf<String>()
     private val pending = mutableMapOf<UInt256, PendingEncryptedBallot>() // key = ccode.toHex()
     private var closed = false
 
@@ -191,13 +189,8 @@ class AddEncryptedBallot(
             }
         }
 
-        //             publisher: Publisher,
-        //            device: String,
-        //            ballotChainOverrideDir: String?,
-        //            currentChain: EncryptedBallotChain,
-        //            finalConfirmationCode: String? = null,
         if (chaining) {
-            val retval = EncryptedBallotChain.terminateChain(
+            EncryptedBallotChain.terminateChain(
                 publisher,
                 device,
                 null,

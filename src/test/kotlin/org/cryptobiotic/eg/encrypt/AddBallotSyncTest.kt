@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.encrypt
 
 import org.cryptobiotic.eg.election.*
+import org.cryptobiotic.eg.input.BallotInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
@@ -22,9 +23,11 @@ class AddBallotSyncTest {
         val electionInit = electionRecord.electionInit()!!
         val publisher = makePublisher(outputDir, true)
         publisher.writeElectionInitialized(electionInit)
+        val manifest = electionRecord.manifest()
 
         val encryptor = AddEncryptedBallot(
-            electionRecord.manifest(),
+            manifest,
+            BallotInputValidation(manifest),
             electionInit.config.chainConfirmationCodes,
             electionInit.config.configBaux0,
             electionInit.jointPublicKey(),
@@ -65,12 +68,14 @@ class AddBallotSyncTest {
         val electionRecord = readElectionRecord(inputJson)
         val configWithChaining = electionRecord.config().copy(chainConfirmationCodes = true)
         val electionInit = electionRecord.electionInit()!!.copy(config = configWithChaining)
+        val manifest = electionRecord.manifest()
 
         val publisher = makePublisher(outputDir, true)
         publisher.writeElectionInitialized(electionInit)
 
         val addEncryptor = AddEncryptedBallot(
-            electionRecord.manifest(),
+            manifest,
+            BallotInputValidation(manifest),
             electionInit.config.chainConfirmationCodes,
             electionInit.config.configBaux0,
             electionInit.jointPublicKey(),

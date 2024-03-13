@@ -1,7 +1,7 @@
 package org.cryptobiotic.eg.election
 
 /** The ElectionGuard Manifest: defines the candidates, contests, and associated information for a specific election. */
-data class Manifest(
+class Manifest(
     val electionScopeId: String,
     val specVersion: String,
     val electionType: ElectionType,
@@ -10,11 +10,12 @@ data class Manifest(
     val geopoliticalUnits: List<GeopoliticalUnit>,
     val parties: List<Party>,
     val candidates: List<Candidate>,
-    override val contests: List<ContestDescription>,
+    contestsInput: List<ContestDescription>,
     val ballotStyles: List<BallotStyle>,
     val name: List<Language>,
     val contactInformation: ContactInformation?,
 ) : ManifestIF {
+    override val contests: List<ContestDescription> = contestsInput.sortedBy { it.sequenceOrder }
 
     /** Map of ballotStyleId to all Contests that use it. */
     val styleToContestsMap = mutableMapOf<String, List<ContestDescription>>() // key = ballotStyleId
@@ -48,6 +49,44 @@ data class Manifest(
         return contestMap[contestId]?.optionSelectionLimit ?: 1
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Manifest) return false
+
+        if (electionScopeId != other.electionScopeId) return false
+        if (specVersion != other.specVersion) return false
+        if (electionType != other.electionType) return false
+        if (startDate != other.startDate) return false
+        if (endDate != other.endDate) return false
+        if (geopoliticalUnits != other.geopoliticalUnits) return false
+        if (parties != other.parties) return false
+        if (candidates != other.candidates) return false
+        if (ballotStyles != other.ballotStyles) return false
+        if (name != other.name) return false
+        if (contactInformation != other.contactInformation) return false
+        if (contests != other.contests) return false
+        if (styleToContestsMap != other.styleToContestsMap) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = electionScopeId.hashCode()
+        result = 31 * result + specVersion.hashCode()
+        result = 31 * result + electionType.hashCode()
+        result = 31 * result + startDate.hashCode()
+        result = 31 * result + endDate.hashCode()
+        result = 31 * result + geopoliticalUnits.hashCode()
+        result = 31 * result + parties.hashCode()
+        result = 31 * result + candidates.hashCode()
+        result = 31 * result + ballotStyles.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + (contactInformation?.hashCode() ?: 0)
+        result = 31 * result + contests.hashCode()
+        result = 31 * result + styleToContestsMap.hashCode()
+        return result
+    }
+
     /** Map of contestId to contests. */
     val contestMap : Map<String, ContestDescription> by
     lazy {
@@ -64,7 +103,7 @@ data class Manifest(
      * The structure and type of one contest in the election.
      * @see [Civics Common Standard Data Specification](https://developers.google.com/elections-data/reference/contest)
      */
-    data class ContestDescription(
+    class ContestDescription(
         override val contestId: String,
         override val sequenceOrder: Int,
         val geopoliticalUnitId: String,
@@ -72,11 +111,47 @@ data class Manifest(
         val numberElected: Int,
         val contestSelectionLimit: Int, // contest selection limit = L, spec 2.0 p 17.
         val name: String,
-        override val selections: List<SelectionDescription>,
+        selectionsInput: List<SelectionDescription>,
         val ballotTitle: String?,
         val ballotSubtitle: String?,
         val optionSelectionLimit: Int = 1, // option selection limit = R, spec 2.0 p 17.
-    ) : ManifestIF.Contest
+    ) : ManifestIF.Contest {
+        override val selections: List<SelectionDescription> = selectionsInput.sortedBy { it.sequenceOrder }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ContestDescription) return false
+
+            if (contestId != other.contestId) return false
+            if (sequenceOrder != other.sequenceOrder) return false
+            if (geopoliticalUnitId != other.geopoliticalUnitId) return false
+            if (voteVariation != other.voteVariation) return false
+            if (numberElected != other.numberElected) return false
+            if (contestSelectionLimit != other.contestSelectionLimit) return false
+            if (name != other.name) return false
+            if (ballotTitle != other.ballotTitle) return false
+            if (ballotSubtitle != other.ballotSubtitle) return false
+            if (optionSelectionLimit != other.optionSelectionLimit) return false
+            if (selections != other.selections) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = contestId.hashCode()
+            result = 31 * result + sequenceOrder
+            result = 31 * result + geopoliticalUnitId.hashCode()
+            result = 31 * result + voteVariation.hashCode()
+            result = 31 * result + numberElected
+            result = 31 * result + contestSelectionLimit
+            result = 31 * result + name.hashCode()
+            result = 31 * result + (ballotTitle?.hashCode() ?: 0)
+            result = 31 * result + (ballotSubtitle?.hashCode() ?: 0)
+            result = 31 * result + optionSelectionLimit
+            result = 31 * result + selections.hashCode()
+            return result
+        }
+    }
 
     /**
      * A ballot selection for a specific candidate in a contest.
@@ -387,4 +462,6 @@ data class Manifest(
     ) {
         constructor(partyId: String) : this(partyId,"",null, null, null)
     }
+
+
 }

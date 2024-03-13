@@ -71,8 +71,8 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
         }
     }
 
-    override fun writeTallyResult(tally: TallyResult) {
-        writeElectionInitialized(tally.electionInitialized)
+    override fun writeTallyResult(tally: TallyResult, complete: Boolean) {
+        if (complete) writeElectionInitialized(tally.electionInitialized)
 
         val encryptedTallyJson = tally.encryptedTally.publishJson()
         FileOutputStream(jsonPaths.encryptedTallyPath()).use { out ->
@@ -83,8 +83,11 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
 
     override fun writeDecryptionResult(decryption: DecryptionResult) {
         writeTallyResult(decryption.tallyResult)
+        writeDecryptedTally(decryption.decryptedTally)
+    }
 
-        val decryptedTallyJson = decryption.decryptedTally.publishJson()
+    override fun writeDecryptedTally(decryption: DecryptedTallyOrBallot) {
+        val decryptedTallyJson = decryption.publishJson()
         FileOutputStream(jsonPaths.decryptedTallyPath()).use { out ->
             jsonReader.encodeToStream(decryptedTallyJson, out)
             out.close()
