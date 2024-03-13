@@ -303,6 +303,7 @@ fun EncryptedBallot.convertToTally(): EncryptedTally {
             contest.contestId,
             contest.sequenceOrder,
             selections,
+            1,
             contest.contestData,
         )
     }

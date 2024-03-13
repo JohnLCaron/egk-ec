@@ -13,8 +13,9 @@ interface Publisher {
     fun writeManifest(manifest: Manifest) : String // return filename
     fun writeElectionConfig(config: ElectionConfig)
     fun writeElectionInitialized(init: ElectionInitialized)
-    fun writeTallyResult(tally: TallyResult)
+    fun writeTallyResult(tally: TallyResult, complete: Boolean = true)
     fun writeDecryptionResult(decryption: DecryptionResult)
+    fun writeDecryptedTally(decryption: DecryptedTallyOrBallot)
 
     fun encryptedBallotSink(device: String?, batched : Boolean = false): EncryptedBallotSinkIF
     fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotOverrideDir: String? = null)

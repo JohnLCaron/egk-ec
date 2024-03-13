@@ -6,6 +6,7 @@ import kotlin.test.*
 
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.*
+import org.cryptobiotic.eg.input.BallotInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
@@ -32,6 +33,7 @@ class AddEncryptedBallotTest {
 
         val encryptor = AddEncryptedBallot(
             electionRecord.manifest(),
+            BallotInputValidation(electionRecord.manifest()),
             electionInit.config.chainConfirmationCodes,
             electionInit.config.configBaux0,
             electionInit.jointPublicKey(),
@@ -66,6 +68,7 @@ class AddEncryptedBallotTest {
 
         val encryptor = AddEncryptedBallot(
             electionRecord.manifest(),
+            BallotInputValidation(electionRecord.manifest()),
             electionInit.config.chainConfirmationCodes,
             electionInit.config.configBaux0,
             electionInit.jointPublicKey(),
@@ -100,6 +103,7 @@ class AddEncryptedBallotTest {
 
         val encryptor = AddEncryptedBallot(
             electionRecord.manifest(),
+            BallotInputValidation(electionRecord.manifest()),
             electionInit.config.chainConfirmationCodes,
             electionInit.config.configBaux0,
             electionInit.jointPublicKey(),
@@ -135,6 +139,7 @@ class AddEncryptedBallotTest {
         repeat(3) {
             val encryptor = AddEncryptedBallot(
                 electionRecord.manifest(),
+                BallotInputValidation(electionRecord.manifest()),
                 electionInit.config.chainConfirmationCodes,
                 electionInit.config.configBaux0,
                 electionInit.jointPublicKey(),
@@ -170,6 +175,7 @@ class AddEncryptedBallotTest {
         repeat(3) { it ->
             val encryptor = AddEncryptedBallot(
                 electionRecord.manifest(),
+                BallotInputValidation(electionRecord.manifest()),
                 electionInit.config.chainConfirmationCodes,
                 electionInit.config.configBaux0,
                 electionInit.jointPublicKey(),
@@ -207,6 +213,7 @@ class AddEncryptedBallotTest {
 
         val encryptor = AddEncryptedBallot(
             electionRecord.manifest(),
+            BallotInputValidation(electionRecord.manifest()),
             electionInit.config.chainConfirmationCodes,
             electionInit.config.configBaux0,
             electionInit.jointPublicKey(),
@@ -244,6 +251,7 @@ class AddEncryptedBallotTest {
         repeat(4) {
             val encryptor = AddEncryptedBallot(
                 electionRecord.manifest(),
+                BallotInputValidation(electionRecord.manifest()),
                 electionInit.config.chainConfirmationCodes,
                 electionInit.config.configBaux0,
                 electionInit.jointPublicKey(),
@@ -281,6 +289,7 @@ class AddEncryptedBallotTest {
         repeat(3) {
             val encryptor = AddEncryptedBallot(
                 electionRecord.manifest(),
+                BallotInputValidation(electionRecord.manifest()),
                 electionInit.config.chainConfirmationCodes,
                 electionInit.config.configBaux0,
                 electionInit.jointPublicKey(),

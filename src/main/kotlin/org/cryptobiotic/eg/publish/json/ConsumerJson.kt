@@ -124,6 +124,10 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         )
     }
 
+    override fun readEncryptedTallyFromFile(filename: String): Result<EncryptedTally, ErrorMessages> {
+        return readEncryptedTally(fileSystem.getPath(filename))
+    }
+
     override fun readDecryptionResult(): Result<DecryptionResult, ErrorMessages> {
         val tally = readTallyResult()
         if (tally is Err) {
@@ -134,6 +138,23 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
             fileSystem.getPath(jsonPaths.decryptedTallyPath()),
             tally.unwrap()
         )
+    }
+
+    override fun readDecryptedTallyFromFile(filename: String): Result<DecryptedTallyOrBallot, ErrorMessages> {
+        val errs = ErrorMessages("DecryptedTallyFromFile '$filename'")
+        val decryptedTallyPath = Path.of(filename)
+        if (!Files.exists(decryptedTallyPath)) {
+            return errs.add("file does not exist ")
+        }
+        return try {
+            fileSystemProvider.newInputStream(decryptedTallyPath, StandardOpenOption.READ).use { inp ->
+                val json = jsonReader.decodeFromStream<DecryptedTallyOrBallotJson>(inp)
+                val tally = json.import(group, errs)
+                if (errs.hasErrors()) Err(errs) else Ok(tally!!)
+            }
+        } catch (t: Throwable) {
+            errs.add("Exception= ${t.message} ${t.stackTraceToString()}")
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -337,6 +358,22 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
                 val json = jsonReader.decodeFromStream<EncryptedTallyJson>(inp)
                 val encryptedTally = json.import(group, errs)
                 if (errs.hasErrors()) Err(errs) else Ok(TallyResult(init, encryptedTally!!, emptyList()))
+            }
+        } catch (t: Throwable) {
+            errs.add("Exception= ${t.message} ${t.stackTraceToString()}")
+        }
+    }
+
+    private fun readEncryptedTally(tallyPath: Path): Result<EncryptedTally, ErrorMessages> {
+        val errs = ErrorMessages("EncryptedTally file '${tallyPath}'")
+        if (!Files.exists(tallyPath)) {
+            return errs.add("file does not exist")
+        }
+        return try {
+            fileSystemProvider.newInputStream(tallyPath, StandardOpenOption.READ).use { inp ->
+                val json = jsonReader.decodeFromStream<EncryptedTallyJson>(inp)
+                val encryptedTally: EncryptedTally? = json.import(group, errs)
+                if (errs.hasErrors()) Err(errs) else Ok(encryptedTally!!)
             }
         } catch (t: Throwable) {
             errs.add("Exception= ${t.message} ${t.stackTraceToString()}")

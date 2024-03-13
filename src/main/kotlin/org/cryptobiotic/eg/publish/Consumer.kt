@@ -29,7 +29,9 @@ interface Consumer {
     fun readElectionConfig(): Result<ElectionConfig, ErrorMessages>
     fun readElectionInitialized(): Result<ElectionInitialized, ErrorMessages>
     fun readTallyResult(): Result<TallyResult, ErrorMessages>
+    fun readEncryptedTallyFromFile(filename: String): Result<EncryptedTally, ErrorMessages>
     fun readDecryptionResult(): Result<DecryptionResult, ErrorMessages>
+    fun readDecryptedTallyFromFile(filename: String): Result<DecryptedTallyOrBallot, ErrorMessages>
 
     /** Are there any encrypted ballots? */
     fun hasEncryptedBallots() : Boolean

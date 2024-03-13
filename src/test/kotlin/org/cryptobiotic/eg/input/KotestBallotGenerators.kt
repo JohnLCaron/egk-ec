@@ -397,7 +397,7 @@ object KotestBallotGenerators {
             numberElected = n,
             contestSelectionLimit = n,
             name = "Contest $sequenceOrder",
-            selections = selectionDescriptions,
+            selectionsInput = selectionDescriptions,
             ballotTitle =  "Title $sequenceOrder",
             ballotSubtitle = "Subtitle $sequenceOrder",
         ))
@@ -432,7 +432,7 @@ object KotestBallotGenerators {
             geopoliticalUnits = geoUnits,
             parties = parties,
             candidates = candidates,
-            contests = contests,
+            contestsInput = contests,
             ballotStyles = listOf(styles),
             name = listOf(language("Manifest: ").bind()),
             contactInformation = contactInformation().bind()

@@ -1,6 +1,6 @@
 # Egk Election Record JSON 2.1 serialization (proposed specification)
 
-draft 03/10/2024
+draft 03/11/2024
 
 ### Constants
 
@@ -528,6 +528,7 @@ data class EncryptedTallyContestJson(
     val contest_id: String,
     val sequence_order: Int,
     val selections: List<EncryptedTallySelectionJson>,
+    val ballot_count: Int,                     // number of ballots voting on this contest
 )
 
 @Serializable
@@ -618,6 +619,7 @@ data class DecryptedTallyOrBallotJson(
 data class DecryptedContestJson(
     val contest_id: String,
     val selections: List<DecryptedSelectionJson>,
+    val ballot_count: Int,                     // number of ballots voting on this contest
     val decrypted_contest_data: DecryptedContestDataJson?, //  ballot decryption only
 )
 

@@ -11,6 +11,7 @@ class AccumulateTally(
     val name: String,
     val extendedBaseHash: UInt256,
     val jointPublicKey: ElGamalPublicKey,
+    val countNumberOfBallots: Boolean = false, // optional
 ) {
     private val contests = manifest.contests.associate { it.contestId to Contest(it) }
     private val castIds = mutableSetOf<String>()
@@ -47,8 +48,10 @@ class AccumulateTally(
 
     private inner class Contest(val manifestContest: ManifestIF.Contest) {
         private val selections = manifestContest.selections.associate { it.selectionId to Selection(it) }
+        private var ballot_count = 0
 
         fun accumulate(ballotId: String, ballotContest: EncryptedBallotIF.Contest, errs: ErrorMessages) {
+            ballot_count++
             for (ballotSelection in ballotContest.selections) {
                 val selection = selections[ballotSelection.selectionId]
                 if (selection == null) {
@@ -62,7 +65,8 @@ class AccumulateTally(
         fun build(): EncryptedTally.Contest {
             val tallySelections = selections.values.map { it.build() }
             return EncryptedTally.Contest(
-                manifestContest.contestId, manifestContest.sequenceOrder, tallySelections
+                manifestContest.contestId, manifestContest.sequenceOrder, tallySelections,
+                if (countNumberOfBallots) ballot_count else 0
             )
         }
     }

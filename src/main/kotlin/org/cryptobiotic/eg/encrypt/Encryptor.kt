@@ -44,7 +44,7 @@ class Encryptor(
             return null
         }
         for (mcontest in manifestContests) {
-            // If no contest on the ballot, create a well formed contest with all zeroes
+            // If no contest on the pballot, create a well formed contest with all zeroes
             val pcontest = plaintextContests[mcontest.contestId] ?: makeZeroContest(mcontest)
             encryptedContests.add(
                 pcontest.encryptContest(mcontest,

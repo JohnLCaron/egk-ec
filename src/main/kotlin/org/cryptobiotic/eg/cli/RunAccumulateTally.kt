@@ -12,6 +12,7 @@ import org.cryptobiotic.util.ErrorMessages
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
+import kotlinx.cli.default
 import kotlinx.cli.required
 import org.cryptobiotic.util.Stopwatch
 
@@ -47,6 +48,11 @@ class RunAccumulateTally {
                 shortName = "name",
                 description = "Name of tally"
             )
+            val countNumberOfBallots by parser.option(
+                ArgType.Boolean,
+                shortName = "count",
+                description = "count number of ballots for each contest"
+            ).default(false)
             val createdBy by parser.option(
                 ArgType.String,
                 shortName = "createdBy",
@@ -54,10 +60,11 @@ class RunAccumulateTally {
             )
             parser.parse(args)
 
-            val startupInfo = "starting" +
+            val startupInfo = "starting '$name" +
                     "\n   input= $inputDir" +
                     "\n   outputDir = $outputDir" +
-                    "\n   encryptDir = $encryptDir"
+                    "\n   encryptDir = $encryptDir" +
+                    "\n   countNumberOfBallots = $countNumberOfBallots"
             logger.info { startupInfo }
 
             try {
@@ -66,7 +73,8 @@ class RunAccumulateTally {
                     outputDir,
                     encryptDir,
                     name ?: "RunAccumulateTally",
-                    createdBy ?: "RunAccumulateTally"
+                    createdBy ?: "RunAccumulateTally",
+                    countNumberOfBallots,
                 )
                 logger.info {"success"}
 
@@ -81,7 +89,8 @@ class RunAccumulateTally {
             outputDir: String,
             encryptDir: String?,
             name: String,
-            createdBy: String
+            createdBy: String,
+            countNumberOfBallots: Boolean = false,
         ) {
             val stopwatch = Stopwatch()
 
@@ -97,7 +106,7 @@ class RunAccumulateTally {
 
             var countBad = 0
             var countOk = 0
-            val accumulator = AccumulateTally(group, manifest, name, electionInit.extendedBaseHash, electionInit.jointPublicKey())
+            val accumulator = AccumulateTally(group, manifest, name, electionInit.extendedBaseHash, electionInit.jointPublicKey(), countNumberOfBallots)
             val encryptedBallots = if (encryptDir == null) consumerIn.iterateAllCastBallots()
                                    else consumerIn.iterateEncryptedBallotsFromDir(encryptDir, null, null)
             for (encryptedBallot in encryptedBallots) {
