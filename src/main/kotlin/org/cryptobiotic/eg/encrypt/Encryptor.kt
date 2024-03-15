@@ -106,6 +106,8 @@ class Encryptor(
             }
         }
 
+        // TODO writeIns is adding an extra selection?? Messes with decryption. ability to turn feature off ??
+        // when theres a writein and a vote, the contest is overvoted and all votes are set to 0.
         val totalVotedFor = votedFor.size + this.writeIns.size
         val status = if (totalVotedFor == 0) ContestDataStatus.null_vote
             else if (selectionOvervote || totalVotedFor > contestLimit)  ContestDataStatus.over_vote

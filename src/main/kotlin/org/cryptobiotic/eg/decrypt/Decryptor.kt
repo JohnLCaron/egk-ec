@@ -72,7 +72,7 @@ class Decryptor(
         return tally.decrypt(errs, isBallot = false, isPep = true)
     }
 
-    // TODO remove isPep?
+    // TODO rename isPep?
     fun EncryptedTally.decrypt(errs : ErrorMessages, isBallot : Boolean = false, isPep : Boolean = false): DecryptedTallyOrBallot? {
         if (this.electionId != extendedBaseHash) {
             errs.add("Encrypted Tally/Ballot has wrong electionId = ${this.electionId}")
@@ -218,7 +218,10 @@ class Decryptor(
                 trusteeDecryptions.addContestDataResults(contest.contestId, contest.contestData, results[count++])
             }
             for (selection in contest.selections) {
-                trusteeDecryptions.addDecryption(contest.contestId, selection.selectionId, selection.encryptedVote, results[count++])
+                trusteeDecryptions.addDecryption(
+                    contestSelectionKey(contest.contestId, selection.selectionId),
+                    selection.encryptedVote,
+                    results[count++])
             }
         }
         return trusteeDecryptions

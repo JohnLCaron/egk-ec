@@ -223,7 +223,7 @@ fun ChaumPedersenProof.verifyDecryption(
     val b = (encryptedVote.pad powP this.r) * (M powP this.c) // 9.3
 
     // 9.A The given value v is in the set Z_q.
-    if (!this.r.inBounds()) {
+    if (!this.r.inBounds()) { // TODO why wait until now to check this?
         return false
     }
     // The challenge value c = H(HE ; 0x30, K, A, B, a, b, M ). eq 71, 9.B.

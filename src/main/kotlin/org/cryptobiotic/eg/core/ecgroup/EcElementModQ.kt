@@ -1,7 +1,7 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.Base16.toHex
+import org.cryptobiotic.eg.core.Base64.toBase64
 import java.math.BigInteger
 
 class EcElementModQ(val group: EcGroupContext, val element: BigInteger): ElementModQ {
@@ -47,7 +47,7 @@ class EcElementModQ(val group: EcGroupContext, val element: BigInteger): Element
 
     override fun hashCode() = byteArray().contentHashCode()
 
-    override fun toString() = byteArray().toHex()
+    override fun toString() = byteArray().toBase64()
 
     fun Element.getCompat(other: GroupContext): BigInteger {
         context.assertCompatible(other)

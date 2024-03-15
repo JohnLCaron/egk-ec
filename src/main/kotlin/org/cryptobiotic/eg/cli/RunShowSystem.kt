@@ -30,28 +30,25 @@ class RunShowSystem {
                 shortName = "set",
                 description = "set java.library.path"
             )
-            val setWtf by parser.option(
+            val showTally by parser.option(
                 ArgType.String,
-                shortName = "wtf",
-                description = "set wtf property"
+                shortName = "tally",
+                description = "summarize tally results"
             )
             parser.parse(args)
 
             val showSet = if (show == null) emptySet() else show!!.split(",").toSet()
-
-            showSystem(ShowSet(showSet), setPath, setWtf)
+            showSystem(ShowSet(showSet), setPath)
+            if (showTally != null) showTally(showTally!!)
         }
 
         class ShowSet(val want: Set<String>) {
             fun has(show: String) = want.contains("all") || want.contains(show)
         }
 
-        fun showSystem(showSet: ShowSet, setPath: String?, setWtf: String?) {
+        fun showSystem(showSet: ShowSet, setPath: String?) {
             if (setPath != null) {
                 System.setProperty("java.library.path", setPath)
-            }
-            if (setWtf != null) {
-                System.setProperty("wtf", setWtf)
             }
 
             if (showSet.has("properties")) {
@@ -93,6 +90,10 @@ class RunShowSystem {
             } catch (t: Throwable) {
                 return false
             }
+        }
+
+        fun showTally(showTally: String) {
+
         }
     }
 }
