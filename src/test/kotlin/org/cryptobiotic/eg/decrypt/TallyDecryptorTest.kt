@@ -244,7 +244,7 @@ class TallyDecryptorTest {
                 trusteeDecryptions.addContestDataResults(contest.contestId, contest.contestData!!, results[count++])
             }
             for (selection in contest.selections) {
-                trusteeDecryptions.addDecryption(contest.contestId, selection.selectionId, selection.encryptedVote, results[count++])
+                trusteeDecryptions.addDecryption(contestSelectionKey(contest.contestId, selection.selectionId), selection.encryptedVote, results[count++])
             }
         }
         return trusteeDecryptions

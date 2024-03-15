@@ -2,14 +2,33 @@ package org.cryptobiotic.eg.decrypt
 
 import org.cryptobiotic.eg.core.*
 
-/** One decryption from one Decrypting Trustee */
+/** These are the messages exchanged with the Decrypting Trustee's */
 data class PartialDecryption(
-    val guardianId: String,  // guardian i
+    val guardianId: String,  // guardian i // TODO needed ?
     val Mi: ElementModP, // Mi = A ^ P(i); spec 2.0.0, eq 66 or = C0 ^ P(i); eq 77
     //// these are needed for the proof
-    val u: ElementModQ,  // opaque, just pass back to the trustee
+    val u: ElementModQ,  // opaque, just pass back to the trustee TODO
     val a: ElementModP,  // g^u
     val b: ElementModP,  // A^u
+)
+
+data class ChallengeRequest(
+    val id: String, // "contestId#@selectionId" aka "selectionKey"
+    val challenge: ElementModQ, // 2.0, eq 72
+    val nonce: ElementModQ, // opaque, only for use by the trustee TODO
+)
+
+data class ChallengeResponse(
+    val id: String, // "contestId#@selectionId" aka "selectionKey"
+    val response: ElementModQ, // 2.0, eq 73
+)
+
+///////////////////////////////////////////////////////////////////////
+
+
+data class TrusteeChallengeResponses(
+    val id: String, // "contestId#@selectionId" aka "selectionKey"
+    val results: List<ChallengeResponse>,
 )
 
 /** One selection decryption from one Decrypting Trustees. */
@@ -31,8 +50,7 @@ class TrusteeDecryptions(val trusteeId : String) {
     val shares = mutableMapOf<String, DecryptionResult>() // key "contestId#@selectionId" aka "selectionKey"
     val contestData = mutableMapOf<String, ContestDataResult>() // key = contestId
 
-    fun addDecryption(contestId: String, selectionId: String, ciphertext: ElGamalCiphertext, decryption: PartialDecryption) {
-        val selectionKey = "${contestId}#@${selectionId}"
+    fun addDecryption(selectionKey: String, ciphertext: ElGamalCiphertext, decryption: PartialDecryption) {
         this.shares[selectionKey] = DecryptionResult(selectionKey, ciphertext, decryption)
     }
 
@@ -41,21 +59,7 @@ class TrusteeDecryptions(val trusteeId : String) {
     }
 }
 
-data class ChallengeRequest(
-    val id: String, // "contestId#@selectionId" aka "selectionKey"
-    val challenge: ElementModQ, // 2.0, eq 72
-    val nonce: ElementModQ, // opaque, only for use by the trustee
-)
-
-data class ChallengeResponse(
-    val id: String, // "contestId#@selectionId" aka "selectionKey"
-    val response: ElementModQ, // 2.0, eq 73
-)
-
-data class TrusteeChallengeResponses(
-    val id: String, // "contestId#@selectionId" aka "selectionKey"
-    val results: List<ChallengeResponse>,
-)
+fun contestSelectionKey(contestId: String, selectionId: String) = "${contestId}#@${selectionId}"
 
 //// Mutable structures to hold the work as it progresses
 
