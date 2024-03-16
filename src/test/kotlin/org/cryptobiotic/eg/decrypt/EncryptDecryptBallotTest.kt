@@ -42,7 +42,7 @@ private val writeout = false
 private val nguardians = 4
 private val quorum = 3
 private val nballots = 3
-private val debug = false
+private val debug = true
 
 fun runEncryptDecryptBallot(
     configDir: String,
@@ -201,7 +201,7 @@ fun testEncryptDecryptVerify2(
 
     val available = trustees.filter { present.contains(it.xCoordinate()) }
     val encryptor = Encryptor(group, manifest, publicKey, extendedBaseHash, "device")
-    val decryptor = BallotDecryptor2(group, extendedBaseHash, publicKey, guardians, available)
+    val decryptor = BallotDecryptor(group, extendedBaseHash, publicKey, guardians, available)
     val verifier = VerifyDecryption(group, manifest, publicKey, extendedBaseHash)
 
     var encryptTime = 0L
@@ -228,28 +228,28 @@ fun testEncryptDecryptVerify2(
 
             val dcontest = decryptedBallot.contests.find { it.contestId == orgContest.contestId }
             assertNotNull(dcontest)
-            //assertNotNull(dcontest.decryptedContestData)
-            //assertEquals(dcontest.decryptedContestData!!.contestData.writeIns, orgContestData.writeIns)
+            assertNotNull(dcontest.decryptedContestData)
+            assertEquals(dcontest.decryptedContestData!!.contestData.writeIns, orgContestData.writeIns)
             println("   ${orgContest.contestId} writeins = ${orgContestData.writeIns}")
 
-            //val status = dcontest.decryptedContestData!!.contestData.status
-            //val overvotes = dcontest.decryptedContestData!!.contestData.overvotes
-            //if (debug) println(" status = $status overvotes = $overvotes")
+            val status = dcontest.decryptedContestData!!.contestData.status
+            val overvotes = dcontest.decryptedContestData!!.contestData.overvotes
+            if (debug) println(" status = $status overvotes = $overvotes")
 
             // check if selection votes match
             orgContest.selections.forEach { selection ->
                 val dselection = dcontest.selections.find { it.selectionId == selection.selectionId }
 
-                /* if (status == ContestDataStatus.over_vote) {
+                if (status == ContestDataStatus.over_vote) {
                     // check if overvote was correctly recorded
                     val hasWriteIn = overvotes.find { it == selection.sequenceOrder } != null
                     assertEquals(selection.vote == 1, hasWriteIn)
 
-                } else { */
+                } else {
                     // check if selection votes match
                     assertNotNull(dselection)
                     assertEquals(selection.vote, dselection.tally)
-                // }
+                }
             }
 
             verifier.verify(decryptedBallot,  true, errs.nested("verify"), Stats())

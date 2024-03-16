@@ -19,7 +19,7 @@ class TallyDecryptor2(
     val lagrangeCoordinates: Map<String, LagrangeCoordinate>
     val nguardians = guardians.guardians.size // number of guardinas
     val quorum = guardians.guardians[0].coefficientCommitments().size
-    val decryptor2 = Decryptor2(group, extendedBaseHash, publicKey, guardians, decryptingTrustees)
+    val decryptor = CipherDecryptor(group, extendedBaseHash, publicKey, guardians, decryptingTrustees)
 
     init {
         // check that the DecryptingTrustee's match their public key
@@ -55,13 +55,13 @@ class TallyDecryptor2(
             errs.add("Encrypted Tally/Ballot has wrong electionId = ${etally.electionId}")
         }
 
-        val texts: MutableList<ElGamalCiphertext> = mutableListOf()
+        val texts: MutableList<Ciphertext> = mutableListOf()
         for (contest in etally.contests) {
             for (selection in contest.selections) {
-                texts.add(selection.encryptedVote)
+                texts.add(Ciphertext(selection.encryptedVote))
             }
         }
-        val decryptionAndProofs = decryptor2.decrypt(texts, errs, false)
+        val decryptionAndProofs = decryptor.decrypt(texts, errs)
         if (errs.hasErrors()) {
             return null
         }
@@ -72,28 +72,29 @@ class TallyDecryptor2(
     }
 
     fun makeTally(
-        tally: EncryptedTally,
-        decryptions: List<DecryptionAndProof>,
+        etally: EncryptedTally,
+        decryptions: List<CipherDecryptionAndProof>,
         errs : ErrorMessages,
     ): DecryptedTallyOrBallot? {
         var count = 0
-        val contests = tally.contests.map { econtest ->
+        val contests = etally.contests.map { econtest ->
             val cerrs = errs.nested("Contest ${econtest.contestId}")
             val selections = econtest.selections.map { eselection ->
                 val serrs = cerrs.nested("Selection ${eselection.selectionId}")
                 val (decryption, proof) = decryptions[count++]
+                val (T, tally) = decryption.decryptCiphertext(publicKey)
 
                 DecryptedTallyOrBallot.Selection(
                     eselection.selectionId,
-                    decryption.tally!!,
-                    decryption.T,
-                    decryption.ciphertext,
+                    tally!!, // TODO errors
+                    T,
+                    (decryption.cipher as Ciphertext).delegate,
                     proof
                 )
             }
             DecryptedTallyOrBallot.Contest(econtest.contestId, selections, econtest.ballot_count, null)
         }
-        return if (errs.hasErrors()) null else DecryptedTallyOrBallot(tally.tallyId, contests, tally.electionId)
+        return if (errs.hasErrors()) null else DecryptedTallyOrBallot(etally.tallyId, contests, etally.electionId)
     }
 
     companion object {
