@@ -6,6 +6,8 @@ import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
 
+// TODO TallyDecryptor.doVerifierSelectionProof
+
 private const val maxDlog: Int = 1000
 
 /** Orchestrates the decryption of List<ElGamalCiphertext> using DecryptingTrustees. */
@@ -104,48 +106,6 @@ class Decryptor2(
             Decryption(text, shares, weightedProduct, T, tally, collectiveChallenge)
         }
 
-        /* compute M for each DecryptionResults over all the shares from available guardians
-        for ((selectionKey, dresults) in allDecryptions.shares) {
-            // TODO if nguardians = 1, can set weightedProduct = Mi.
-            // lagrange weighted product of the shares, M = Prod(M_i^w_i) mod p; spec 2.0.0, eq 68
-            val weightedProduct = with(group) {
-                dresults.shares.map { (guardianId, value) ->
-                    val lagrange = lagrangeCoordinates[guardianId]
-                    val coeff = if (lagrange == null) {
-                            errs.add("missing lagrangeCoordinate for $guardianId")
-                            group.ONE_MOD_Q
-                        } else {
-                            lagrange.lagrangeCoefficient
-                        }
-                    value.Mi powP coeff
-                }.multP()
-            }
-
-            // T = B · M−1 mod p; spec 2.0.0, eq 64
-            val T = dresults.ciphertext.data / weightedProduct
-            // T = K^t mod p, take log to get t = tally.
-            dresults.tally = if (kTOnly) 0 else jointPublicKey.dLog(T, maxDlog) ?: errs.addNull("dLog not found on $selectionKey") as Int?
-            dresults.M = weightedProduct
-
-            val tidx = Integer.parseInt(selectionKey)
-            val vote = votes[tidx].toElementModQ(group)
-            if (T != jointPublicKey powP vote) {
-                println("HEY")
-            }
-
-            // compute the collective challenge, needed for the collective proof; spec 2.0.0 eq 70
-            val a: ElementModP = with(group) { dresults.shares.values.map { it.a }.multP() } // Prod(ai)
-            val b: ElementModP = with(group) { dresults.shares.values.map { it.b }.multP() } // Prod(bi)
-            // "collective challenge" c = H(HE ; 0x30, K, A, B, a, b, M ) ; spec 2.0.0 eq 71
-            dresults.collectiveChallenge = hashFunction(
-                extendedBaseHash.bytes,
-                0x30.toByte(),
-                jointPublicKey.key,
-                dresults.ciphertext.pad,
-                dresults.ciphertext.data,
-                a, b, weightedProduct)
-        } */
-
         // now that we have the collective challenges, gather the individual challenges to construct the proofs.
         val challengeResponses: List<ChallengeResponses> = decryptingTrustees.mapIndexed { trusteeIdx, trustee ->
             trustee.getResponsesFromTrustee(trusteeIdx, decryptions, errs.nested("trusteeChallengeResponses"))
@@ -170,7 +130,7 @@ class Decryptor2(
         return PartialDecryptions(this.id(), results)
     }
 
-    // send all challenges for a ballot / tally to one trustee, get all its reponses
+    // send all challenges for a ballot / tally to one trustee, get all its responses
     fun DecryptingTrusteeIF.getResponsesFromTrustee(trusteeIdx: Int, decryptions: List<Decryption>, errs : ErrorMessages) : ChallengeResponses {
         val wi = lagrangeCoordinates[this.id()]!!.lagrangeCoefficient
         // Create all the challenges from each Decryption for this trustee
@@ -181,17 +141,6 @@ class Decryptor2(
             val ci = wi * decryption.collectiveChallenge.toElementModQ(group)
             requests.add(ChallengeRequest("selectionKey", ci, share.u))
         }
-        /* for ((selectionKey, results) in decryptions.shares) {
-            val result = results.shares[this.id()]
-            if (result == null) {
-                errs.add("missing share ${this.id()}")
-            } else {
-                // spec 2.0.0, eq 72
-                val ci = wi * results.collectiveChallenge!!.toElementModQ(group)
-                requests.add(ChallengeRequest(selectionKey, ci, result.u))
-            }
-        } */
-
         // ask for all of them at once from the trustee
         val results: List<ChallengeResponse> = this.challenge(group, requests)
         return ChallengeResponses(this.id(), results)

@@ -19,6 +19,7 @@ internal class TallyDecryptor(
     val lagrangeCoordinates: Map<String, LagrangeCoordinate>,
     val guardians: Guardians, // all the guardians
     ) {
+
     /** Called after gathering the shares and challenge responses for all available trustees. */
     fun decryptTally(
         tally: EncryptedTally,
