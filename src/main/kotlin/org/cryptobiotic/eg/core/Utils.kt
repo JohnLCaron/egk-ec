@@ -26,6 +26,10 @@ fun randomBytes(length: Int): ByteArray {
     return bytes
 }
 
+fun randomInt(): Int {
+    return rng.nextInt()
+}
+
 fun getSystemTimeInMillis() : Long = System.currentTimeMillis()
 
 fun pathExists(path: String): Boolean = Files.exists(Path.of(path))

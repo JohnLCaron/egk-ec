@@ -91,7 +91,7 @@ class TallyDecryptorTest {
 
         // mess it up
         val share: DecryptionResults = decryptions.shares["Contest1#@Selection1"]!!
-        val partialDecryption : PartialDecryption = share.shares["guardian2"]!!
+        val partialDecryption : PartialDecryptionOld = share.shares["guardian2"]!!
         share.shares["guardian2"] = partialDecryption.copy(a = group.ONE_MOD_P)
 
         // this does not fail, because it was changed after the decryption was made
@@ -170,7 +170,7 @@ class TallyDecryptorTest {
         }
         if (messItUp) {
             val decryptionResult : DecryptionResult = trusteeDecryptions[1].shares["Contest1#@Selection1"]!!
-            val partialDecryptionMessed : PartialDecryption = decryptionResult.share.copy(a = group.ONE_MOD_P)
+            val partialDecryptionMessed : PartialDecryptionOld = decryptionResult.share.copy(a = group.ONE_MOD_P)
             trusteeDecryptions[1].shares["Contest1#@Selection1"] = decryptionResult.copy( share = partialDecryptionMessed)
         }
         trusteeDecryptions.forEach { allDecryptions.addTrusteeDecryptions(it) }
@@ -234,7 +234,7 @@ class TallyDecryptorTest {
         }
 
         // decrypt all of them at once
-        val results: List<PartialDecryption> = trustee.decrypt(group, texts)
+        val results: List<PartialDecryptionOld> = trustee.decryptOld(group, texts)
 
         // Place the results into the TrusteeDecryptions
         val trusteeDecryptions = TrusteeDecryptions(trustee.id())
@@ -269,7 +269,7 @@ class TallyDecryptorTest {
         }
 
         // ask for all of them at once from the trustee
-        val results: List<ChallengeResponse> = trustee.challenge(group, requests)
+        val results: List<ChallengeResponse> = trustee.challengeOld(group, requests)
         return TrusteeChallengeResponses(trustee.id(), results)
     }
 

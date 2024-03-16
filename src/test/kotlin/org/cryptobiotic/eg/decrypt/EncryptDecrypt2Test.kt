@@ -23,17 +23,17 @@ class EncryptDecrypt2Test {
         runEncryptDecrypt2(configDir, listOf(3), 1) // all
     }
 
-    // @Test
+    @Test
     fun testAllPresent() {
         runEncryptDecrypt2(configDir, listOf(1, 2, 3, 4, 5)) // all
     }
 
-    //@Test
+    @Test
     fun testQuotaPresent() {
         runEncryptDecrypt2(configDir, listOf(2, 3, 4)) // quota
     }
 
-    // @Test
+    @Test
     fun testSomePresent() {
         runEncryptDecrypt2(configDir, listOf(1, 2, 3, 4)) // between
     }
@@ -127,6 +127,7 @@ fun testEncryptDecrypt2Verify(
             println("decryptor2.decrypt failed errors = $errs")
             fail()
         }
+        assertNotNull(decryptions)
 
         var count = 0
         for (contest in ballot.contests) {

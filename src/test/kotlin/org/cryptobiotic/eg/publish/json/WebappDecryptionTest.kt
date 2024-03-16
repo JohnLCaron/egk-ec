@@ -13,11 +13,10 @@ import kotlin.test.assertTrue
 
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
-import org.cryptobiotic.eg.core.intgroup.ProductionMode
 import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.decrypt.ChallengeRequest
 import org.cryptobiotic.eg.decrypt.ChallengeResponse
-import org.cryptobiotic.eg.decrypt.PartialDecryption
+import org.cryptobiotic.eg.decrypt.PartialDecryptionOld
 
 class WebappDecryptionTest {
     val groups = listOf(
@@ -80,7 +79,7 @@ class WebappDecryptionTest {
                 Arb.int(min = 1, max = 11),
             ) {  name, nrequests ->
                 val partials = List(nrequests) {
-                    PartialDecryption(
+                    PartialDecryptionOld(
                     name + it,
                         elementsModP(group, minimum = 2).single(),
                         elementsModQ(group, minimum = 2).single(),

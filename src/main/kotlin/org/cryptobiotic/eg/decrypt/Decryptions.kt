@@ -2,12 +2,11 @@ package org.cryptobiotic.eg.decrypt
 
 import org.cryptobiotic.eg.core.*
 
-/** These are the messages exchanged with the Decrypting Trustee's */
-data class PartialDecryption(
-    val guardianId: String,  // guardian i // TODO needed ?
+data class PartialDecryptionOld(
+    val guardianId: String,  // guardian i // TODO needed ? error ?
     val Mi: ElementModP, // Mi = A ^ P(i); spec 2.0.0, eq 66 or = C0 ^ P(i); eq 77
     //// these are needed for the proof
-    val u: ElementModQ,  // opaque, just pass back to the trustee TODO
+    val u: ElementModQ,  // opaque, just pass back to the trustee TODO remove
     val a: ElementModP,  // g^u
     val b: ElementModP,  // A^u
 )
@@ -35,14 +34,14 @@ data class TrusteeChallengeResponses(
 data class DecryptionResult(
     val selectionKey: String,     // "contestId#@selectionId"
     val ciphertext: ElGamalCiphertext, // text to decrypt
-    val share: PartialDecryption,
+    val share: PartialDecryptionOld,
 )
 
 /** One contest data decryption from one Decrypting Trustees. */
 data class ContestDataResult(
     val contestId: String,
     val ciphertext: HashedElGamalCiphertext, // text to decrypt
-    val share: PartialDecryption,
+    val share: PartialDecryptionOld,
 )
 
 /** All decryptions from one Decrypting Trustee for one ballot/tally. */
@@ -50,11 +49,11 @@ class TrusteeDecryptions(val trusteeId : String) {
     val shares = mutableMapOf<String, DecryptionResult>() // key "contestId#@selectionId" aka "selectionKey"
     val contestData = mutableMapOf<String, ContestDataResult>() // key = contestId
 
-    fun addDecryption(selectionKey: String, ciphertext: ElGamalCiphertext, decryption: PartialDecryption) {
+    fun addDecryption(selectionKey: String, ciphertext: ElGamalCiphertext, decryption: PartialDecryptionOld) {
         this.shares[selectionKey] = DecryptionResult(selectionKey, ciphertext, decryption)
     }
 
-    fun addContestDataResults(contestId: String, ciphertext: HashedElGamalCiphertext, decryption: PartialDecryption) {
+    fun addContestDataResults(contestId: String, ciphertext: HashedElGamalCiphertext, decryption: PartialDecryptionOld) {
         this.contestData[contestId] = ContestDataResult(contestId, ciphertext, decryption)
     }
 }
@@ -70,7 +69,7 @@ fun contestSelectionKey(contestId: String, selectionId: String) = "${contestId}#
 class DecryptionResults(
     val selectionKey: String,     // "contestId#@selectionId"
     val ciphertext: ElGamalCiphertext, // text to decrypt
-    val shares: MutableMap<String, PartialDecryption>, // key by guardianId
+    val shares: MutableMap<String, PartialDecryptionOld>, // key by guardianId
     var tally: Int? = null, // the decrypted tally
     var M: ElementModP? = null, // lagrange weighted product of the shares, M = Prod(M_i^w_i) mod p; spec 2.0, eq 68
     var collectiveChallenge: UInt256? = null, // spec 2.0, eq 71
@@ -84,7 +83,7 @@ class DecryptionResults(
 class ContestDataResults(
     val contestId: String,
     val hashedCiphertext: HashedElGamalCiphertext, // text to decrypt
-    val shares: MutableMap<String, PartialDecryption>, // key by guardianId
+    val shares: MutableMap<String, PartialDecryptionOld>, // key by guardianId
     var beta: ElementModP? = null,
     var collectiveChallenge: UInt256? = null, // joint challenge value, spec 2.0, eq 81
     var responses: MutableMap<String, ElementModQ> = mutableMapOf(), // key = guardianId, v_i; spec 2.0, eq 82
@@ -108,7 +107,7 @@ class AllDecryptions {
     }
 
     /** add Partial decryptions from one DecryptingTrustee. */
-    fun addDecryption(selectionKey: String, ciphertext: ElGamalCiphertext, decryption: PartialDecryption) {
+    fun addDecryption(selectionKey: String, ciphertext: ElGamalCiphertext, decryption: PartialDecryptionOld) {
         var decryptionResults = shares[selectionKey]
         if (decryptionResults == null) {
             decryptionResults = DecryptionResults(selectionKey, ciphertext, mutableMapOf())
@@ -118,7 +117,7 @@ class AllDecryptions {
     }
 
     /** add Partial decryptions from one DecryptingTrustee. */
-    fun addContestDataResults(contestId: String, ciphertext: HashedElGamalCiphertext, decryption: PartialDecryption) {
+    fun addContestDataResults(contestId: String, ciphertext: HashedElGamalCiphertext, decryption: PartialDecryptionOld) {
         var cresult = contestData[contestId]
         if (cresult == null) {
             cresult = ContestDataResults(contestId, ciphertext, mutableMapOf())

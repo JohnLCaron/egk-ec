@@ -61,10 +61,11 @@ class TallyDecryptor2(
                 texts.add(selection.encryptedVote)
             }
         }
-        val decryptionAndProofs: List<DecryptionAndProof> = decryptor2.decrypt(texts, errs, false)
+        val decryptionAndProofs = decryptor2.decrypt(texts, errs, false)
         if (errs.hasErrors()) {
             return null
         }
+        requireNotNull(decryptionAndProofs)
 
         val result = makeTally(etally, decryptionAndProofs, errs.nested("TallyDecryptor.decrypt"))
         return if (errs.hasErrors()) null else result!!

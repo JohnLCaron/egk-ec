@@ -1,6 +1,6 @@
 # ElectionGuard-Kotlin Elliptic Curve
 
-_last update 03/10/2024_
+_last update 03/16/2024_
 
 EGK Elliptic Curve (egk-ec) is an experimental implementation of [ElectionGuard](https://github.com/microsoft/electionguard), 
 [version 2.0](https://github.com/microsoft/electionguard/releases/download/v2.0/EG_Spec_2_0.pdf), 

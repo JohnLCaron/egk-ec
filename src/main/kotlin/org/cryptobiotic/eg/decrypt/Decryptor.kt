@@ -208,7 +208,7 @@ class Decryptor(
         }
 
         // decrypt all of them at once
-        val results: List<PartialDecryption> = trustee.decrypt(group, texts)
+        val results: List<PartialDecryptionOld> = trustee.decryptOld(group, texts)
 
         // Place the results into the TrusteeDecryptions
         val trusteeDecryptions = TrusteeDecryptions(trustee.id())
@@ -255,7 +255,7 @@ class Decryptor(
         }
 
         // ask for all of them at once from the trustee
-        val results: List<ChallengeResponse> = trustee.challenge(group, requests)
+        val results: List<ChallengeResponse> = trustee.challengeOld(group, requests)
         return TrusteeChallengeResponses(trustee.id(), results)
     }
 

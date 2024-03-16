@@ -3,7 +3,7 @@ package org.cryptobiotic.eg.workflow
 import com.github.michaelbull.result.Err
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.decrypt.DecryptingTrustee
-import org.cryptobiotic.eg.decrypt.PartialDecryption
+import org.cryptobiotic.eg.decrypt.PartialDecryptionOld
 import org.cryptobiotic.eg.decrypt.computeLagrangeCoefficient
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
@@ -140,8 +140,8 @@ fun testDoerreDecrypt(group: GroupContext,
     val available = trustees.filter {present.contains(it.xCoordinate())}
     val lagrangeCoefficients = available.associate { it.id to group.computeLagrangeCoefficient(it.xCoordinate, present) }
 
-    val shares: List<PartialDecryption> = available.map {
-        it.decrypt(group, listOf(evote.pad))[0]
+    val shares: List<PartialDecryptionOld> = available.map {
+        it.decryptOld(group, listOf(evote.pad))[0]
     }
 
     val weightedProduct = with(group) {
