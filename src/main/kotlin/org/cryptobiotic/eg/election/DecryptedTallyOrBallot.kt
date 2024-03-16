@@ -19,7 +19,7 @@ data class DecryptedTallyOrBallot(
     data class Contest(
         val contestId: String, // matches ContestDescription.contestId
         val selections: List<Selection>,
-        val ballot_count: Int = 0,                 // number of ballots voting on this contest
+        val ballot_count: Int = 0,                 // number of ballots voting on this contest, 1 for ballots
         val decryptedContestData: DecryptedContestData? = null, // only for ballots
     ) {
         init {

@@ -13,6 +13,7 @@ import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.decrypt.Decryptor
 import org.cryptobiotic.eg.decrypt.Guardians
+import org.cryptobiotic.eg.decrypt.TallyDecryptor2
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.*
 import org.cryptobiotic.util.ErrorMessages
@@ -133,7 +134,7 @@ class RunTrustedTallyDecryption {
             }
 
             val guardians = Guardians(consumerIn.group, electionInit.guardians)
-            val decryptor = Decryptor(
+            val decryptor = TallyDecryptor2(
                 consumerIn.group,
                 electionInit.extendedBaseHash,
                 electionInit.jointPublicKey(),
@@ -161,7 +162,7 @@ class RunTrustedTallyDecryption {
 
             val errs = ErrorMessages("RunTrustedTallyDecryption")
             try {
-                val decryptedTally = with (decryptor) { encryptedTally.decrypt(errs) }
+                val decryptedTally = decryptor.decrypt(encryptedTally, errs)
                 if (decryptedTally == null) {
                     logger.error { " encryptedTally.decrypt $inputDir has error=${errs}" }
                     return
