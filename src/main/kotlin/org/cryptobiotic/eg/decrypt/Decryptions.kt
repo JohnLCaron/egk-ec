@@ -2,16 +2,6 @@ package org.cryptobiotic.eg.decrypt
 
 import org.cryptobiotic.eg.core.*
 
-/** These are the messages exchanged with the Decrypting Trustee's */
-data class PartialDecryption(
-    val guardianId: String,  // guardian i // TODO needed ?
-    val Mi: ElementModP, // Mi = A ^ P(i); spec 2.0.0, eq 66 or = C0 ^ P(i); eq 77
-    //// these are needed for the proof
-    val u: ElementModQ,  // opaque, just pass back to the trustee TODO
-    val a: ElementModP,  // g^u
-    val b: ElementModP,  // A^u
-)
-
 data class ChallengeRequest(
     val id: String, // "contestId#@selectionId" aka "selectionKey"
     val challenge: ElementModQ, // 2.0, eq 72
