@@ -25,11 +25,6 @@ data class ChallengeResponse(
 ///////////////////////////////////////////////////////////////////////
 
 
-data class TrusteeChallengeResponses(
-    val id: String, // "contestId#@selectionId" aka "selectionKey"
-    val results: List<ChallengeResponse>,
-)
-
 /** One selection decryption from one Decrypting Trustees. */
 data class DecryptionResult(
     val selectionKey: String,     // "contestId#@selectionId"

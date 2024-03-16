@@ -5,6 +5,7 @@ import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
+import org.cryptobiotic.util.Stopwatch
 
 /**
  * Orchestrates the decryption of encrypted Tallies and Ballots with DecryptingTrustees.
@@ -58,6 +59,7 @@ class BallotDecryptor(
         if (eballot.electionId != extendedBaseHash) {
             errs.add("Encrypted Tally/Ballot has wrong electionId = ${eballot.electionId}")
         }
+        val stopwatch = Stopwatch()
 
         val texts: MutableList<Ciphertext> = mutableListOf()
         for (contest in eballot.contests) {
@@ -82,6 +84,10 @@ class BallotDecryptor(
         requireNotNull(contestDecryptionAndProofs)
 
         val result = makeBallot(eballot, decryptionAndProofs, contestDecryptionAndProofs, errs.nested("BallotDecryptor.decrypt"))
+        if (!errs.hasErrors()) {
+            val ndecrypt = decryptionAndProofs.size + contestDecryptionAndProofs.size
+            stats.of("decryptTally").accum(stopwatch.stop(), ndecrypt)
+        }
         return if (errs.hasErrors()) null else result!!
     }
 
@@ -112,7 +118,6 @@ class BallotDecryptor(
             val contestData = decryption.decryptHashedCiphertext(publicKey, extendedBaseHash, econtest.contestId, proof)
             DecryptedTallyOrBallot.Contest(econtest.contestId, selections, 1, contestData)
         }
-
         return if (errs.hasErrors()) null else DecryptedTallyOrBallot(eballot.ballotId, contests, eballot.electionId)
     }
 

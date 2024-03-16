@@ -234,3 +234,34 @@ data class HashedCiphertext(val delegate: HashedElGamalCiphertext): Cipher {
             delegate.c2,
             a, b, beta)
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// TODO move this
+data class LagrangeCoordinate(
+    var guardianId: String,
+    var xCoordinate: Int,
+    var lagrangeCoefficient: ElementModQ, // wℓ, spec 2.0.0 eq 67
+) {
+    init {
+        require(guardianId.isNotEmpty())
+        require(xCoordinate > 0)
+    }
+}
+
+/** Compute the lagrange coefficient, now that we know which guardians are present; 2.0, section 3.6.2, eq 67. */
+fun GroupContext.computeLagrangeCoefficient(coordinate: Int, present: List<Int>): ElementModQ {
+    val others: List<Int> = present.filter { it != coordinate }
+    if (others.isEmpty()) {
+        return this.ONE_MOD_Q
+    }
+    val numerator: Int = others.reduce { a, b -> a * b }
+
+    val diff: List<Int> = others.map { degree -> degree - coordinate }
+    val denominator = diff.reduce { a, b -> a * b }
+
+    val denomQ =
+        if (denominator > 0) denominator.toElementModQ(this) else (-denominator).toElementModQ(this)
+            .unaryMinus()
+
+    return numerator.toElementModQ(this) / denomQ
+}

@@ -3,9 +3,7 @@ package org.cryptobiotic.eg.verifier
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption.Companion.readDecryptingTrustees
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
-import org.cryptobiotic.eg.decrypt.Decryptor
-import org.cryptobiotic.eg.decrypt.Guardians
+import org.cryptobiotic.eg.decrypt.*
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.tally.AccumulateTally
 import org.cryptobiotic.util.ErrorMessages
@@ -165,14 +163,15 @@ fun decryptTally(
     decryptingTrustees: List<DecryptingTrusteeIF>,
 ): DecryptedTallyOrBallot {
     val guardians = Guardians(group, electionInit.guardians)
-    val decryptor = Decryptor(
+    val decryptor = TallyDecryptor(
         group,
         electionInit.extendedBaseHash,
         electionInit.jointPublicKey(),
         guardians,
         decryptingTrustees,
         )
-    return with(decryptor) { encryptedTally.decrypt(ErrorMessages(""))!! }
+
+    return decryptor.decrypt(encryptedTally, ErrorMessages(""))!!
 }
 
 fun compareTallies(

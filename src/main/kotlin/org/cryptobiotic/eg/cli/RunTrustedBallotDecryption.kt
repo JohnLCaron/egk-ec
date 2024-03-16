@@ -22,9 +22,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption.Companion.readDecryptingTrustees
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
-import org.cryptobiotic.eg.decrypt.Decryptor
-import org.cryptobiotic.eg.decrypt.Guardians
+import org.cryptobiotic.eg.decrypt.*
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.*
 import org.cryptobiotic.util.ErrorMessages
@@ -40,7 +38,7 @@ class RunTrustedBallotDecryption {
 
     companion object {
         private val logger = KotlinLogging.logger("RunTrustedBallotDecryption")
-        private const val debug = false
+        private const val debug = true
 
         @JvmStatic
         fun main(args: Array<String>) {
@@ -103,7 +101,7 @@ class RunTrustedBallotDecryption {
             val tallyResult = result.unwrap()
             val guardians = Guardians(consumerIn.group, tallyResult.electionInitialized.guardians)
 
-            val decryptor = Decryptor(
+            val decryptor = BallotDecryptor(
                 consumerIn.group,
                 tallyResult.electionInitialized.extendedBaseHash,
                 tallyResult.electionInitialized.jointPublicKey(),
@@ -192,13 +190,13 @@ class RunTrustedBallotDecryption {
         private fun CoroutineScope.launchDecryptor(
             id: Int,
             input: ReceiveChannel<EncryptedBallot>,
-            decryptor: Decryptor,
+            decryptor: BallotDecryptor,
             output: SendChannel<DecryptedTallyOrBallot>,
         ) = launch(Dispatchers.Default) {
             for (ballot in input) {
                 val errs = ErrorMessages("RunTrustedBallotDecryption ballot=${ballot.ballotId}")
                 try {
-                    val decrypted = decryptor.decryptBallot(ballot, errs)
+                    val decrypted = decryptor.decrypt(ballot, errs)
                     if (decrypted != null) {
                         logger.debug { " Decryptor #$id sending DecryptedTallyOrBallot ${decrypted.id}" }
                         if (debug) println(" Decryptor #$id sending DecryptedTallyOrBallot ${decrypted.id}")
