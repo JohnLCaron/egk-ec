@@ -11,13 +11,11 @@ import kotlinx.cli.required
 
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
-import org.cryptobiotic.eg.decrypt.Decryptor
 import org.cryptobiotic.eg.decrypt.Guardians
-import org.cryptobiotic.eg.decrypt.TallyDecryptor2
+import org.cryptobiotic.eg.decrypt.TallyDecryptor
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.*
 import org.cryptobiotic.util.ErrorMessages
-import org.cryptobiotic.util.Stopwatch
 import org.cryptobiotic.util.mergeErrorMessages
 
 /**
@@ -134,7 +132,7 @@ class RunTrustedTallyDecryption {
             }
 
             val guardians = Guardians(consumerIn.group, electionInit.guardians)
-            val decryptor = TallyDecryptor2(
+            val decryptor = TallyDecryptor(
                 consumerIn.group,
                 electionInit.extendedBaseHash,
                 electionInit.jointPublicKey(),

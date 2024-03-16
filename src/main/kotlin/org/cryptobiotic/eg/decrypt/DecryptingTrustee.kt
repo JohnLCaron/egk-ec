@@ -26,39 +26,6 @@ data class DecryptingTrustee(
     override fun xCoordinate(): Int = xCoordinate
     override fun guardianPublicKey(): ElementModP = publicKey
 
-    ///////////
-    // old way
-    private val randomConstantNonce = group.randomElementModQ(2) // random value u in Zq
-
-    override fun decryptOld(
-        group: GroupContext,
-        texts: List<ElementModP>,
-    ): List<PartialDecryptionOld> {
-        val results: MutableList<PartialDecryptionOld> = mutableListOf()
-        for (text: ElementModP in texts) {
-            if (!text.isValidResidue()) {
-                return emptyList()
-            }
-            val u = group.randomElementModQ(2) // random value u in Zq
-            val a = group.gPowP(u)  // (a,b) for the proof, spec 2.0.0, eq 69
-            val b = text powP u
-            val mi = text powP keyShare // Mi = A ^ P(i), spec 2.0.0, eq 66
-            results.add( PartialDecryptionOld(id, mi, u + randomConstantNonce, a, b))
-        }
-        return results
-    }
-
-    override fun challengeOld(
-        group: GroupContext,
-        challenges: List<ChallengeRequest>,
-    ): List<ChallengeResponse> {
-        return challenges.map {
-            ChallengeResponse(it.id, it.nonce - randomConstantNonce - it.challenge * keyShare) // spec 2.0.0, eq 73
-        }
-    }
-
-    ////////////////////////////////
-    // new way
     private val mutex = Mutex()
     private val nonceTracker = mutableMapOf<Int, ElementModQ>()
 

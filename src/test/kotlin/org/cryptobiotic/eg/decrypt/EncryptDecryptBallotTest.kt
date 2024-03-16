@@ -16,7 +16,6 @@ import org.cryptobiotic.util.testOut
 import kotlin.math.roundToInt
 import kotlin.test.*
 
-/** Test KeyCeremony Trustee generation and recovered decryption. */
 class EncryptDecryptBallotTest {
     val configDir = "src/test/data/startConfigEc"
     val outputDir = "$testOut/RecoveredDecryptionTest"
@@ -126,7 +125,7 @@ fun testEncryptDecryptVerify(
 
     val available = trustees.filter { present.contains(it.xCoordinate()) }
     val encryptor = Encryptor(group, manifest, publicKey, extendedBaseHash, "device")
-    val decryptor = Decryptor(group, extendedBaseHash, publicKey, guardians, available)
+    val decryptor = BallotDecryptor(group, extendedBaseHash, publicKey, guardians, available)
     val verifier = VerifyDecryption(group, manifest, publicKey, extendedBaseHash)
 
     var encryptTime = 0L
@@ -139,7 +138,7 @@ fun testEncryptDecryptVerify(
 
         val startDecrypt = getSystemTimeInMillis()
         val errs = ErrorMessages("testEncryptDecryptVerify")
-        val decryptedBallot = decryptor.decryptBallot(encryptedBallot, errs)
+        val decryptedBallot = decryptor.decrypt(encryptedBallot, errs)
         if (decryptedBallot == null) {
             println("testEncryptDecryptVerify failed errors = $errs")
             return

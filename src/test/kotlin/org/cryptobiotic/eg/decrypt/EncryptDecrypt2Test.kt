@@ -99,7 +99,7 @@ fun testEncryptDecrypt2Verify(
 
     val available = trustees.filter { present.contains(it.xCoordinate()) }
     val encryptor = Encryptor(group, manifest, publicKey, extendedBaseHash, "device")
-    val decryptor2 = Decryptor2(group, extendedBaseHash, publicKey, guardians, available)
+    val decryptor2 = CipherDecryptor(group, extendedBaseHash, publicKey, guardians, available)
     val verifier = VerifyDecryption(group, manifest, publicKey, extendedBaseHash)
 
     RandomBallotProvider(manifest, nballots).ballots().forEach { ballot ->
@@ -113,16 +113,16 @@ fun testEncryptDecrypt2Verify(
         }
         val encryptedBallot = ciphertextBallot!!.submit(EncryptedBallot.BallotState.CAST)
 
-        val texts: MutableList<ElGamalCiphertext> = mutableListOf()
+        val texts: MutableList<Ciphertext> = mutableListOf()
         for (contest in encryptedBallot.contests) {
             for (selection in contest.selections) {
-                texts.add(selection.encryptedVote)
+                texts.add(Ciphertext(selection.encryptedVote))
             }
         }
         println("ntexts = ${texts.size}")
 
         val errs = ErrorMessages("testEncryptDecryptVerify")
-        val decryptions = decryptor2.decrypt(texts, errs, false)
+        val decryptions = decryptor2.decrypt(texts, errs)
         if (errs.hasErrors()) {
             println("decryptor2.decrypt failed errors = $errs")
             fail()
@@ -134,14 +134,12 @@ fun testEncryptDecrypt2Verify(
             for (selection in contest.selections) {
                 val voteQ = selection.vote.toElementModQ(group)
                 val expectedKt = publicKey powP voteQ
-                val decryption = decryptions[count].decryption
-                assertEquals(expectedKt, decryption.T)
-
-                val proof = decryptions[count].proof
-                val verify = proof.verifyDecryption(extendedBaseHash, publicKey.key, decryption.ciphertext, decryption.T)
+                val (decryption, proof) = decryptions[count++]
+                val (T, tally) = decryption.decryptCiphertext(publicKey)
+                assertEquals(expectedKt, T)
+                val ciphertext = (decryption.cipher as Ciphertext).delegate
+                val verify = proof.verifyDecryption(extendedBaseHash, publicKey.key, ciphertext, T)
                 assertTrue(verify)
-
-                count++
             }
         }
     }

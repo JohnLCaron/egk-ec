@@ -9,7 +9,6 @@ import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/** Test KeyCeremony Trustee generation and recovered decryption. */
 class EncryptDecryptTest {
 
     @Test
@@ -72,13 +71,15 @@ fun encryptDecrypt(
     val available = trustees.filter {present.contains(it.xCoordinate())}
     val lagrangeCoefficients = available.associate { it.id() to group.computeLagrangeCoefficient(it.xCoordinate(), present) }
 
-    val shares: List<PartialDecryptionOld> = available.map {
-        it.decryptOld(group, listOf(evote.pad))[0]
+    val shares: List<PartialDecryption> = available.map {
+        val pd = it.decrypt(listOf(evote.pad))
+        pd.partial[0]
     }
 
     val weightedProduct = with(group) {
-        shares.map {
-            val coeff = lagrangeCoefficients[it.guardianId] ?: throw IllegalArgumentException()
+        shares.mapIndexed { idx, it ->
+            val trustee = available[idx]
+            val coeff = lagrangeCoefficients[trustee.id()] ?: throw IllegalArgumentException()
             it.Mi powP coeff
         }.multP() // eq 7
     }
