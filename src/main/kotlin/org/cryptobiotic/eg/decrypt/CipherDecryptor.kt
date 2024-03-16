@@ -237,6 +237,7 @@ data class HashedCiphertext(val delegate: HashedElGamalCiphertext): Cipher {
 
 //////////////////////////////////////////////////////////////////////////////
 // TODO move this
+
 data class LagrangeCoordinate(
     var guardianId: String,
     var xCoordinate: Int,
