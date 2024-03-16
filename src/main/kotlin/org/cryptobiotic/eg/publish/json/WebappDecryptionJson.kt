@@ -9,9 +9,7 @@ import kotlinx.serialization.Serializable
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.decrypt.ChallengeRequest
 import org.cryptobiotic.eg.decrypt.ChallengeResponse
-import org.cryptobiotic.eg.decrypt.PartialDecryption
-import org.cryptobiotic.eg.election.*
-import org.cryptobiotic.util.ErrorMessages
+import org.cryptobiotic.eg.decrypt.PartialDecryptionOld
 
 // stuff used by the webapps - easiest to have it here as a common dependency
 // TODO: are empty lists allowed?
@@ -78,7 +76,7 @@ data class DecryptResponseJson(
 )
 
 data class DecryptResponse(
-    val shares: List<PartialDecryption>
+    val shares: List<PartialDecryptionOld>
 )
 
 fun DecryptResponse.publishJson() = DecryptResponseJson(
@@ -105,7 +103,7 @@ data class PartialDecryptionJson(
     val b: ElementModPJson,
 )
 
-fun PartialDecryption.publishJson() = PartialDecryptionJson(
+fun PartialDecryptionOld.publishJson() = PartialDecryptionJson(
     this.guardianId,
     this.Mi.publishJson(),
     this.u.publishJson(),
@@ -113,13 +111,13 @@ fun PartialDecryption.publishJson() = PartialDecryptionJson(
     this.b.publishJson(),
 )
 
-fun PartialDecryptionJson.import(group: GroupContext): PartialDecryption? {
+fun PartialDecryptionJson.import(group: GroupContext): PartialDecryptionOld? {
     val mbari = this.mbari.import(group)
     val u = this.u.import(group)
     val a = this.a.import(group)
     val b = this.b.import(group)
     return if (mbari == null || u == null || a == null || b == null) null
-    else PartialDecryption(this.guardian_id, mbari, u, a, b)
+    else PartialDecryptionOld(this.guardian_id, mbari, u, a, b)
 }
 
 ///////////////////////////////////////////

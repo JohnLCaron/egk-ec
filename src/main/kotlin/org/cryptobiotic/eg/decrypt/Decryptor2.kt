@@ -53,10 +53,14 @@ class Decryptor2(
     }
 
     // kTOnly = dont compute log
-    fun decrypt(texts: List<ElGamalCiphertext>, errs : ErrorMessages, kTOnly: Boolean): List<DecryptionAndProof> {
+    fun decrypt(texts: List<ElGamalCiphertext>, errs : ErrorMessages, kTOnly: Boolean): List<DecryptionAndProof>? {
         // get the PartialDecryptions from each of the trustees
         val partialDecryptions = decryptingTrustees.map { // partialDecryptions are in the order of the decryptingTrustees
-            it.getPartialDecryptionsFromTrustee(texts)
+            it.getPartialDecryptionsFromTrustee(texts, errs)
+        }
+        if (errs.hasErrors()) {
+            logger.error { "partial decryptions failed = ${errs}" }
+            return null
         }
 
         // Do the decryption for each text
@@ -96,11 +100,19 @@ class Decryptor2(
 
             Decryption(text, shares, weightedProduct, T, tally, collectiveChallenge)
         }
+        if (errs.hasErrors()) {
+            logger.error { "decrypt failed = ${errs}" }
+            return null
+        }
 
-        // now that we have the collective challenges, gather the individual challenges to construct the proofs.
+        // now that we have the collective challenges, gather the individual challenges/responses to construct the proofs.
         val challengeResponses: List<ChallengeResponses> = decryptingTrustees.mapIndexed { trusteeIdx, trustee ->
             val batchId = partialDecryptions[trusteeIdx].batchId
-            trustee.getResponsesFromTrustee(trusteeIdx, batchId, decryptions, errs.nested("trusteeChallengeResponses"))
+            trustee.getResponsesFromTrustee(batchId, decryptions, errs.nested("trusteeChallengeResponses"))
+        }
+        if (errs.hasErrors()) {
+            logger.error { "decrypt failed = ${errs}" }
+            return null
         }
 
         // After gathering the challenge responses from the available trustees, we can create the proof
@@ -112,26 +124,31 @@ class Decryptor2(
      * @param trustee: The trustee who will partially decrypt the tally
      * @param texts: decrypt these
      */
-    private fun DecryptingTrusteeIF.getPartialDecryptionsFromTrustee(texts: List<ElGamalCiphertext>) : PartialDecryptions {
+    private fun DecryptingTrusteeIF.getPartialDecryptionsFromTrustee(texts: List<ElGamalCiphertext>, errs : ErrorMessages) : PartialDecryptions {
         // Only need the pads
         val pads = texts.map { it.pad }
 
-        // decrypt all of them at once
-        return this.decrypt2(pads)
+        val pds = this.decrypt(pads)
+        if (pds.err != null) {
+            errs.add(pds.err)
+        }
+        return pds
     }
 
     // send all challenges for a ballot / tally to one trustee, get all its responses
-    fun DecryptingTrusteeIF.getResponsesFromTrustee(trusteeIdx: Int, batchId: Int, decryptions: List<Decryption>, errs : ErrorMessages) : ChallengeResponses {
+    fun DecryptingTrusteeIF.getResponsesFromTrustee(batchId: Int, decryptions: List<Decryption>, errs : ErrorMessages) : ChallengeResponses {
         val wi = lagrangeCoordinates[this.id()]!!.lagrangeCoefficient
         // Create all the challenges from each Decryption for this trustee
         val requests: MutableList<ElementModQ> = mutableListOf()
         decryptions.forEach { decryption ->
-            // spec 2.0.0, eq 72
-            requests.add(wi * decryption.collectiveChallenge.toElementModQ(group))
+            requests.add(wi * decryption.collectiveChallenge.toElementModQ(group)) // spec 2.0.0, eq 72
         }
-        // ask for all of them at once from the trustee
-        val results: List<ElementModQ> = this.challenge2(batchId, requests)
-        return ChallengeResponses(null, batchId, results)
+        // get all the responses at once from the trustee
+        val responses = this.challenge(batchId, requests)
+        if (responses.err != null) {
+            errs.add(responses.err)
+        }
+        return responses
     }
 
     /** Called after gathering the shares and challenge responses for all available trustees. */
@@ -161,6 +178,7 @@ class Decryptor2(
         val a = group.gPowP(proof.r) * (publicKey powP proof.c) // 9.2
         val b = (decryption.ciphertext.pad powP proof.r) * (decryption.M powP proof.c) // 9.3
 
+        // TODO vertify proof ??
         if (firstProof) {
             println("makeProof ${decryption.ciphertext}")
             println("  M = ${decryption.M}")

@@ -30,11 +30,11 @@ data class DecryptingTrustee(
     // old way
     private val randomConstantNonce = group.randomElementModQ(2) // random value u in Zq
 
-    override fun decrypt(
+    override fun decryptOld(
         group: GroupContext,
         texts: List<ElementModP>,
-    ): List<PartialDecryption> {
-        val results: MutableList<PartialDecryption> = mutableListOf()
+    ): List<PartialDecryptionOld> {
+        val results: MutableList<PartialDecryptionOld> = mutableListOf()
         for (text: ElementModP in texts) {
             if (!text.isValidResidue()) {
                 return emptyList()
@@ -43,12 +43,12 @@ data class DecryptingTrustee(
             val a = group.gPowP(u)  // (a,b) for the proof, spec 2.0.0, eq 69
             val b = text powP u
             val mi = text powP keyShare // Mi = A ^ P(i), spec 2.0.0, eq 66
-            results.add( PartialDecryption(id, mi, u + randomConstantNonce, a, b))
+            results.add( PartialDecryptionOld(id, mi, u + randomConstantNonce, a, b))
         }
         return results
     }
 
-    override fun challenge(
+    override fun challengeOld(
         group: GroupContext,
         challenges: List<ChallengeRequest>,
     ): List<ChallengeResponse> {
@@ -62,7 +62,7 @@ data class DecryptingTrustee(
     private val mutex = Mutex()
     private val nonceTracker = mutableMapOf<Int, ElementModQ>()
 
-    override fun decrypt2(
+    override fun decrypt(
         texts: List<ElementModP>,
     ): PartialDecryptions {
 
@@ -76,24 +76,26 @@ data class DecryptingTrustee(
 
         val nonces = Nonces(seed, id)
         val results: MutableList<PartialDecryption> = mutableListOf()
+        val badTexts = mutableListOf<Int>()
         texts.forEachIndexed { idx, text ->
             if (!text.isValidResidue()) {
-                return PartialDecryptions(this.id, batchId, emptyList()) // TODO return error code
+                badTexts.add(idx)
             }
             val u = nonces.get(idx) // random value u in Zq
             val a = group.gPowP(u)  // (a,b) for the proof, spec 2.0.0, eq 69
             val b = text powP u
             val mi = text powP keyShare // Mi = A ^ P(i), spec 2.0.0, eq 66
 
-            results.add( PartialDecryption(id, mi, u, a, b)) // TODO remove u
+            results.add( PartialDecryption(mi, a, b))
         }
-        return PartialDecryptions(this.id, batchId, results)
+        val errs = if (badTexts.isEmpty()) null else "invalidResidues for $badTexts"
+        return PartialDecryptions(errs, batchId, results)
     }
 
-    override fun challenge2(
+    override fun challenge(
         batchId: Int,
         challenges: List<ElementModQ>,
-    ): List<ElementModQ> {
+    ): ChallengeResponses {
         val seed: ElementModQ?
         runBlocking {
             mutex.withLock {
@@ -101,13 +103,14 @@ data class DecryptingTrustee(
             }
         }
         if (seed == null) {
-            return emptyList() // return error code
+            return ChallengeResponses("Unknown batchId in trustee '$id'", batchId, emptyList())
         }
-        val nonces = Nonces(seed, id)
 
-        return challenges.mapIndexed { idx, challenge ->
+        val nonces = Nonces(seed, id)
+        val responses =  challenges.mapIndexed { idx, challenge ->
             val nonce = nonces.get(idx)
             nonce - challenge * keyShare // spec 2.0.0, eq 73
         }
+        return ChallengeResponses(null, batchId, responses)
     }
 }

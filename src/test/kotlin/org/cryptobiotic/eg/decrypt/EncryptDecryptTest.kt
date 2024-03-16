@@ -72,8 +72,8 @@ fun encryptDecrypt(
     val available = trustees.filter {present.contains(it.xCoordinate())}
     val lagrangeCoefficients = available.associate { it.id() to group.computeLagrangeCoefficient(it.xCoordinate(), present) }
 
-    val shares: List<PartialDecryption> = available.map {
-        it.decrypt(group, listOf(evote.pad))[0]
+    val shares: List<PartialDecryptionOld> = available.map {
+        it.decryptOld(group, listOf(evote.pad))[0]
     }
 
     val weightedProduct = with(group) {

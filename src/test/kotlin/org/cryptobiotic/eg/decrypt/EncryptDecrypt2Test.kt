@@ -127,6 +127,7 @@ fun testEncryptDecrypt2Verify(
             println("decryptor2.decrypt failed errors = $errs")
             fail()
         }
+        assertNotNull(decryptions)
 
         var count = 0
         for (contest in ballot.contests) {
