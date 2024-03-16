@@ -2,11 +2,9 @@ package org.cryptobiotic.eg.decrypt
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.Base16.toHex
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
-import org.cryptobiotic.util.Stopwatch
 
 /**
  * Orchestrates the decryption of encrypted Tallies and Ballots with DecryptingTrustees.
@@ -14,18 +12,18 @@ import org.cryptobiotic.util.Stopwatch
  * An EncryptedBallot can also be decrypted if you know the master nonce.
  * Communication with the trustees is with a list of all the ciphertexts from a single ballot / tally at one.
  */
-class BallotDecryptor2(
+class BallotDecryptor(
     val group: GroupContext,
     val extendedBaseHash: UInt256,
     val publicKey: ElGamalPublicKey,
     val guardians: Guardians, // all guardians
-    private val decryptingTrustees: List<DecryptingTrusteeIF>, // the trustees available to decrypt
+    decryptingTrustees: List<DecryptingTrusteeIF>, // the trustees available to decrypt
 ) {
     val lagrangeCoordinates: Map<String, LagrangeCoordinate>
     val stats = Stats()
     val nguardians = guardians.guardians.size // number of guardinas
     val quorum = guardians.guardians[0].coefficientCommitments().size
-    val decryptor2 = Decryptor2(group, extendedBaseHash, publicKey, guardians, decryptingTrustees)
+    val decryptor = CipherDecryptor(group, extendedBaseHash, publicKey, guardians, decryptingTrustees)
 
     init {
         // check that the DecryptingTrustee's match their public key
@@ -61,45 +59,60 @@ class BallotDecryptor2(
             errs.add("Encrypted Tally/Ballot has wrong electionId = ${eballot.electionId}")
         }
 
-        // TODO ContestData
-        val texts: MutableList<ElGamalCiphertext> = mutableListOf()
+        val texts: MutableList<Ciphertext> = mutableListOf()
         for (contest in eballot.contests) {
             for (selection in contest.selections) {
-                texts.add(selection.encryptedVote)
+                texts.add( Ciphertext(selection.encryptedVote))
             }
         }
-        val decryptionAndProofs = decryptor2.decrypt(texts, errs, false)
+        val decryptionAndProofs = decryptor.decrypt(texts, errs)
         if (errs.hasErrors()) {
             return null
         }
         requireNotNull(decryptionAndProofs)
 
-        val result = makeBallot(eballot, decryptionAndProofs, errs.nested("TallyDecryptor.decrypt"))
+        val contestData: MutableList<HashedCiphertext> = mutableListOf()
+        for (contest in eballot.contests) {
+            contestData.add( HashedCiphertext(contest.contestData))
+        }
+        val contestDecryptionAndProofs = decryptor.decrypt(contestData, errs)
+        if (errs.hasErrors()) {
+            return null
+        }
+        requireNotNull(contestDecryptionAndProofs)
+
+        val result = makeBallot(eballot, decryptionAndProofs, contestDecryptionAndProofs, errs.nested("BallotDecryptor.decrypt"))
         return if (errs.hasErrors()) null else result!!
     }
 
     fun makeBallot(
         eballot: EncryptedBallot,
-        decryptions: List<DecryptionAndProof>,
+        decryptions: List<CipherDecryptionAndProof>,
+        contestDecryptions: List<CipherDecryptionAndProof>,
         errs : ErrorMessages,
     ): DecryptedTallyOrBallot? {
-        var count = 0
-        val contests = eballot.contests.map { econtest ->
+        var selectionCount = 0
+        val contests = eballot.contests.mapIndexed { contestIdx, econtest ->
             val cerrs = errs.nested("Contest ${econtest.contestId}")
             val selections = econtest.selections.map { eselection ->
                 val serrs = cerrs.nested("Selection ${eselection.selectionId}")
-                val (decryption, proof) = decryptions[count++]
+                val (decryption, proof) = decryptions[selectionCount++]
+                val (T, tally) = decryption.decryptCiphertext(publicKey)
 
                 DecryptedTallyOrBallot.Selection(
                     eselection.selectionId,
-                    decryption.tally!!,
-                    decryption.T,
-                    decryption.ciphertext,
+                    tally!!,
+                    T,
+                    (decryption.cipher as Ciphertext).delegate,
                     proof
                 )
             }
-            DecryptedTallyOrBallot.Contest(econtest.contestId, selections, 1, null)
+
+            val (decryption, proof) = contestDecryptions[contestIdx]
+            val contestData = decryption.decryptHashedCiphertext(publicKey, extendedBaseHash, econtest.contestId, proof)
+            DecryptedTallyOrBallot.Contest(econtest.contestId, selections, 1, contestData)
         }
+
         return if (errs.hasErrors()) null else DecryptedTallyOrBallot(eballot.ballotId, contests, eballot.electionId)
     }
 
