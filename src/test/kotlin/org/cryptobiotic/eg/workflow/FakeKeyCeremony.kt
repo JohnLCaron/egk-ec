@@ -3,7 +3,7 @@ package org.cryptobiotic.eg.workflow
 import com.github.michaelbull.result.Err
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.decrypt.DecryptingTrustee
-import org.cryptobiotic.eg.decrypt.PartialDecryptionOld
+import org.cryptobiotic.eg.decrypt.PartialDecryption
 import org.cryptobiotic.eg.decrypt.computeLagrangeCoefficient
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
@@ -140,13 +140,15 @@ fun testDoerreDecrypt(group: GroupContext,
     val available = trustees.filter {present.contains(it.xCoordinate())}
     val lagrangeCoefficients = available.associate { it.id to group.computeLagrangeCoefficient(it.xCoordinate, present) }
 
-    val shares: List<PartialDecryptionOld> = available.map {
-        it.decryptOld(group, listOf(evote.pad))[0]
+    val shares: List<PartialDecryption> = available.map {
+        val pd = it.decrypt(listOf(evote.pad))
+        pd.partial[0]
     }
 
     val weightedProduct = with(group) {
-        shares.map {
-            val coeff = lagrangeCoefficients[it.guardianId] ?: throw IllegalArgumentException()
+        shares.mapIndexed { idx, it ->
+            val trustee = available[idx]
+            val coeff = lagrangeCoefficients[trustee.id()] ?: throw IllegalArgumentException()
             it.Mi powP coeff
         }.multP() // eq 7
     }

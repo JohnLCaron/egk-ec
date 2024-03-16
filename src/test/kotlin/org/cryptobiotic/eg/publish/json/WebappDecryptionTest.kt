@@ -14,9 +14,9 @@ import kotlin.test.assertTrue
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
 import org.cryptobiotic.eg.core.productionGroup
-import org.cryptobiotic.eg.decrypt.ChallengeRequest
-import org.cryptobiotic.eg.decrypt.ChallengeResponse
-import org.cryptobiotic.eg.decrypt.PartialDecryptionOld
+import org.cryptobiotic.eg.decrypt.ChallengeResponses
+import org.cryptobiotic.eg.decrypt.PartialDecryption
+import org.cryptobiotic.eg.decrypt.PartialDecryptions
 
 class WebappDecryptionTest {
     val groups = listOf(
@@ -47,60 +47,11 @@ class WebappDecryptionTest {
     }
 
     @Test
-    fun testDecryptRequest() {
-        groups.forEach { testDecryptRequest(it) }
-    }
-
-    fun testDecryptRequest(group: GroupContext) {
-        runTest {
-            checkAll(
-                propTestFastConfig,
-                Arb.int(min = 1, max = 11),
-            ) {  nrequests ->
-                val qList = List(nrequests) { elementsModP(group, minimum = 2).single() }
-                val org = DecryptRequest(qList)
-                val request = org.publishJson().import(group)
-                assertTrue(request is Ok)
-                assertEquals(org, request.unwrap())
-            }
-        }
-    }
-
-    @Test
-    fun testDecryptResponse() {
-        groups.forEach { testDecryptResponse(it) }
-    }
-
-    fun testDecryptResponse(group: GroupContext) {
-        runTest {
-            checkAll(
-                propTestFastConfig,
-                Arb.string(minSize = 3),
-                Arb.int(min = 1, max = 11),
-            ) {  name, nrequests ->
-                val partials = List(nrequests) {
-                    PartialDecryptionOld(
-                    name + it,
-                        elementsModP(group, minimum = 2).single(),
-                        elementsModQ(group, minimum = 2).single(),
-                        elementsModP(group, minimum = 2).single(),
-                        elementsModP(group, minimum = 2).single(),
-                    )
-                }
-                val org = DecryptResponse(partials)
-                val response = org.publishJson().import(group)
-                assertTrue(response is Ok)
-                assertEquals(org, response.unwrap())
-            }
-        }
-    }
-
-    @Test
     fun testChallengeRequests() {
-        groups.forEach { testChallengeRequests(it) }
+        groups.forEach { testPartialDecryptions(it) }
     }
 
-    fun testChallengeRequests(group: GroupContext) {
+    fun testPartialDecryptions(group: GroupContext) {
         runTest {
             checkAll(
                 propTestFastConfig,
@@ -108,13 +59,13 @@ class WebappDecryptionTest {
                 Arb.int(min = 1, max = 11),
             ) {  name, nrequests ->
                 val crs = List(nrequests) {
-                    ChallengeRequest(
-                        name + it,
-                        elementsModQ(group, minimum = 2).single(),
-                        elementsModQ(group, minimum = 2).single(),
+                    PartialDecryption(
+                        elementsModP(group, minimum = 2).single(),
+                        elementsModP(group, minimum = 2).single(),
+                        elementsModP(group, minimum = 2).single(),
                     )
                 }
-                val org = ChallengeRequests(crs)
+                val org = PartialDecryptions(null, 42, crs)
                 val challenges = org.publishJson().import(group)
                 assertTrue(challenges is Ok)
                 assertEquals(org, challenges.unwrap())
@@ -134,13 +85,8 @@ class WebappDecryptionTest {
                 Arb.string(minSize = 3),
                 Arb.int(min = 1, max = 11),
             ) {  name, nrequests ->
-                val crs = List(nrequests) {
-                    ChallengeResponse(
-                        name + it,
-                        elementsModQ(group, minimum = 2).single(),
-                    )
-                }
-                val org = ChallengeResponses(crs)
+                val crs = List(nrequests) { elementsModQ(group, minimum = 2).single() }
+                val org = ChallengeResponses(null, 42, crs)
                 val responses = org.publishJson().import(group)
                 assertTrue(responses is Ok)
                 assertEquals(org, responses.unwrap())
