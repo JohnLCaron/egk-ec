@@ -37,6 +37,9 @@ For additional safety, Manifest Validation may be run during other workflow step
 5. Every ContestDescription geopoliticalUnitId exists in some BallotStyle
    * For each ContestDescription, the geopoliticalUnitId exists in at least one Manifest.ballotStyles.geopoliticalUnitIds
 
+6. All BallotStyles have a unique ballotStyleId.
+
+
 ### B. Duplication
 
 1. All ContestDescription have a unique contestId.   

@@ -31,7 +31,7 @@ class RunEncryptBallotTest {
         val manifest = record.manifest()
 
         val ballotProvider = RandomBallotProvider(manifest)
-        val ballot = ballotProvider.getFakeBallot(manifest, "ballotStyle", ballotId)
+        val ballot = ballotProvider.getFakeBallot(manifest, null, ballotId)
 
         removeAllFiles(Path.of(outputDir))
         val publisher = makePublisher(outputDir, true)
@@ -68,7 +68,7 @@ class RunEncryptBallotTest {
         val ballotProvider = RandomBallotProvider(manifest)
         repeat(nballots) {
             val ballotId = Random.nextInt().toString()
-            val ballot = ballotProvider.getFakeBallot(manifest, "ballotStyle", ballotId)
+            val ballot = ballotProvider.getFakeBallot(manifest, null, ballotId)
 
             publisher.writePlaintextBallot(outputDir, listOf(ballot))
 
@@ -107,7 +107,7 @@ class RunEncryptBallotTest {
         val ballotProvider = RandomBallotProvider(manifest)
         repeat(nballots) {
             val ballotId = Random.nextInt().toString()
-            val ballot = ballotProvider.getFakeBallot(manifest, "ballotStyle", ballotId)
+            val ballot = ballotProvider.getFakeBallot(manifest, null, ballotId)
 
             publisher.writePlaintextBallot(outputDir, listOf(ballot))
 

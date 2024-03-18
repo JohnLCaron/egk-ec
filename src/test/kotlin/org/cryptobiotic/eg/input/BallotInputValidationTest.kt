@@ -58,7 +58,7 @@ class TestBallotInputValidation {
             .done()
             .build()
         assertTrue(validateManifest(election))
-        val builder = BallotInputBuilder(election, "ballot_id")
+        val builder = BallotInputBuilder(election, "ballot_id").setStyle("NotTheMother")
         val ballot: PlaintextBallot = builder.addContest("contest_id")
             .addSelection("selection_id", 1)
             .done()

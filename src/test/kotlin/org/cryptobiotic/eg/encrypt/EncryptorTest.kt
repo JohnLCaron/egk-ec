@@ -17,7 +17,8 @@ class EncryptorTest {
         runTest {
             val electionRecord = readElectionRecord(input)
             val electionInit = electionRecord.electionInit()!!
-            val ballot = makeBallot(electionRecord.manifest(), "ballotStyle", 3, 0)
+            val ballotStyle = electionRecord.manifest().ballotStyles[0].ballotStyleId
+            val ballot = makeBallot(electionRecord.manifest(), ballotStyle, 3, 0)
 
             val encryptor = Encryptor(
                 electionRecord.group,
@@ -47,7 +48,8 @@ class EncryptorTest {
         runTest {
             val electionRecord = readElectionRecord(input)
             val electionInit = electionRecord.electionInit()!!
-            val ballot = makeBallot(electionRecord.manifest(), "ballotStyle", 3, 0)
+            val ballotStyle = electionRecord.manifest().ballotStyles[0].ballotStyleId
+            val ballot = makeBallot(electionRecord.manifest(), ballotStyle, 3, 0)
 
             val encryptor = Encryptor(
                 electionRecord.group,
@@ -83,7 +85,8 @@ class EncryptorTest {
         runTest {
             val electionRecord = readElectionRecord(input)
             val electionInit = electionRecord.electionInit()!!
-            val ballot = makeBallot(electionRecord.manifest(), "ballotStyle", 3, 0)
+            val ballotStyle = electionRecord.manifest().ballotStyles[0].ballotStyleId
+            val ballot = makeBallot(electionRecord.manifest(), ballotStyle, 3, 0)
             val plaintextSn: Int? = ballot.sn?.toInt()
             val key = ElGamalPublicKey(electionInit.jointPublicKey)
 

@@ -4,6 +4,7 @@ import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
 import kotlinx.cli.required
+import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.publish.makePublisher
 
 /** Create Test Manifest CLI. */
@@ -13,6 +14,11 @@ class RunCreateTestManifest {
         @JvmStatic
         fun main(args: Array<String>) {
             val parser = ArgParser("RunCreateTestManifest")
+            val nstyles by parser.option(
+                ArgType.Int,
+                shortName = "nstyles",
+                description = "number of ballot styles"
+            ).default(3)
             val ncontests by parser.option(
                 ArgType.Int,
                 shortName = "ncontests",
@@ -37,17 +43,26 @@ class RunCreateTestManifest {
 
             println(
                 "RunCreateTestManifest starting\n" +
+                        "   nstyles= $nstyles\n" +
                         "   ncontests= $ncontests\n" +
                         "   nselections= $nselections\n" +
                         "   outputType= $outputType\n" +
                         "   output = $outputDir\n"
             )
 
-            val manifest = buildTestManifest(ncontests, nselections)
-            val publisher = makePublisher(outputDir, true)
-            publisher.writeManifest(manifest)
+            val manifest = if (nstyles == 1) buildTestManifest(ncontests, nselections)
+                           else buildTestManifest(nstyles, ncontests, nselections)
 
-            println("RunCreateTestManifest success")
+
+            val validator = ManifestInputValidation(manifest)
+            val errs = validator.validate()
+            if (errs.hasErrors()) {
+                println("failed $errs")
+            } else {
+                val publisher = makePublisher(outputDir, true)
+                publisher.writeManifest(manifest)
+                println("ManifestInputValidation succeeded")
+            }
         }
     }
 }

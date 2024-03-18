@@ -433,7 +433,7 @@ object KotestBallotGenerators {
             parties = parties,
             candidates = candidates,
             contestsInput = contests,
-            ballotStyles = listOf(styles),
+            ballotStylesInput = listOf(styles),
             name = listOf(language("Manifest: ").bind()),
             contactInformation = contactInformation().bind()
         )

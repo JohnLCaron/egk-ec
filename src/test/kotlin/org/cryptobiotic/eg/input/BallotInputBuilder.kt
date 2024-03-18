@@ -6,7 +6,7 @@ import org.cryptobiotic.eg.cli.ManifestBuilder
 
 class BallotInputBuilder internal constructor(val manifest: Manifest, val id: String) {
     private val contests = ArrayList<ContestBuilder>()
-    private var style = ManifestBuilder.styleDefault
+    private var style: String? = null
 
     fun setStyle(style: String): BallotInputBuilder {
         this.style = style
@@ -29,7 +29,7 @@ class BallotInputBuilder internal constructor(val manifest: Manifest, val id: St
     fun build(): PlaintextBallot {
         return PlaintextBallot(
             id,
-            style,
+            style?: manifest.ballotStyles[0].ballotStyleId,
             contests.map {it.build() }
         )
     }

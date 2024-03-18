@@ -8,20 +8,22 @@ class Manifest(
     val startDate: String, // ISO 8601 formatted date/time
     val endDate: String, // ISO 8601 formatted date/time
     val geopoliticalUnits: List<GeopoliticalUnit>,
-    val parties: List<Party>,
-    val candidates: List<Candidate>,
+    ballotStylesInput: List<BallotStyle>,
     contestsInput: List<ContestDescription>,
-    val ballotStyles: List<BallotStyle>,
-    val name: List<Language>,
+    val candidates: List<Candidate>,
     val contactInformation: ContactInformation?,
+    val name: List<Language>,
+    val parties: List<Party>,
 ) : ManifestIF {
+    // we need deterministic ordering
+    override val ballotStyles: List<BallotStyle> = ballotStylesInput.sortedBy { it.ballotStyleId }
     override val contests: List<ContestDescription> = contestsInput.sortedBy { it.sequenceOrder }
 
     /** Map of ballotStyleId to all Contests that use it. */
     val styleToContestsMap = mutableMapOf<String, List<ContestDescription>>() // key = ballotStyleId
     init {
         val gpuToContests: Map<String, List<ContestDescription>> = contests.groupBy { it.geopoliticalUnitId } // key = geopoliticalUnitId
-        ballotStyles.forEach { style ->
+        ballotStylesInput.forEach { style ->
             val contestSet = mutableSetOf<ContestDescription>()
             style.geopoliticalUnitIds.forEach {
                 val contestList = gpuToContests[it]
@@ -33,8 +35,8 @@ class Manifest(
         }
     }
 
-    override fun contestsForBallotStyle(ballotStyle: String): List<ManifestIF.Contest>? {
-        return styleToContestsMap[ballotStyle]
+    override fun contestsForBallotStyle(ballotStyleId: String): List<ManifestIF.Contest>? {
+        return styleToContestsMap[ballotStyleId]
     }
 
     override fun findContest(contestId: String): ManifestIF.Contest? {
@@ -385,13 +387,13 @@ class Manifest(
         other
     }
 
-    /** Classifies contests by their geopolitical units. see styleToContestsMap. */
+    /** Every ballot has a BallotStyle, which determines which contests are on the ballot. */
     data class BallotStyle(
         val ballotStyleId: String,
         val geopoliticalUnitIds: List<String>,
         val partyIds: List<String>,
         val imageUri: String?,
-    )  {
+    ) {
         override fun toString() =
             buildString {
                 append("'$ballotStyleId': $geopoliticalUnitIds")

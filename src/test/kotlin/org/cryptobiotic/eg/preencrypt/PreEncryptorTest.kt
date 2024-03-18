@@ -32,13 +32,14 @@ class PreEncryptorTest {
             val electionRecord = readElectionRecord(input)
             val electionInit = electionRecord.electionInit()!!
             val manifest = electionRecord.manifest()
+            val ballotStyle = manifest.ballotStyles[0].ballotStyleId
 
             val preEncryptor =
                 PreEncryptor(electionRecord.group, manifest, electionInit.jointPublicKey, electionInit.extendedBaseHash, ::sigma)
 
             manifest.ballotStyles.forEach { println(it) }
 
-            val pballot = preEncryptor.preencrypt("testPreencrypt_ballot_id", "ballotStyle", 11U.toUInt256())
+            val pballot = preEncryptor.preencrypt("testPreencrypt_ballot_id", ballotStyle, 11U.toUInt256())
             assertNotNull(pballot)
         }
     }
@@ -50,6 +51,7 @@ class PreEncryptorTest {
             val electionRecord = readElectionRecord( input)
             val electionInit = electionRecord.electionInit()!!
             val manifest = electionRecord.manifest()
+            val ballotStyle = manifest.ballotStyles[0].ballotStyleId
 
             val preEncryptor =
                 PreEncryptor(electionRecord.group, manifest, electionInit.jointPublicKey, electionInit.extendedBaseHash, ::sigma)
@@ -57,7 +59,7 @@ class PreEncryptorTest {
             manifest.ballotStyles.forEach { println(it) }
 
             val primaryNonce = 42U.toUInt256()
-            val pballot = preEncryptor.preencrypt("testDecrypt_ballot_id", "ballotStyle", primaryNonce)
+            val pballot = preEncryptor.preencrypt("testDecrypt_ballot_id", ballotStyle, primaryNonce)
             assertNotNull(pballot)
 
             val mballot = markBallotChooseOne(manifest, pballot)
@@ -191,8 +193,9 @@ internal fun runComplete(
     val primaryNonce = UInt256.random()
 
     // pre-encrypt
+    val ballotStyle = manifest.ballotStyles[0].ballotStyleId
     val preEncryptor = PreEncryptor(group, manifest, publicKey, qbar, ::sigma)
-    val pballot = preEncryptor.preencrypt(ballot_id, "ballotStyle", primaryNonce)
+    val pballot = preEncryptor.preencrypt(ballot_id, ballotStyle, primaryNonce)
     if (show) pballot.show()
 
     // vote

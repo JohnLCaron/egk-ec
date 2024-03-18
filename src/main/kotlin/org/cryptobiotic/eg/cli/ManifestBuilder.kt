@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.cli
 
 import org.cryptobiotic.eg.election.Manifest
+import kotlin.random.Random
 
 const val manifestVersion = "v2.0.0"
 
@@ -11,8 +12,8 @@ class ManifestBuilder(val manifestName: String = electionScopeId, styleDef : Str
     private val contests = ArrayList<ContestBuilder>()
     private val candidates = HashMap<String, Manifest.Candidate>()
     private var style = styleDef
-    var districts = ArrayList<Manifest.GeopoliticalUnit>()
-    var ballotStyles = ArrayList<Manifest.BallotStyle>()
+    val districts = mutableSetOf<Manifest.GeopoliticalUnit>()
+    val ballotStyles = mutableListOf<Manifest.BallotStyle>()
 
     fun addGpunit(gpunitName: String): ManifestBuilder {
         districts.add(Manifest.GeopoliticalUnit(gpunitName, "name", Manifest.ReportingUnitType.congressional, null))
@@ -26,7 +27,7 @@ class ManifestBuilder(val manifestName: String = electionScopeId, styleDef : Str
 
     fun addStyle(style: String, vararg gpunits: String): ManifestBuilder {
         for (gpunit in gpunits) {
-            districts.add(Manifest.GeopoliticalUnit(gpunit, "name", Manifest.ReportingUnitType.congressional, null))
+            districts.add( Manifest.GeopoliticalUnit(gpunit, gpunit, Manifest.ReportingUnitType.congressional, null) )
         }
         ballotStyles.add(Manifest.BallotStyle(style, gpunits.asList(), emptyList(), null))
         return this
@@ -86,18 +87,18 @@ class ManifestBuilder(val manifestName: String = electionScopeId, styleDef : Str
             Manifest.ElectionType.general,
             "start",
             "end",
-            districts,
-            parties,
-            candidates.values.toList(),
-            contests.map { it.build() },
+            districts.toList(),
             ballotStyles,
-            emptyList(),
+            contests.map { it.build() },
+            candidates.values.toList(),
             Manifest.ContactInformation("contact", emptyList(), null, "911"),
+            emptyList(), // name
+            parties,
         )
     }
 
-    private var contest_seq = 0
-    private var selection_seq = 0
+    private var contest_seq = 1
+    private var selection_seq = 1
 
     inner class ContestBuilder internal constructor(val id: String) {
         private var seq: Int = contest_seq++
@@ -181,6 +182,7 @@ class ManifestBuilder(val manifestName: String = electionScopeId, styleDef : Str
     }
 }
 
+/** fixed number of contests and selections, single ballot style */
 fun buildTestManifest(ncontests: Int, nselections: Int) : Manifest {
     val builder = ManifestBuilder()
     var ccount = 1
@@ -193,4 +195,32 @@ fun buildTestManifest(ncontests: Int, nselections: Int) : Manifest {
         contestBuilder.done()
     }
     return builder.build()
+}
+
+/**
+ * multiple ballot styles, fixed number of contests, each contest has 1..maxSelections,
+ * contests randomly assigned to ballot styles.
+ */
+fun buildTestManifest(nstyles: Int, ncontests: Int, maxSelections: Int) : Manifest {
+    val manifestb = ManifestBuilder()
+    repeat (nstyles) { styleIdx ->
+        val gpus = Array(3) { "gpu${styleIdx + it + 1}" }
+        manifestb.addStyle(style = "BallotStyle${styleIdx+1}",  *gpus)
+    }
+    val districts = manifestb.districts.toList()
+
+    var selCount = 1
+    List(ncontests) {
+        val contestBuilder = manifestb.addContest("contest${it+1}", it+1)
+        val districtIdx = Random.nextInt(districts.size)
+        contestBuilder.setGpunit(districts[districtIdx].name) // random district
+
+        val nselections = Random.nextInt(1, maxSelections) // random number of selections
+        List(nselections) { selIdx ->
+            contestBuilder.addSelection("selection${selCount}", "candidate${selCount}", selIdx+1)
+            selCount++
+        }
+        contestBuilder.done()
+    }
+    return manifestb.build()
 }

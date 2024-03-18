@@ -39,6 +39,16 @@ class ManifestTest {
     }
 
     @Test
+    fun buildManifestWithStyles() {
+        val manifest = buildTestManifest(6, ncontests, nselections)
+        val json = manifest.publishJson()
+        val roundtrip = json.import()
+        assertNotNull(roundtrip)
+        assertTrue(roundtrip.equals(manifest))
+        assertEquals(roundtrip, manifest)
+    }
+
+    @Test
     fun testManifestInputBuilderRoundtrip() {
         runTest {
             val ebuilder = ManifestBuilder("ManifestTest")
@@ -290,10 +300,10 @@ fun makeManifest(id: String, type: Int, ngpu : Int, np: Int, ncand : Int, nc : I
     "Start",
     "End",
     List(ngpu) { makeGPU("id$it","name$it", 1) },
-    List(np) { makeParty("id$it", "name$it") },
-    List(ncand) { makeCandidate("candidate$it") },
-    List(nc) { makeContest("id$it", it,  1, 4) },
     List(nstyles) { makeBallotStyle("bs$it", it) },
-    List(nlang) { makeLanguage("value$it", "lang$it") },
+    List(nc) { makeContest("id$it", it,  1, 4) },
+    List(ncand) { makeCandidate("candidate$it") },
     if (Random.nextBoolean()) makeContact("contact", 3) else null,
+    List(nlang) { makeLanguage("value$it", "lang$it") },
+    List(np) { makeParty("id$it", "name$it") }
 )
