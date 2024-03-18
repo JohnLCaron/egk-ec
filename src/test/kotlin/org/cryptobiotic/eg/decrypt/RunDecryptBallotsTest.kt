@@ -86,10 +86,10 @@ class RunDecryptBallotsTest {
         )
     }
 
-    // decrypt the ballots marked spoiled
+    // decrypt the ballots marked challenged
     @Test
-    fun testDecryptBallotsMarkedSpoiled() {
-        println("\ntestDecryptBallotsMainDefault")
+    fun testDecryptBallotsMarkedChallenged() {
+        println("\ntestDecryptBallotsMarkedChallenged")
         RunTrustedBallotDecryption.main(
             arrayOf(
                 "-in",
@@ -97,7 +97,7 @@ class RunDecryptBallotsTest {
                 "-trustees",
                 "src/test/data/workflow/someAvailableEc/private_data/trustees",
                 "-out",
-                "$testOut/decrypt/testDecryptBallotsMarkedSpoiled",
+                "$testOut/decrypt/testDecryptBallotsMarkedChallenged",
                 "-nthreads",
                 "1"
             )

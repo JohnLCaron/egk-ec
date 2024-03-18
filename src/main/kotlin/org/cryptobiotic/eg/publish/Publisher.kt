@@ -19,18 +19,18 @@ interface Publisher {
 
     fun encryptedBallotSink(device: String?, batched : Boolean = false): EncryptedBallotSinkIF
     fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotOverrideDir: String? = null)
-    fun decryptedTallyOrBallotSink(): DecryptedTallyOrBallotSinkIF
+    fun decryptedBallotSink(ballotOverrideDir: String? = null): DecryptedBallotSinkIF
 
     fun writePlaintextBallot(outputDir: String, plaintextBallots: List<PlaintextBallot>)
     fun writeTrustee(trusteeDir: String, trustee: KeyCeremonyTrustee)
 }
 
 interface EncryptedBallotSinkIF : Closeable {
-    fun writeEncryptedBallot(ballot: EncryptedBallot): String // return filename
+    fun writeEncryptedBallot(eballot: EncryptedBallot): String // return filename
 }
 
-interface DecryptedTallyOrBallotSinkIF : Closeable {
-    fun writeDecryptedTallyOrBallot(tally: DecryptedTallyOrBallot)
+interface DecryptedBallotSinkIF : Closeable {
+    fun writeDecryptedBallot(dballot: DecryptedTallyOrBallot)
 }
 
 // copied from io.ktor.utils.io.core.Closeable to break package dependency

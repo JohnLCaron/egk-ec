@@ -152,7 +152,7 @@ class VerifyDecryption(
     ////////////////////////////////////////////////////////////////////////////////
     // coroutines
 
-    fun verifySpoiledBallotTallies(
+    fun verifyChallengedBallots(
         ballots: Iterable<DecryptedTallyOrBallot>,
         nthreads: Int,
         errs: ErrorMessages,
@@ -174,7 +174,7 @@ class VerifyDecryption(
             joinAll(*verifierJobs.toTypedArray())
         }
 
-        if (showTime) println("   verifySpoiledBallotTallies ${stopwatch.tookPer(count, "ballots")}")
+        if (showTime) println("   verifyChallengedBallots ${stopwatch.tookPer(count, "ballots")}")
         return !errs.hasErrors()
     }
 

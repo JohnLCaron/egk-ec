@@ -47,13 +47,13 @@ data class DecryptingTrustee(
         texts.forEachIndexed { idx, text ->
             if (!text.isValidResidue()) {
                 badTexts.add(idx)
+            } else { // do not process if not valid
+                val u = nonces.get(idx) // random value u in Zq
+                val a = group.gPowP(u)  // (a,b) for the proof, spec 2.0.0, eq 69
+                val b = text powP u
+                val mi = text powP keyShare // Mi = A ^ P(i), spec 2.0.0, eq 66
+                results.add(PartialDecryption(mi, a, b))
             }
-            val u = nonces.get(idx) // random value u in Zq
-            val a = group.gPowP(u)  // (a,b) for the proof, spec 2.0.0, eq 69
-            val b = text powP u
-            val mi = text powP keyShare // Mi = A ^ P(i), spec 2.0.0, eq 66
-
-            results.add( PartialDecryption(mi, a, b))
         }
         val errs = if (badTexts.isEmpty()) null else "invalidResidues for $badTexts"
         return PartialDecryptions(errs, batchId, results)

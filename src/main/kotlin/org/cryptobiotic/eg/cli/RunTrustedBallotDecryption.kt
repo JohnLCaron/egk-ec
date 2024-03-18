@@ -29,7 +29,7 @@ import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stopwatch
 
 /**
- * Decrypt spoiled ballots with local trustees CLI.
+ * Decrypt challenged ballots with local trustees CLI.
  * Read election record from inputDir, write to outputDir.
  * This has access to all the trustees, so is only used for testing, or in a use case of trust.
  * A version of this where each Trustee is in its own process space is implemented in the webapps modules.
@@ -109,15 +109,15 @@ class RunTrustedBallotDecryption {
                 decryptingTrustees,
             )
 
-            // TODO you often want to put the decryption results in the same directory, but sinks now are append-only.
+            // TODO you may want to put the decryption results in the same directory, but sinks now are append-only.
             val publisher = makePublisher(outputDir, false)
-            val sink: DecryptedTallyOrBallotSinkIF = publisher.decryptedTallyOrBallotSink()
+            val sink: DecryptedBallotSinkIF = publisher.decryptedBallotSink()
 
             val ballotIter: Iterable<EncryptedBallot> =
                 when {
                     (decryptChallenged == null) -> {
                         logger.info {" use all challenged" }
-                        consumerIn.iterateAllSpoiledBallots()
+                        consumerIn.iterateAllChallengedBallots()
                     }
 
                     (decryptChallenged.trim().lowercase() == "all") -> {
@@ -215,10 +215,10 @@ class RunTrustedBallotDecryption {
 
         // place the output writing into its own coroutine
         private fun CoroutineScope.launchSink(
-            input: Channel<DecryptedTallyOrBallot>, sink: DecryptedTallyOrBallotSinkIF,
+            input: Channel<DecryptedTallyOrBallot>, sink: DecryptedBallotSinkIF,
         ) = launch {
             for (tally in input) {
-                sink.writeDecryptedTallyOrBallot(tally)
+                sink.writeDecryptedBallot(tally)
             }
         }
     }

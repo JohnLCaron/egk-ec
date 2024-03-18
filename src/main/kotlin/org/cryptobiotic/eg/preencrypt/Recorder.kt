@@ -9,7 +9,7 @@ import org.cryptobiotic.util.ErrorMessages
  * The crypto part of the "The Recording Tool".
  * The encrypting/decrypting primaryNonce is done external.
  *
- * TODO :  uncast (implicitly or explicitly challenged) aka SPOILED
+ * TODO :  uncast (implicitly or explicitly challenged) aka CHALLENGED
  *    "For each uncast (implicitly or explicitly challenged) ballot, the recording tool returns the primary
  *  nonce that enables the encryptions to be opened and checked."
  *    "For an uncast ballot, the wrapper computes the short codes for all possible selections and posts

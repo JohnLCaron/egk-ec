@@ -3,9 +3,7 @@ package org.cryptobiotic.eg.publish.json
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.util.ErrorMessages
-import org.cryptobiotic.eg.core.Base16.fromHex
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
-import org.cryptobiotic.eg.core.intgroup.ProductionMode
 import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.core.intgroup.tinyGroup
 
@@ -61,7 +59,7 @@ class EncryptedBallotTest {
             if (Random.nextBoolean())
                 EncryptedBallot.BallotState.CAST
             else
-                EncryptedBallot.BallotState.SPOILED,
+                EncryptedBallot.BallotState.CHALLENGED,
             generateCiphertext(context),
         )
     }

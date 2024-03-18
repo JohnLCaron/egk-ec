@@ -13,10 +13,10 @@ class ConsumerJsonTest : FunSpec({
     context("ConsumerJson tests") {
         withData(inputIg, inputEc) { topDir ->
             testElectionRecord(topDir)
-            readSpoiledBallotTallys(topDir)
+            readChallengedBallots(topDir)
             readEncryptedBallots(topDir)
             readEncryptedBallotsCast(topDir)
-            readSubmittedBallotsSpoiled(topDir)
+            readAllChallengedBallots(topDir)
         }
     }
 })
@@ -35,12 +35,12 @@ fun testElectionRecord(topdir: String) {
     // assertEquals(protocolVersion, manifest.specVersion)
 }
 
-fun readSpoiledBallotTallys(topdir: String) {
+fun readChallengedBallots(topdir: String) {
     val consumerIn = makeConsumer(topdir)
     var count = 0
-    for (tally in consumerIn.iterateDecryptedBallots()) {
-        println("$count tally = ${tally.id}")
-        assertTrue(tally.id.startsWith("ballot-id"))
+    for (ballot in consumerIn.iterateDecryptedBallots()) {
+        println("$count tally = ${ballot.id}")
+        assertTrue(ballot.id.startsWith("ballot-id"))
         count++
     }
 }
@@ -65,10 +65,10 @@ fun readEncryptedBallotsCast(topdir: String) {
     }
 }
 
-fun readSubmittedBallotsSpoiled(topdir: String) {
+fun readAllChallengedBallots(topdir: String) {
     val consumerIn = makeConsumer(topdir)
     var count = 0
-    for (ballot in consumerIn.iterateAllSpoiledBallots()) {
+    for (ballot in consumerIn.iterateAllChallengedBallots()) {
         println("$count ballot = ${ballot.ballotId}")
         assertTrue(ballot.ballotId.contains("id-"))
         count++

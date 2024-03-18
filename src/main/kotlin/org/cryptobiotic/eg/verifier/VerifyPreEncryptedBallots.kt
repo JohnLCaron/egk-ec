@@ -46,7 +46,7 @@ record as uncast.
 //     (18.A) ω = Ω(ψ) where ψ is the selection hash associated with the selectable option.
 //   Specifically, for cast ballots, this includes all short codes that are published in the election record
 //   whose associated selection hashes correspond to selection vectors that are accumulated to form
-//   tallies. For spoiled ballots, this includes all selection vectors on the ballot.
+//   tallies. For challenged ballots, this includes all selection vectors on the ballot.
 //    (18.B)  An election verifier must also confirm that for contests with selection limit greater than 1,
 //   the selection vectors published in the election record match the product of the pre-encryptions associated
 //   with the short codes listed as selected.

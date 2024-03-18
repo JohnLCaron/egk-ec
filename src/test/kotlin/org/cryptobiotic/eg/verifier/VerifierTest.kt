@@ -64,7 +64,7 @@ class VerifierTest {
     }
 
     // @Test
-    fun verifySpoiledBallotTallies() {
+    fun verifyChallengedBallots() {
         RunVerifier.verifyChallengedBallots("src/test/data/workflow/someAvailableEcChained")
     }
 

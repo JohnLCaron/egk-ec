@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import org.cryptobiotic.eg.core.removeAllFiles
 import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
-import org.cryptobiotic.eg.publish.DecryptedTallyOrBallotSinkIF
+import org.cryptobiotic.eg.publish.DecryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.EncryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.Publisher
 import java.io.FileOutputStream
@@ -136,9 +136,9 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
 
     inner class EncryptedBallotDeviceSink(val device: String?) : EncryptedBallotSinkIF {
 
-        override fun writeEncryptedBallot(ballot: EncryptedBallot): String {
-            val ballotFile = jsonPaths.encryptedBallotDevicePath(device, ballot.ballotId)
-            val json = ballot.publishJson()
+        override fun writeEncryptedBallot(eballot: EncryptedBallot): String {
+            val ballotFile = jsonPaths.encryptedBallotDevicePath(device, eballot.ballotId)
+            val json = eballot.publishJson()
             FileOutputStream(ballotFile).use { out ->
                 jsonReader.encodeToStream(json, out)
                 out.close()
@@ -151,15 +151,15 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
 
     /////////////////////////////////////////////////////////////
 
-    override fun decryptedTallyOrBallotSink(): DecryptedTallyOrBallotSinkIF {
-        validateOutputDir(Path.of(jsonPaths.decryptedBallotDir()), Formatter())
-        return DecryptedTallyOrBallotSink()
+    override fun decryptedBallotSink(ballotOverrideDir: String?): DecryptedBallotSinkIF {
+        validateOutputDir(Path.of(jsonPaths.decryptedBallotDir(ballotOverrideDir)), Formatter())
+        return DecryptedTallyOrBallotSink(ballotOverrideDir)
     }
 
-    inner class DecryptedTallyOrBallotSink : DecryptedTallyOrBallotSinkIF {
-        override fun writeDecryptedTallyOrBallot(tally: DecryptedTallyOrBallot) {
-            val tallyJson = tally.publishJson()
-            FileOutputStream(jsonPaths.decryptedBallotPath(tally.id)).use { out ->
+    inner class DecryptedTallyOrBallotSink(val ballotOverrideDir: String?) : DecryptedBallotSinkIF {
+        override fun writeDecryptedBallot(dballot: DecryptedTallyOrBallot) {
+            val tallyJson = dballot.publishJson()
+            FileOutputStream(jsonPaths.decryptedBallotPath(ballotOverrideDir, dballot.id)).use { out ->
                 jsonReader.encodeToStream(tallyJson, out)
                 out.close()
             }

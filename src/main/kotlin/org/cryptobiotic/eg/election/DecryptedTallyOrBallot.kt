@@ -20,7 +20,7 @@ data class DecryptedTallyOrBallot(
         val contestId: String, // matches ContestDescription.contestId
         val selections: List<Selection>,
         val ballot_count: Int = 0,                 // number of ballots voting on this contest, 1 for ballots
-        val decryptedContestData: DecryptedContestData? = null, // only for ballots
+        val decryptedContestData: DecryptedContestData? = null, // only for ballots, but still optional
     ) {
         init {
             require(contestId.isNotEmpty())
