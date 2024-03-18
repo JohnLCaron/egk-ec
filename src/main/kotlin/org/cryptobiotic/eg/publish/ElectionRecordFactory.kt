@@ -188,7 +188,7 @@ private class ElectionRecordImpl(val consumer: Consumer,
         return decryptionResult?.decryptedTally
     }
 
-    override fun decryptedBallots(): Iterable<DecryptedTallyOrBallot> {
+    override fun challengedBallots(): Iterable<DecryptedTallyOrBallot> {
         return consumer.iterateDecryptedBallots()
     }
 

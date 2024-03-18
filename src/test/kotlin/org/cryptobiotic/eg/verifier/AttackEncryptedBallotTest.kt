@@ -19,7 +19,7 @@ import kotlin.test.assertNotEquals
  which bubbles up to modifying the contest cryptoHash, and the ballot cryptoHash, and the tracking code.
 
  To detect, one needs to prove that the ballot cryptoHash hasnt been changed, eg the linear ballot chaining scheme,
- or a voter checking that their confirmation code matches on a spoiled ballot.
+ or a voter checking that their confirmation code matches on a challenged ballot.
  But if the attacker is able to change the entire election record, they could modify the chained ballot codes.
  We are not currently using linear ballot chaining during encryption, so this library is currently susceptible to this attack.
 

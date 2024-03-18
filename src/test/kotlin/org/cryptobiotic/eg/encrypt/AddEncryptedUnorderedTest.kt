@@ -240,7 +240,7 @@ class AddEncryptedUnorderedTest {
                 cballots.forEach {
                     val random = Random.nextInt(10)
                     val state =
-                        if (random < 6) EncryptedBallot.BallotState.SPOILED else EncryptedBallot.BallotState.CAST
+                        if (random < 6) EncryptedBallot.BallotState.CHALLENGED else EncryptedBallot.BallotState.CAST
                     val skipThisOne = skip && random < 2 // skip submitting 2 in 10
                     println(" skip $skipThisOne state $state")
                     if (!skipThisOne) {

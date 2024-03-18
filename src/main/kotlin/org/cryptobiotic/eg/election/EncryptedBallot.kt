@@ -16,7 +16,7 @@ data class EncryptedBallot(
         override val electionId : UInt256,
         override val contests: List<Contest>,
         override val state: BallotState,
-        val encryptedSn: ElGamalCiphertext?,
+        override val encryptedSn: ElGamalCiphertext?,
         val isPreencrypt: Boolean = false,
     ) : EncryptedBallotIF {
 
@@ -66,8 +66,8 @@ data class EncryptedBallot(
     enum class BallotState {
         /** A ballot that has been explicitly cast */
         CAST,
-        /** A ballot that has been explicitly spoiled */
-        SPOILED,
+        /** A ballot that has been explicitly challenged */
+        CHALLENGED,
         /** A ballot whose state is unknown to ElectionGuard. */
         UNKNOWN
     }
@@ -78,7 +78,7 @@ data class EncryptedBallot(
         val contestHash: UInt256, // eq 58
         override val selections: List<Selection>,
         val proof: ChaumPedersenRangeProofKnownNonce,
-        val contestData: HashedElGamalCiphertext, // TODO make optional?
+        override val contestData: HashedElGamalCiphertext, // TODO make optional?
         val preEncryption: PreEncryption? = null, // pre-encrypted ballots only
     ) : EncryptedBallotIF.Contest  {
 

@@ -8,8 +8,7 @@ import org.cryptobiotic.util.Stats
 import org.cryptobiotic.util.Stopwatch
 
 /**
- * Orchestrates the decryption of encrypted Tallies and Ballots with DecryptingTrustees.
- * This is the only way that an EncryptedTally can be decrypted.
+ * Orchestrates the decryption of encrypted Ballots with DecryptingTrustees.
  * An EncryptedBallot can also be decrypted if you know the master nonce.
  * Communication with the trustees is with a list of all the ciphertexts from a single ballot / tally at one.
  */
@@ -55,7 +54,7 @@ class BallotDecryptor(
         this.lagrangeCoordinates = dguardians.associateBy { it.guardianId }
     }
 
-    fun decrypt(eballot: EncryptedBallot, errs : ErrorMessages): DecryptedTallyOrBallot? {
+    fun decrypt(eballot: EncryptedBallotIF, errs : ErrorMessages): DecryptedTallyOrBallot? {
         if (eballot.electionId != extendedBaseHash) {
             errs.add("Encrypted Tally/Ballot has wrong electionId = ${eballot.electionId}")
         }
@@ -75,7 +74,9 @@ class BallotDecryptor(
 
         val contestData: MutableList<HashedCiphertext> = mutableListOf()
         for (contest in eballot.contests) {
-            contestData.add( HashedCiphertext(contest.contestData))
+            if (contest.contestData != null) {
+                contestData.add(HashedCiphertext(contest.contestData!!))
+            }
         }
         val contestDecryptionAndProofs = decryptor.decrypt(contestData, errs)
         if (errs.hasErrors()) {
@@ -92,7 +93,7 @@ class BallotDecryptor(
     }
 
     fun makeBallot(
-        eballot: EncryptedBallot,
+        eballot: EncryptedBallotIF,
         decryptions: List<CipherDecryptionAndProof>,
         contestDecryptions: List<CipherDecryptionAndProof>,
         errs : ErrorMessages,
@@ -114,8 +115,13 @@ class BallotDecryptor(
                 )
             }
 
-            val (decryption, proof) = contestDecryptions[contestIdx]
-            val contestData = decryption.decryptHashedCiphertext(publicKey, extendedBaseHash, econtest.contestId, proof)
+            // rehydrated ballots dont have contestData
+            val contestData = if (econtest.contestData != null) {
+                val (decryption, proof) = contestDecryptions[contestIdx]
+                decryption.decryptHashedCiphertext(publicKey, extendedBaseHash, econtest.contestId, proof)
+            } else {
+                null
+            }
             DecryptedTallyOrBallot.Contest(econtest.contestId, selections, 1, contestData)
         }
         return if (errs.hasErrors()) null else DecryptedTallyOrBallot(eballot.ballotId, contests, eballot.electionId)

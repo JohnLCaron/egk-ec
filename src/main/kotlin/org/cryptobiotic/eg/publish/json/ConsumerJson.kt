@@ -233,9 +233,9 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
 
     //////////////////////////////////////////////////////////////////////////////////
 
-    // decrypted spoiled ballots
-    override fun iterateDecryptedBallots(): Iterable<DecryptedTallyOrBallot> {
-        val dirPath = fileSystem.getPath(jsonPaths.decryptedBallotDir())
+    // decrypted ballots
+    override fun iterateDecryptedBallots(ballotOverrideDir: String?): Iterable<DecryptedTallyOrBallot> {
+        val dirPath = fileSystem.getPath(jsonPaths.decryptedBallotDir(ballotOverrideDir))
         if (!Files.exists(dirPath)) {
             return emptyList()
         }

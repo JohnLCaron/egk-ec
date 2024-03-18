@@ -25,6 +25,7 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP
     // what does it mean to be in bounds ??
     override fun inBounds(): Boolean = true // TODO("Not yet implemented")
 
+    // TODO check this
     override fun isValidResidue(): Boolean {
         return group.vecGroup.isPointOnCurve(this.ec.x, this.ec.y)
     }

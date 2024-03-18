@@ -1,6 +1,5 @@
 package org.cryptobiotic.eg.decrypt
 
-import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.unwrap
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.cryptobiotic.eg.core.*
@@ -53,6 +52,8 @@ class CipherDecryptor(
     }
 
     fun decrypt(texts: List<Cipher>, errs : ErrorMessages): List<CipherDecryptionAndProof>? {
+        if (texts.isEmpty()) return emptyList()
+
         // get the PartialDecryptions from each of the trustees
         val partialDecryptions = decryptingTrustees.map { // partialDecryptions are in the order of the decryptingTrustees
             it.getPartialDecryptionsFromTrustee(texts, errs)
@@ -173,12 +174,12 @@ class CipherDecryption(
     val collectiveChallenge: UInt256, // spec 2.0, eq 71
 ) {
 
-    fun decryptCiphertext(publicKey: ElGamalPublicKey): Pair<ElementModP, Int?> {
+    fun decryptCiphertext(publicKey: ElGamalPublicKey, ktOnly: Boolean = false): Pair<ElementModP, Int?> {
         require (cipher is Ciphertext)
         val ciphertext = cipher.delegate
-        val T = ciphertext.data / beta
-        val tally = publicKey.dLog(T)
-        return Pair(T, tally)
+        val Kt = ciphertext.data / beta // K^tally
+        val tally = if (ktOnly) null else publicKey.dLog(Kt) // may not be able to take the log
+        return Pair(Kt, tally)
     }
 
     fun decryptHashedCiphertext(publicKey: ElGamalPublicKey, extendedBaseHash: UInt256, contestId: String, proof: ChaumPedersenProof): DecryptedTallyOrBallot.DecryptedContestData {

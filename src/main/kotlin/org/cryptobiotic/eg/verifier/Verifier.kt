@@ -106,17 +106,17 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
             println(tdErrs)
         }
 
-        // 12, 13, 14 spoiled ballots
-        val spoiledErrs = ErrorMessages("")
-        val spoiledOk =
-            decryptionVerifier.verifySpoiledBallotTallies(record.decryptedBallots(), nthreads, spoiledErrs, stats, showTime)
-        println(" 12,13,14. verifySpoiledBallotTallies $spoiledOk")
-        if (!spoiledOk) {
-            println(spoiledErrs)
+        // 12, 13, 14 challenged ballots
+        val challengedErrs = ErrorMessages("")
+        val challengedOk =
+            decryptionVerifier.verifyChallengedBallots(record.challengedBallots(), nthreads, challengedErrs, stats, showTime)
+        println(" 12,13,14. verifyChallengedBallots $challengedOk")
+        if (!challengedOk) {
+            println(challengedErrs)
         }
 
         val allOk = /* (parametersOk is Ok) && */ (guardiansOk is Ok) && (publicKeyOk is Ok) && (baseHashOk is Ok) &&
-                ballotsOk && chainOk && tallyOk && tdOk && spoiledOk
+                ballotsOk && chainOk && tallyOk && tdOk && challengedOk
         println("verify allOK = $allOk\n")
         return allOk
     }
@@ -237,10 +237,10 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
         return errs
     }
 
-    fun verifySpoiledBallotTallies(stats: Stats): ErrorMessages {
+    fun verifyChallengedBallots(stats: Stats): ErrorMessages {
         val errs = ErrorMessages("verifyDecryptedTally")
-        val verifyTally = VerifyDecryption(group, manifest, jointPublicKey, He)
-        verifyTally.verifySpoiledBallotTallies(record.decryptedBallots(), nthreads, errs, stats, true)
+        val verifyDecryption = VerifyDecryption(group, manifest, jointPublicKey, He)
+        verifyDecryption.verifyChallengedBallots(record.challengedBallots(), nthreads, errs, stats, true)
         return errs
     }
 

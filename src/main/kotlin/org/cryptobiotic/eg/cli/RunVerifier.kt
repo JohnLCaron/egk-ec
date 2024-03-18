@@ -111,7 +111,7 @@ class RunVerifier {
             val verifier = Verifier(electionRecord, 1)
 
             val stats = Stats()
-            val errs = verifier.verifySpoiledBallotTallies(stats)
+            val errs = verifier.verifyChallengedBallots(stats)
             logger.info { errs }
             stats.show(logger)
 

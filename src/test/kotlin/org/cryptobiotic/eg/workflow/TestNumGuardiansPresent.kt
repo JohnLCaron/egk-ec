@@ -134,8 +134,8 @@ class TestNumGuardiansPresent {
         val record2 =  readElectionRecord("$testOut/workflow/$name2")
         println("compare ${record1.topdir()} ${record2.topdir()}")
 
-        val ballotsa = record1.decryptedBallots().iterator()
-        val ballotsb = record2.decryptedBallots().iterator()
+        val ballotsa = record1.challengedBallots().iterator()
+        val ballotsb = record2.challengedBallots().iterator()
         while (ballotsa.hasNext()) {
             testEqualTallies(ballotsa.next(), ballotsb.next())
         }

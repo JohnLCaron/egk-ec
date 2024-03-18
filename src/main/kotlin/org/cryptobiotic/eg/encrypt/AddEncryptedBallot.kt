@@ -143,7 +143,7 @@ class AddEncryptedBallot(
     }
 
     fun challenge(ccode: UInt256): Result<EncryptedBallot, String> {
-        return submit(ccode, EncryptedBallot.BallotState.SPOILED)
+        return submit(ccode, EncryptedBallot.BallotState.CHALLENGED)
     }
 
     fun challengeAndDecrypt(ccode: UInt256): Result<PlaintextBallot, String> {

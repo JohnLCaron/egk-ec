@@ -57,13 +57,14 @@ data class ElectionRecordJsonPaths(val topDir : String) {
         return "${ballotDir}/$ENCRYPTED_BALLOT_PREFIX$id$JSON_SUFFIX"
     }
 
-    fun decryptedBallotPath(ballotId : String): String {
+    fun decryptedBallotPath(ballotOverrideDir: String?, ballotId : String): String {
         val id = ballotId.replace(" ", "_")
-        return "${decryptedBallotDir()}/$DECRYPTED_BALLOT_PREFIX$id$JSON_SUFFIX"
+        return "${decryptedBallotDir(ballotOverrideDir)}/$DECRYPTED_BALLOT_PREFIX$id$JSON_SUFFIX"
     }
 
-    fun decryptedBallotDir(): String {
-        return "$electionRecordDir/$CHALLENGED_DIR/"
+    fun decryptedBallotDir(ballotOverrideDir: String?): String {
+        return if (ballotOverrideDir == null) "$electionRecordDir/$CHALLENGED_DIR"
+        else ballotOverrideDir
     }
 
     fun decryptingTrusteePath(trusteeDir: String, guardianId: String): String {

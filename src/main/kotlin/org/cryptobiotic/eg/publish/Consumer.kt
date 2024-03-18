@@ -49,10 +49,10 @@ interface Consumer {
     /** Read all encrypted ballots for all devices. */
     fun iterateAllEncryptedBallots(filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot>
     fun iterateAllCastBallots(): Iterable<EncryptedBallot>  = iterateAllEncryptedBallots{  it.state == EncryptedBallot.BallotState.CAST }
-    fun iterateAllSpoiledBallots(): Iterable<EncryptedBallot>  = iterateAllEncryptedBallots{  it.state == EncryptedBallot.BallotState.SPOILED }
+    fun iterateAllChallengedBallots(): Iterable<EncryptedBallot>  = iterateAllEncryptedBallots{  it.state == EncryptedBallot.BallotState.CHALLENGED }
 
-    /** Read all decrypted ballots, usually the challenged ones. */
-    fun iterateDecryptedBallots(): Iterable<DecryptedTallyOrBallot>
+    /** Read all decrypted ballots in the given directory, or the default if null. */
+    fun iterateDecryptedBallots(ballotOverrideDir: String? = null): Iterable<DecryptedTallyOrBallot>
 
     //// may be outside the election record
     /** read encrypted ballots in given directory. */
