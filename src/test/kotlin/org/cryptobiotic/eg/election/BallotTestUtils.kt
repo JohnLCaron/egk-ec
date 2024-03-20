@@ -10,7 +10,7 @@ fun makeDoerreTrustee(ktrustee: KeyCeremonyTrustee, electionId : UInt256): Decry
     return DecryptingTrustee(
         ktrustee.id,
         ktrustee.xCoordinate,
-        ktrustee.guardianPublicKey(),
+        ElGamalPublicKey(ktrustee.guardianPublicKey()),
         ktrustee.computeSecretKeyShare(),
     )
 }

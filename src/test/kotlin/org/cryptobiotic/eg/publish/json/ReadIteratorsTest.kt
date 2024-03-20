@@ -18,7 +18,7 @@ class ReadIteratorsTest {
         val verifier = VerifyEncryptedBallots(
             consumer.group,
             record.manifest(),
-            ElGamalPublicKey(record.jointPublicKey()!!),
+            record.jointPublicKey()!!,
             record.extendedBaseHash()!!,
             record.config(), 1
         )

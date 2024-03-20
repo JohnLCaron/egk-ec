@@ -22,7 +22,7 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
             He = UInt256.random()
             jointPublicKey = ElGamalPublicKey(group.ONE_MOD_P)
         } else {
-            jointPublicKey = ElGamalPublicKey(record.jointPublicKey()!!)
+            jointPublicKey = record.jointPublicKey()!!
             He = record.extendedBaseHash()!!
         }
     }
@@ -61,8 +61,8 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
         val encryptionVerifier = VerifyEncryptedBallots(group, manifest, jointPublicKey, He, config, nthreads)
         // Note we are validating all ballots, not just CAST, and including preencrypted
         val eerrs = ErrorMessages("")
-        val (ballotsOk, _) = encryptionVerifier.verifyBallots(record.encryptedAllBallots { true }, eerrs, stats)
-        println(" 5,6,15,16,17,18. verifyEncryptedBallots $ballotsOk")
+        val (ballotsOk, nballots) = encryptionVerifier.verifyBallots(record.encryptedAllBallots { true }, eerrs, stats)
+        println(" 5,6,15,16,17,18. verify $nballots EncryptedBallots = $ballotsOk")
         if (!ballotsOk) {
             println(eerrs)
         }
@@ -108,15 +108,15 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
 
         // 12, 13, 14 challenged ballots
         val challengedErrs = ErrorMessages("")
-        val challengedOk =
-            decryptionVerifier.verifyChallengedBallots(record.challengedBallots(), nthreads, challengedErrs, stats, showTime)
-        println(" 12,13,14. verifyChallengedBallots $challengedOk")
+        val (challengedOk, nchallenged)  = decryptionVerifier.verifyChallengedBallots(record.challengedBallots(), nthreads, challengedErrs, stats, showTime)
+        println(" 12,13,14. verify $nchallenged ChallengedBallots $challengedOk")
         if (!challengedOk) {
             println(challengedErrs)
         }
 
         val allOk = /* (parametersOk is Ok) && */ (guardiansOk is Ok) && (publicKeyOk is Ok) && (baseHashOk is Ok) &&
                 ballotsOk && chainOk && tallyOk && tdOk && challengedOk
+
         println("verify allOK = $allOk\n")
         return allOk
     }

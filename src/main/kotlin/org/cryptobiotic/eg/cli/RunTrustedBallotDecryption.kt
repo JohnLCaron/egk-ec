@@ -104,7 +104,7 @@ class RunTrustedBallotDecryption {
             val decryptor = BallotDecryptor(
                 consumerIn.group,
                 tallyResult.electionInitialized.extendedBaseHash,
-                tallyResult.electionInitialized.jointPublicKey(),
+                tallyResult.electionInitialized.jointPublicKey,
                 guardians,
                 decryptingTrustees,
             )

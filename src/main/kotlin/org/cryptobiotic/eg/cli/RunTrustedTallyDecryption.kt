@@ -135,7 +135,7 @@ class RunTrustedTallyDecryption {
             val decryptor = TallyDecryptor(
                 consumerIn.group,
                 electionInit.extendedBaseHash,
-                electionInit.jointPublicKey(),
+                electionInit.jointPublicKey,
                 guardians,
                 decryptingTrustees,
             )
@@ -152,7 +152,7 @@ class RunTrustedTallyDecryption {
             } else {
                 val result = consumerIn.readEncryptedTallyFromFile(encryptedTallyFile)
                 if (result is Err) {
-                    logger.error { " Cant read readEncryptedTallyFromFile $encryptedTallyFile err = ${result}" }
+                    logger.error { " Cant read readEncryptedTallyFromFile $encryptedTallyFile err = $result" }
                     return
                 }
                 result.unwrap()

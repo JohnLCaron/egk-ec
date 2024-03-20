@@ -16,7 +16,7 @@ interface ManifestIF {
         val sequenceOrder: Int
     }
 
-    /** get the list of valid contests for the given ballotStyle name */
+    /** get the sorted contests for the given ballotStyle */
     fun contestsForBallotStyle(ballotStyleId : String): List<Contest>?
 
     fun findContest(contestId: String): Contest?

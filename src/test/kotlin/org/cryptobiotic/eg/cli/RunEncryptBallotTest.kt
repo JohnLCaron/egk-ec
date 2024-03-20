@@ -136,7 +136,7 @@ fun verifyOutput(inputDir: String, ballotDir: String, chained: Boolean = false):
     val verifier = VerifyEncryptedBallots(
         consumer.group,
         record.manifest(),
-        ElGamalPublicKey(record.jointPublicKey()!!),
+        record.jointPublicKey()!!,
         record.extendedBaseHash()!!,
         record.config(), 1
     )

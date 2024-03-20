@@ -222,7 +222,7 @@ class RunBatchEncryption {
             val encryptor = Encryptor(
                 consumerIn.group,
                 manifest,
-                ElGamalPublicKey(electionInit.jointPublicKey),
+                electionInit.jointPublicKey,
                 electionInit.extendedBaseHash,
                 device,
             )
@@ -292,15 +292,14 @@ class RunBatchEncryption {
             val encryptor: Encryptor,
             manifest: ManifestIF,
             val config: ElectionConfig,
-            jointPublicKey: ElementModP,
+            val publicKey: ElGamalPublicKey,
             val extendedBaseHash: UInt256,
             val check: CheckType,
         ) {
-            val publicKeyEG = ElGamalPublicKey(jointPublicKey)
 
             val verifier: VerifyEncryptedBallots? =
                 if (check == CheckType.Verify)
-                    VerifyEncryptedBallots(group, manifest, publicKeyEG, extendedBaseHash, config, 1)
+                    VerifyEncryptedBallots(group, manifest, publicKey, extendedBaseHash, config, 1)
                 else null
 
             fun encrypt(ballot: PlaintextBallot): EncryptedBallot? {
@@ -327,14 +326,14 @@ class RunBatchEncryption {
                     val submitted = ciphertextBallot.submit(EncryptedBallot.BallotState.CAST)
                     val verifyOk = verifier.verifyEncryptedBallot(submitted, errs2, Stats())
                     if (!verifyOk) {
-                        logger.warn { "CheckType.Verify: encrypted doesnt verify = ${errs2}" }
+                        logger.warn { "CheckType.Verify: encrypted doesnt verify = $errs2" }
                     }
                 } else if (check == CheckType.DecryptNonce) {
                     // Decrypt with Nonce to ensure encryption worked
                     val primaryNonce = ciphertextBallot.ballotNonce
                     val encryptedBallot = ciphertextBallot.submit(EncryptedBallot.BallotState.CAST)
 
-                    val decryptionWithPrimaryNonce = DecryptBallotWithNonce(group, publicKeyEG, extendedBaseHash)
+                    val decryptionWithPrimaryNonce = DecryptBallotWithNonce(group, publicKey, extendedBaseHash)
                     val decryptResult = with( decryptionWithPrimaryNonce) { encryptedBallot.decrypt(primaryNonce) }
                     if (decryptResult is Err) {
                         logger.warn { "CheckType.DecryptNonce: encrypted ballot fails decryption = $decryptResult" }

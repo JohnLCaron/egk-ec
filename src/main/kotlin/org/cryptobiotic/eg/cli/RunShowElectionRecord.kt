@@ -229,7 +229,7 @@ class RunShowElectionRecord {
 
         fun SchnorrProof.show(): String {
             val builder = StringBuilder(5000)
-            builder.append("SchnorrProof key=${this.publicKey.toStringShort()}")
+            builder.append("SchnorrProof key=${this.publicCommitment.toStringShort()}")
             builder.append(" challenge=${this.challenge}")
             builder.append(" response=${this.response}")
             return builder.toString()

@@ -17,7 +17,7 @@ class DecryptPreencryptWithNonce(
     val extendedBaseHash: UInt256,
     sigma : (UInt256) -> String, // hash trimming function Ω
 ) {
-    private val preEncryptor = PreEncryptor( group, manifest, publicKey.key, extendedBaseHash, sigma)
+    private val preEncryptor = PreEncryptor( group, manifest, publicKey, extendedBaseHash, sigma)
 
     fun EncryptedBallot.decrypt(ballotNonce: UInt256): Result<PlaintextBallot, String> {
         require(this.isPreencrypt)

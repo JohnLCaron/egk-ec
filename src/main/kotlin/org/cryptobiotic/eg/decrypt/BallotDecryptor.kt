@@ -33,7 +33,7 @@ class BallotDecryptor(
             if (guardian == null) {
                 badTrustees.add(trustee.id())
             } else {
-                if (trustee.guardianPublicKey() != guardian.publicKey()) {
+                if (trustee.guardianPublicKey().key != guardian.publicKey()) {
                     badTrustees.add(trustee.id())
                     logger.error { "trustee public key = ${trustee.guardianPublicKey()} not equal guardian = ${guardian.publicKey()}" }
                 }

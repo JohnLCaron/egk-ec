@@ -13,10 +13,10 @@ data class Guardian(
         require(xCoordinate > 0)
         require(coefficientProofs.isNotEmpty())
     }
-    fun publicKey() : ElementModP = coefficientProofs[0].publicKey
+    fun publicKey() : ElementModP = coefficientProofs[0].publicCommitment
 
     // the K_ij, where K_i0 = Ki
     fun coefficientCommitments(): List<ElementModP> {
-        return coefficientProofs.map { it.publicKey }
+        return coefficientProofs.map { it.publicCommitment }
     }
 }

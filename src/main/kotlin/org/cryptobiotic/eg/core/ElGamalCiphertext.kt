@@ -106,7 +106,6 @@ fun Int.encrypt(
     if (nonce.isZero()) {
         throw ArithmeticException("Can't use a zero nonce for ElGamal encryption")
     }
-
     if (this < 0) {
         throw ArithmeticException("Can't encrypt a negative vote")
     }

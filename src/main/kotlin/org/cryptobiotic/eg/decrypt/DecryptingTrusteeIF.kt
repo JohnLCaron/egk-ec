@@ -11,7 +11,7 @@ interface DecryptingTrusteeIF {
     fun xCoordinate(): Int
 
     /** The guardian's public key = K_i.  */
-    fun guardianPublicKey(): ElementModP
+    fun guardianPublicKey(): ElGamalPublicKey
 
     fun decrypt(
         texts: List<ElementModP>,

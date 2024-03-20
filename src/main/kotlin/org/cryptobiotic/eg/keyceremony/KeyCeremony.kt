@@ -153,7 +153,7 @@ data class KeyCeremonyResults(
     ): ElectionInitialized {
         // spec 2.0.0 p.25, eq 8.
         val jointPublicKey: ElementModP =
-            publicKeysSorted.map { it.publicKey().key }.reduce { a, b -> a * b }
+            publicKeysSorted.map { it.publicKey }.reduce { a, b -> a * b }
 
         // He = H(HB ; 0x12, K) ; spec 2.0.0 p.25, eq 23.
         val extendedBaseHash = electionExtendedHash(config.electionBaseHash, jointPublicKey)
@@ -168,7 +168,7 @@ data class KeyCeremonyResults(
 
         return ElectionInitialized(
             config,
-            jointPublicKey,
+            ElGamalPublicKey(jointPublicKey),
             extendedBaseHash,
             guardians,
             metadataAll,

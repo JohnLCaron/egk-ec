@@ -31,7 +31,7 @@ class Manifest(
                     contestSet.addAll(contestList)
                 }
             }
-            styleToContestsMap[style.ballotStyleId] = contestSet.toList().sortedBy {it.sequenceOrder}
+            styleToContestsMap[style.ballotStyleId] = contestSet.toList().sortedBy { it.sequenceOrder }
         }
     }
 

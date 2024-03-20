@@ -44,7 +44,8 @@ class RandomBallotProvider(val manifest: Manifest, val nballots: Int = 11) {
             }
             ballotStyleId
         } else {
-            manifest.ballotStyles[0].ballotStyleId
+            val styleIdx = Random.nextInt(manifest.ballotStyles.size)
+            manifest.ballotStyles[styleIdx].ballotStyleId
         }
         val contests = mutableListOf<PlaintextBallot.Contest>()
         for (contestp in manifest.contestsForBallotStyle(useStyle)!!) {

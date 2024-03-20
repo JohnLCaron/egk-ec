@@ -13,18 +13,18 @@ import org.cryptobiotic.eg.core.randomInt
 data class DecryptingTrustee(
     val id: String,
     val xCoordinate: Int,
-    val publicKey: ElementModP, // Must match the public record
+    val publicKey: ElGamalPublicKey, // Must match the public record
     val keyShare: ElementModQ, // P(i) = (P1 (i) + P2 (i) + · · · + Pn (i)) eq 65
     ) : DecryptingTrusteeIF {
 
-    val group = compatibleContextOrFail(publicKey, keyShare)
+    val group = compatibleContextOrFail(publicKey.key, keyShare)
     init {
         require(xCoordinate > 0)
     }
 
     override fun id(): String = id
     override fun xCoordinate(): Int = xCoordinate
-    override fun guardianPublicKey(): ElementModP = publicKey
+    override fun guardianPublicKey() = publicKey
 
     private val mutex = Mutex()
     private val nonceTracker = mutableMapOf<Int, ElementModQ>()

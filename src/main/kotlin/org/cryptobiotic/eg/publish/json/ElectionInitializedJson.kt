@@ -13,7 +13,7 @@ data class ElectionInitializedJson(
     val metadata: Map<String, String> = emptyMap(),
 )
 fun ElectionInitialized.publishJson() = ElectionInitializedJson(
-    this.jointPublicKey.publishJson(),
+    this.jointPublicKey.key.publishJson(),
     this.extendedBaseHash.publishJson(),
     this.guardians.map { it.publishJson() },
     )
@@ -26,7 +26,7 @@ fun ElectionInitializedJson.import(group: GroupContext, config: ElectionConfig, 
     return if (joint_public_key == null || extended_base_hash == null || errs.hasErrors()) null
     else ElectionInitialized(
         config,
-        joint_public_key,
+        ElGamalPublicKey(joint_public_key),
         extended_base_hash,
         guardians.filterNotNull(),
     )
@@ -60,7 +60,7 @@ data class SchnorrProofJson(
     val response : ElementModQJson,
 )
 
-fun SchnorrProof.publishJson() = SchnorrProofJson(this.publicKey.publishJson(), this.challenge.publishJson(), this.response.publishJson())
+fun SchnorrProof.publishJson() = SchnorrProofJson(this.publicCommitment.publishJson(), this.challenge.publishJson(), this.response.publishJson())
 
 fun SchnorrProofJson.import(group: GroupContext, errs: ErrorMessages = ErrorMessages("SchnorrProofJson.import")) : SchnorrProof?  {
     val publicKey = this.public_key.import(group) ?: (errs.addNull("malformed publicKey") as ElementModP?)
