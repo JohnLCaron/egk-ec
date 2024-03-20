@@ -14,36 +14,36 @@ class BallotInputValidation(val manifest: Manifest) {
     private val contestMap = manifest.contests.associate { it.contestId  to ElectionContest(it) }
     private val styles = manifest.ballotStyles.associateBy { it.ballotStyleId }
 
-    fun validate(ballot: PlaintextBallot): ErrorMessages {
-        val ballotMesses = ErrorMessages("Ballot '${ballot.ballotId}'", 1)
-        val ballotStyle: Manifest.BallotStyle? = styles[ballot.ballotStyle]
+    fun validate(pballot: PlaintextBallot): ErrorMessages {
+        val ballotMesses = ErrorMessages("Ballot '${pballot.ballotId}'", 1)
+        val ballotStyle = styles[pballot.ballotStyle]
 
         // Referential integrity of ballot's BallotStyle id
         if (ballotStyle == null) {
-            val msg = "Ballot.A.1 Ballot Style '${ballot.ballotStyle}' does not exist in election"
+            val msg = "Ballot.A.1 Ballot Style '${pballot.ballotStyle}' does not exist in election"
             ballotMesses.add(msg)
             logger.warn { msg }
         }
 
         val contestIds: MutableSet<String> = HashSet()
-        for (ballotContest in ballot.contests) {
+        for (pcontest in pballot.contests) {
             // No duplicate contests
-            if (contestIds.contains(ballotContest.contestId)) {
-                val msg = "Ballot.B.1 Multiple Ballot contests have same contest id '${ballotContest.contestId}'"
+            if (contestIds.contains(pcontest.contestId)) {
+                val msg = "Ballot.B.1 Multiple Ballot contests have same contest id '${pcontest.contestId}'"
                 ballotMesses.add(msg)
                 logger.warn { msg }
             } else {
-                contestIds.add(ballotContest.contestId)
+                contestIds.add(pcontest.contestId)
             }
 
-            val contest: ElectionContest? = contestMap[ballotContest.contestId]
+            val contest: ElectionContest? = contestMap[pcontest.contestId]
             // Referential integrity of ballotContest id
             if (contest == null) {
-                val msg = "Ballot.A.2 Ballot Contest '${ballotContest.contestId}' does not exist in election"
+                val msg = "Ballot.A.2 Ballot Contest '${pcontest.contestId}' does not exist in election"
                 ballotMesses.add(msg)
                 logger.warn { msg }
             } else if (ballotStyle != null) {
-                validateContest(ballotContest, ballotStyle, contest, ballotMesses)
+                validateContest(pcontest, ballotStyle, contest, ballotMesses)
             }
         }
         return ballotMesses

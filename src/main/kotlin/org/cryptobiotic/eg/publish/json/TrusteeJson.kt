@@ -31,7 +31,7 @@ fun TrusteeJson.importDecryptingTrustee(group: GroupContext, errs : ErrorMessage
     else DecryptingTrustee(
         this.id,
         this.x_coordinate,
-        group.gPowP(privateKey!!),
+        ElGamalPublicKey(group.gPowP(privateKey!!)),
         keyShare!!,
         )
 }

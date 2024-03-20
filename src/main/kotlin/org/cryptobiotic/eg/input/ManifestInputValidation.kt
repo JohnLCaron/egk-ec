@@ -21,6 +21,18 @@ class ManifestInputValidation(val manifest: Manifest) {
     fun validate(): ErrorMessages {
         val manifestMessages = ErrorMessages("Manifest '${manifest.electionScopeId}'", 1)
 
+        // no duplicate style ids
+        val styleIds: MutableSet<String> = HashSet()
+        for (style in manifest.ballotStyles) {
+            if (styleIds.contains(style.ballotStyleId)) {
+                val msg = "Manifest.A.6 Multiple Styles have same id '${style.ballotStyleId}'"
+                manifestMessages.add(msg)
+                logger.warn { msg }
+            } else {
+                styleIds.add(style.ballotStyleId)
+            }
+        }
+
         // Referential integrity of BallotStyle geopolitical_unit_ids
         for (ballotStyle in manifest.ballotStyles) {
             for (gpunit in ballotStyle.geopoliticalUnitIds) {

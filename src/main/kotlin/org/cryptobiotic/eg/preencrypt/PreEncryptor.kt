@@ -11,11 +11,10 @@ import org.cryptobiotic.eg.election.ManifestIF
 class PreEncryptor(
     val group: GroupContext,
     val manifest: ManifestIF,
-    val publicKey: ElementModP,
+    val publicKey: ElGamalPublicKey,
     val extendedBaseHash: UInt256,
     val sigma : (UInt256) -> String, // hash trimming function Ω
 ) {
-    private val publicKeyEG = ElGamalPublicKey(publicKey)
 
     /* The encrypting tool for pre-encrypted ballots takes as input parameters
         • an election manifest,
@@ -63,11 +62,11 @@ class PreEncryptor(
         }
 
         // In a contest with a selection limit of L, an additional L null vectors are added
-        var sequence = this.selections.size
+        var nextSeqNo = sortedSelections.last().sequenceOrder + 1
         for (nullVectorIdx in (1..contestLimit)) {
             // TODO null labels may be in manifest, see 4.2.1. wtf?
-            preeSelections.add( preencryptSelection(primaryNonce, this.sequenceOrder, "null${nullVectorIdx}", sequence, sortedSelectionIndices))
-            sequence++
+            preeSelections.add( preencryptSelection(primaryNonce, this.sequenceOrder, "null${nullVectorIdx}", nextSeqNo, sortedSelectionIndices))
+            nextSeqNo++
         }
 
         // numerically sorted selectionHashes
@@ -95,7 +94,7 @@ class PreEncryptor(
         allSelectionIndices.forEach{
             // ξi,j,k = H(HE ; 0x43, ξ, indc (Λi ), indo (λj ), indo (λk )) eq 96
             val nonce = hashFunction(extendedBaseHash.bytes, 0x43.toByte(), primaryNonce, contestIndex, thisSelectionIndex, it).toElementModQ(group)
-            val encoding = if (thisSelectionIndex == it) 1.encrypt(publicKeyEG, nonce) else 0.encrypt(publicKeyEG, nonce)
+            val encoding = if (thisSelectionIndex == it) 1.encrypt(publicKey, nonce) else 0.encrypt(publicKey, nonce)
             encryptionVector.add(encoding)
             encryptionNonces.add(nonce)
             hashElements.add(encoding.pad)

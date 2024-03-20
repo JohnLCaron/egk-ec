@@ -17,12 +17,13 @@ class EncryptorTest {
         runTest {
             val electionRecord = readElectionRecord(input)
             val electionInit = electionRecord.electionInit()!!
-            val ballot = makeBallot(electionRecord.manifest(), "ballotStyle", 3, 0)
+            val ballotStyle = electionRecord.manifest().ballotStyles[0].ballotStyleId
+            val ballot = makeBallot(electionRecord.manifest(), ballotStyle, 3, 0)
 
             val encryptor = Encryptor(
                 electionRecord.group,
                 electionRecord.manifest(),
-                ElGamalPublicKey(electionInit.jointPublicKey),
+                electionInit.jointPublicKey,
                 electionInit.extendedBaseHash,
                 "device"
             )
@@ -47,12 +48,13 @@ class EncryptorTest {
         runTest {
             val electionRecord = readElectionRecord(input)
             val electionInit = electionRecord.electionInit()!!
-            val ballot = makeBallot(electionRecord.manifest(), "ballotStyle", 3, 0)
+            val ballotStyle = electionRecord.manifest().ballotStyles[0].ballotStyleId
+            val ballot = makeBallot(electionRecord.manifest(), ballotStyle, 3, 0)
 
             val encryptor = Encryptor(
                 electionRecord.group,
                 electionRecord.manifest(),
-                ElGamalPublicKey(electionInit.jointPublicKey),
+                electionInit.jointPublicKey,
                 electionInit.extendedBaseHash,
                 "device"
             )
@@ -83,9 +85,10 @@ class EncryptorTest {
         runTest {
             val electionRecord = readElectionRecord(input)
             val electionInit = electionRecord.electionInit()!!
-            val ballot = makeBallot(electionRecord.manifest(), "ballotStyle", 3, 0)
+            val ballotStyle = electionRecord.manifest().ballotStyles[0].ballotStyleId
+            val ballot = makeBallot(electionRecord.manifest(), ballotStyle, 3, 0)
             val plaintextSn: Int? = ballot.sn?.toInt()
-            val key = ElGamalPublicKey(electionInit.jointPublicKey)
+            val key = electionInit.jointPublicKey
 
             val encryptor = Encryptor(electionRecord.group, electionRecord.manifest(), key, electionInit.extendedBaseHash, "device")
             val nonce1 = UInt256.random()

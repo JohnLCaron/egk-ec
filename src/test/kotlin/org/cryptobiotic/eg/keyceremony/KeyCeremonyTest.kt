@@ -38,7 +38,7 @@ class KeyCeremonyTest {
         assertEquals(3, kc.publicKeys.size)
         // note sorting
         val keys: List<ElementModP> = trustees.map {it.guardianPublicKey() }
-        val expected: List<ElementModP> = kc.publicKeys.map {it.publicKey().key}
+        val expected: List<ElementModP> = kc.publicKeys.map { it.publicKey }
         assertEquals(expected, keys)
 
         trustees.forEach {
@@ -62,15 +62,15 @@ class KeyCeremonyTest {
 
         val commitments: MutableList<ElementModP> = mutableListOf()
         strustees.forEach { commitments.addAll(it.coefficientCommitments()) }
-        val expectedExtendedBaseHash: UInt256 = electionExtendedHash(config.electionBaseHash, init.jointPublicKey)
+        val expectedExtendedBaseHash: UInt256 = electionExtendedHash(config.electionBaseHash, init.jointPublicKey.key)
 
         assertEquals(config, init.config)
-        assertEquals(expectedPublicKey, init.jointPublicKey)
+        assertEquals(expectedPublicKey, init.jointPublicKey.key)
         assertEquals(expectedExtendedBaseHash, init.extendedBaseHash)
         assertEquals(strustees.map { makeGuardian(it) }, init.guardians)
         assertNotNull(init.metadata["CreatedBy"])
 
-        assertEquals(ElGamalPublicKey(expectedPublicKey), init.jointPublicKey())
+        assertEquals(ElGamalPublicKey(expectedPublicKey), init.jointPublicKey)
         assertEquals(expectedExtendedBaseHash.toElementModQ(group), init.cryptoExtendedBaseHash())
         assertEquals(config.numberOfGuardians, init.numberOfGuardians())
     }

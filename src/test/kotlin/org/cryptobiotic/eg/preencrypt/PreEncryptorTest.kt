@@ -32,13 +32,14 @@ class PreEncryptorTest {
             val electionRecord = readElectionRecord(input)
             val electionInit = electionRecord.electionInit()!!
             val manifest = electionRecord.manifest()
+            val ballotStyle = manifest.ballotStyles[0].ballotStyleId
 
             val preEncryptor =
                 PreEncryptor(electionRecord.group, manifest, electionInit.jointPublicKey, electionInit.extendedBaseHash, ::sigma)
 
             manifest.ballotStyles.forEach { println(it) }
 
-            val pballot = preEncryptor.preencrypt("testPreencrypt_ballot_id", "ballotStyle", 11U.toUInt256())
+            val pballot = preEncryptor.preencrypt("testPreencrypt_ballot_id", ballotStyle, 11U.toUInt256())
             assertNotNull(pballot)
         }
     }
@@ -50,6 +51,7 @@ class PreEncryptorTest {
             val electionRecord = readElectionRecord( input)
             val electionInit = electionRecord.electionInit()!!
             val manifest = electionRecord.manifest()
+            val ballotStyle = manifest.ballotStyles[0].ballotStyleId
 
             val preEncryptor =
                 PreEncryptor(electionRecord.group, manifest, electionInit.jointPublicKey, electionInit.extendedBaseHash, ::sigma)
@@ -57,7 +59,7 @@ class PreEncryptorTest {
             manifest.ballotStyles.forEach { println(it) }
 
             val primaryNonce = 42U.toUInt256()
-            val pballot = preEncryptor.preencrypt("testDecrypt_ballot_id", "ballotStyle", primaryNonce)
+            val pballot = preEncryptor.preencrypt("testDecrypt_ballot_id", ballotStyle, primaryNonce)
             assertNotNull(pballot)
 
             val mballot = markBallotChooseOne(manifest, pballot)
@@ -92,16 +94,14 @@ class PreEncryptorTest {
 
     @Test
     fun testSingleLimitProblem() {
-        runTest {
-            val ebuilder = ManifestBuilder("testSingleLimit")
-            val manifest: Manifest = ebuilder.addContest("onlyContest")
-                .addSelection("selection1", "candidate1")
-                .done()
-                .build()
+        val ebuilder = ManifestBuilder("testSingleLimit")
+        val manifest: Manifest = ebuilder.addContest("onlyContest")
+            .addSelection("selection1", "candidate1")
+            .done()
+            .build()
 
-            val chosenBallot = ChosenBallot(1)
-            runComplete(productionGroup(), "testSingleLimit", manifest, chosenBallot::markedBallot, false)
-        }
+        val chosenBallot = ChosenBallot(1)
+        runComplete(productionGroup(), "testSingleLimit", manifest, chosenBallot::markedBallot, true)
     }
 
     @Test
@@ -187,12 +187,13 @@ internal fun runComplete(
     if (show) println("===================================================================")
     val qbar = 4242U.toUInt256()
     val secret = group.randomElementModQ(minimum = 1)
-    val publicKey = group.gPowP(secret)
+    val publicKey = ElGamalPublicKey(group.gPowP(secret))
     val primaryNonce = UInt256.random()
 
     // pre-encrypt
+    val ballotStyle = manifest.ballotStyles[0].ballotStyleId
     val preEncryptor = PreEncryptor(group, manifest, publicKey, qbar, ::sigma)
-    val pballot = preEncryptor.preencrypt(ballot_id, "ballotStyle", primaryNonce)
+    val pballot = preEncryptor.preencrypt(ballot_id, ballotStyle, primaryNonce)
     if (show) pballot.show()
 
     // vote
@@ -245,12 +246,12 @@ internal fun runComplete(
     val stats = Stats()
     val fakeConfig = makeFakeConfig()
     val verifier =
-        VerifyEncryptedBallots(group, manifest, ElGamalPublicKey(publicKey), qbar, fakeConfig, 1)
+        VerifyEncryptedBallots(group, manifest, publicKey, qbar, fakeConfig, 1)
     verifier.verifyEncryptedBallot(fullEncryptedBallot, verifyErrs, stats)
     println(errs)
 
     // decrypt with nonce
-    val decryptionWithPrimaryNonce = DecryptPreencryptWithNonce(group, manifest, ElGamalPublicKey(publicKey), qbar, ::sigma)
+    val decryptionWithPrimaryNonce = DecryptPreencryptWithNonce(group, manifest, publicKey, qbar, ::sigma)
     val decryptedBallotResult = with(decryptionWithPrimaryNonce) { fullEncryptedBallot.decrypt(primaryNonce) }
     if (decryptedBallotResult is Err) {
         println("decryptedBallotResult $decryptedBallotResult")
@@ -271,8 +272,8 @@ internal fun runComplete(
 
     // check votes are correct
     for (contest in decryptedBallot.contests) {
-        if (show) println(" check votes for contest ${contest.contestId}")
         val markedContest = markedBallot.contests.find { it.contestId == contest.contestId }!!
+        if (show) println(" check votes for contest ${contest.contestId} markedContest $markedContest")
         contest.selections.forEach {
             if (show) println("   selection ${it.selectionId} = ${it.vote}")
             val have = it.vote == 1

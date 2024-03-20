@@ -99,7 +99,7 @@ fun runEncryptDecryptBallot(
     if (writeout) {
         val init = ElectionInitialized(
             config,
-            jointPublicKey,
+            ElGamalPublicKey(jointPublicKey),
             extendedBaseHash,
             guardianList,
         )

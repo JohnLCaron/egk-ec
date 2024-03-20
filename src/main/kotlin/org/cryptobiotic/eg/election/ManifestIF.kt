@@ -2,6 +2,7 @@ package org.cryptobiotic.eg.election
 
 /** Interface used in the crypto routines for easy mocking. */
 interface ManifestIF {
+    val ballotStyles: List<Manifest.BallotStyle> // in order by id
     val contests: List<Contest> // in order by sequence number
 
     interface Contest {
@@ -15,8 +16,8 @@ interface ManifestIF {
         val sequenceOrder: Int
     }
 
-    /** get the list of valid contests for the given ballotStyle */
-    fun contestsForBallotStyle(ballotStyle : String): List<Contest>?
+    /** get the sorted contests for the given ballotStyle */
+    fun contestsForBallotStyle(ballotStyleId : String): List<Contest>?
 
     fun findContest(contestId: String): Contest?
 

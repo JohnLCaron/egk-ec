@@ -138,7 +138,7 @@ fun testEncryptDecrypt2Verify(
                 val (T, tally) = decryption.decryptCiphertext(publicKey)
                 assertEquals(expectedKt, T)
                 val ciphertext = (decryption.cipher as Ciphertext).delegate
-                val verify = proof.verifyDecryption(extendedBaseHash, publicKey.key, ciphertext, T)
+                val verify = proof.verifyDecryption(extendedBaseHash, publicKey, ciphertext, T)
                 assertTrue(verify)
             }
         }

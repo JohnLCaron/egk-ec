@@ -205,17 +205,17 @@ open class KeyCeremonyTrustee(
         nonce: ElementModQ = group.randomElementModQ(minimum = 2)
     ): HashedElGamalCiphertext {
 
-        val K_l = other.publicKey() // other's publicKey
-        val hp = K_l.context.constants.parameterBaseHash
+        val hp = Pil.context.constants.parameterBaseHash
         val i = xCoordinate
         val l = other.guardianXCoordinate
 
         // (αi,ℓ , βi,ℓ ) = (g^ξi,ℓ mod p, K^ξi,ℓ mod p), ξi,ℓ = nonce
         // (α_i,ℓ , β_i,ℓ ) = (g^nonce mod p, Kℓ^nonce mod p) ;  spec 2.0.0, eq 14
         // by encrypting a zero, we achieve exactly this
+        val K_l = ElGamalPublicKey(other.publicKey) // TODO is it worth turning this into an accelerated elementP?
         val (alpha, beta) = 0.encrypt(K_l, nonce)
         // ki,ℓ = H(HP ; 0x11, i, ℓ, Kℓ , αi,ℓ , βi,ℓ ) ; eq 15 "secret key"
-        val kil = hashFunction(hp, 0x11.toByte(), i, l, K_l, alpha, beta).bytes
+        val kil = hashFunction(hp, 0x11.toByte(), i, l, other.publicKey, alpha, beta).bytes
 
         // footnote 27
         // This key derivation uses the KDF in counter mode from SP 800-108r1. The second input to HMAC contains

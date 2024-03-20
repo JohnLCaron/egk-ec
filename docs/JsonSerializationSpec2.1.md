@@ -2,6 +2,22 @@
 
 draft 03/11/2024
 
+<!-- TOC -->
+* [Egk Election Record JSON 2.1 serialization (proposed specification)](#egk-election-record-json-21-serialization-proposed-specification)
+    * [Constants](#constants)
+    * [Elements](#elements)
+      * [UInt256Json](#uint256json)
+      * [ElementModQJson](#elementmodqjson)
+      * [ElementModPJson](#elementmodpjson)
+    * [Manifest](#manifest)
+    * [ElectionConfig](#electionconfig)
+    * [ElectionInitialized](#electioninitialized)
+    * [PlaintextBallot](#plaintextballot)
+    * [EncryptedBallot](#encryptedballot)
+    * [EncryptedTally](#encryptedtally)
+    * [DecryptedTallyOrBallot](#decryptedtallyorballot)
+<!-- TOC -->
+
 ### Constants
 
 For the P-256 Group:

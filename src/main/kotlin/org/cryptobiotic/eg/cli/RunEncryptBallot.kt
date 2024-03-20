@@ -107,7 +107,7 @@ class RunEncryptBallot {
             val encryptor = Encryptor(
                 consumerIn.group,
                 manifest,
-                electionInit.jointPublicKey(),
+                electionInit.jointPublicKey,
                 electionInit.extendedBaseHash,
                 device,
             )

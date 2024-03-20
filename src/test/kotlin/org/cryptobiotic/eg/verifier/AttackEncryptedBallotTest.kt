@@ -40,13 +40,13 @@ class AttackEncryptedBallotTest {
 
         for (ballot in electionRecord.encryptedAllBallots { true }) {
             // println(" munged ballot ${ballot.ballotId}")
-            mungedBallots.add(mungeBallot(ballot, ElGamalPublicKey(electionRecord.jointPublicKey()!!)))
+            mungedBallots.add(mungeBallot(ballot, electionRecord.jointPublicKey()!!))
         }
 
         if (showCount) {
             // sum it up
             val accumulator = AccumulateTally(electionRecord.group, electionRecord.manifest(), "attackedTally",
-                electionRecord.extendedBaseHash()!!, ElGamalPublicKey(electionRecord.jointPublicKey()!!))
+                electionRecord.extendedBaseHash()!!, electionRecord.jointPublicKey()!!)
             for (encryptedBallot in mungedBallots ) {
                 accumulator.addCastBallot(encryptedBallot, ErrorMessages(""))
             }
@@ -100,7 +100,6 @@ class AttackEncryptedBallotTest {
             UInt256.random(),
             ccontests,
             ballot.state,
-            null
         )
     }
 
@@ -166,7 +165,7 @@ fun decryptTally(
     val decryptor = TallyDecryptor(
         group,
         electionInit.extendedBaseHash,
-        electionInit.jointPublicKey(),
+        electionInit.jointPublicKey,
         guardians,
         decryptingTrustees,
         )

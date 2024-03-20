@@ -6,6 +6,7 @@ import org.cryptobiotic.eg.core.*
 interface EncryptedBallotIF {
     val ballotId: String
     val encryptedSn: ElGamalCiphertext?
+    val encryptedStyle: ElGamalCiphertext? // TODO reconsider, kludge
     val electionId : UInt256
     val contests: List<Contest>
     val state: EncryptedBallot.BallotState

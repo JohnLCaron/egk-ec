@@ -6,7 +6,7 @@ import org.cryptobiotic.eg.cli.ManifestBuilder
 
 class BallotInputBuilder internal constructor(val manifest: Manifest, val id: String) {
     private val contests = ArrayList<ContestBuilder>()
-    private var style = ManifestBuilder.styleDefault
+    private var style: String? = null
 
     fun setStyle(style: String): BallotInputBuilder {
         this.style = style
@@ -29,13 +29,16 @@ class BallotInputBuilder internal constructor(val manifest: Manifest, val id: St
     fun build(): PlaintextBallot {
         return PlaintextBallot(
             id,
-            style,
+            style?: manifest.ballotStyles[0].ballotStyleId,
             contests.map {it.build() }
         )
     }
 
-    inner class ContestBuilder internal constructor(val contestId: String, seqOrder : Int? = null) {
-        private var seq = seqOrder?: 1
+    var contestSeq = 1
+    var selectionSeq = 1
+
+    inner class ContestBuilder internal constructor(val contestId: String, seqno : Int? = null) {
+        private var seq = seqno?: contestSeq++
         private val selections = ArrayList<SelectionBuilder>()
         private val writeIns = ArrayList<String>()
 
@@ -72,9 +75,11 @@ class BallotInputBuilder internal constructor(val manifest: Manifest, val id: St
             )
         }
 
-        inner class SelectionBuilder internal constructor(private val selectionId: String, private val vote: Int, private val seqOrder : Int? = null) {
+        inner class SelectionBuilder internal constructor(private val selectionId: String, private val vote: Int, seqno : Int? = null) {
+            private var seq = seqno?: selectionSeq++
+
             fun build(): PlaintextBallot.Selection {
-                return PlaintextBallot.Selection(selectionId, seqOrder?: seq++, vote)
+                return PlaintextBallot.Selection(selectionId, seq, vote)
             }
         }
     }

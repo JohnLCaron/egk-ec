@@ -5,32 +5,32 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 private val logger = KotlinLogging.logger("SchnorrProof")
 
 /**
- * Proof that the prover knows the private key corresponding to the public key.
+ * Proof that the prover knows the private key corresponding to the public commitment.
  * Spec 2.0.0, section 3.2.2, "NIZK Proof" (non-interactive zero knowledge proof).
  */
 data class SchnorrProof(
-    val publicKey: ElementModP, // K_ij, public commitment to the jth coefficient.
+    val publicCommitment: ElementModP, // K_ij, public commitment to the jth coefficient.
     val challenge: ElementModQ, // c_ij, p 22. eq 12
     val response: ElementModQ,  // v_ij = nonce - secretKey.key * cij.
     ) {
 
     init {
-        compatibleContextOrFail(publicKey, challenge, response)
-        require(publicKey.isValidResidue()) // 2.A
+        compatibleContextOrFail(publicCommitment, challenge, response)
+        require(publicCommitment.isValidResidue()) // 2.A
     }
 
     // verification Box 2, p 23
     fun validate(guardianXCoord: Int, coeff: Int, loggit: Boolean = true): Result<Boolean, String> {
-        val group = compatibleContextOrFail(publicKey, challenge, response)
+        val group = compatibleContextOrFail(publicCommitment, challenge, response)
 
         val gPowV = group.gPowP(response)
-        val h = gPowV * (publicKey powP challenge) // h_ij (2.1)
+        val h = gPowV * (publicCommitment powP challenge) // h_ij (2.1)
         // h = g^v * K^c = g^(u - c*s) * g^s*c = g^(u - c*s + c*s) = g^u
-        val c = hashFunction(group.constants.parameterBaseHash, 0x10.toByte(), guardianXCoord, coeff, publicKey, h).toElementModQ(group) // 2.C
+        val c = hashFunction(group.constants.parameterBaseHash, 0x10.toByte(), guardianXCoord, coeff, publicCommitment, h).toElementModQ(group) // 2.C
         // c wouldnt agree unless h = g^u
         // therefore, whoever generated v knows s
 
-        val inBoundsK = publicKey.isValidResidue() // 2.A
+        val inBoundsK = publicCommitment.isValidResidue() // 2.A
         val inBoundsU = response.inBounds() // 2.B
         val validChallenge = c == challenge // 2.C
         val success = inBoundsK && inBoundsU && validChallenge

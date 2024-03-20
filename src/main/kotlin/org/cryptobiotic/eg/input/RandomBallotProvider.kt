@@ -21,8 +21,9 @@ class RandomBallotProvider(val manifest: Manifest, val nballots: Int = 11) {
 
     fun ballots(ballotStyleId: String? = null): List<PlaintextBallot> {
         val ballots = mutableListOf<PlaintextBallot>()
-        val useStyle = ballotStyleId ?: manifest.ballotStyles[0].ballotStyleId
         for (i in 0 until nballots) {
+            val styleIdx = Random.nextInt(manifest.ballotStyles.size)
+            val useStyle = ballotStyleId ?: manifest.ballotStyles[styleIdx].ballotStyleId
             val ballotId = if (useSequential) "id-" + sequentialId++ else "id" + Random.nextInt()
             ballots.add(getFakeBallot(manifest, useStyle, ballotId))
         }
@@ -30,21 +31,28 @@ class RandomBallotProvider(val manifest: Manifest, val nballots: Int = 11) {
     }
 
     fun makeBallot(): PlaintextBallot {
-        val useStyle = manifest.ballotStyles[0].ballotStyleId
+        val styleIdx = Random.nextInt(manifest.ballotStyles.size)
+        val useStyle = manifest.ballotStyles[styleIdx].ballotStyleId
         val ballotId = if (useSequential) "id-" + sequentialId++ else "id" + Random.nextInt()
         return getFakeBallot(manifest, useStyle, ballotId)
     }
 
-    fun getFakeBallot(manifest: Manifest, ballotStyleId: String, ballotId: String): PlaintextBallot {
-        if (manifest.ballotStyles.find { it.ballotStyleId == ballotStyleId } == null) {
-            throw RuntimeException("BallotStyle '$ballotStyleId' not found in manifest ballotStyles= ${manifest.ballotStyles}")
+    fun getFakeBallot(manifest: Manifest, ballotStyleId: String?, ballotId: String): PlaintextBallot {
+        val useStyle = if (ballotStyleId != null) {
+            if (manifest.ballotStyles.find { it.ballotStyleId == ballotStyleId } == null) {
+                throw RuntimeException("BallotStyle '$ballotStyleId' not found in manifest ballotStyles= ${manifest.ballotStyles}")
+            }
+            ballotStyleId
+        } else {
+            val styleIdx = Random.nextInt(manifest.ballotStyles.size)
+            manifest.ballotStyles[styleIdx].ballotStyleId
         }
         val contests = mutableListOf<PlaintextBallot.Contest>()
-        for (contestp in manifest.contestsForBallotStyle(ballotStyleId)!!) {
+        for (contestp in manifest.contestsForBallotStyle(useStyle)!!) {
             contests.add(makeContestFrom(contestp as Manifest.ContestDescription))
         }
         val sn = Random.nextInt(1000)
-        return PlaintextBallot(ballotId, ballotStyleId, contests, sn.toLong())
+        return PlaintextBallot(ballotId, useStyle, contests, sn.toLong())
     }
 
     fun makeContestFrom(contest: Manifest.ContestDescription): PlaintextBallot.Contest {

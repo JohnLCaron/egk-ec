@@ -16,12 +16,10 @@ data class PublicKeys(
         require(coefficientProofs.isNotEmpty())
     }
 
-    fun publicKey(): ElGamalPublicKey {
-        return ElGamalPublicKey(coefficientProofs[0].publicKey)
-    }
+    val publicKey: ElementModP  = coefficientProofs[0].publicCommitment
 
     fun coefficientCommitments(): List<ElementModP> {
-        return coefficientProofs.map { it.publicKey }
+        return coefficientProofs.map { it.publicCommitment }
     }
 
     fun validate(): Result<Boolean, String> {

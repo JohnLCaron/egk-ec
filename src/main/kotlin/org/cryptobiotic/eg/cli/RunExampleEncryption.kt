@@ -84,7 +84,7 @@ class RunExampleEncryption {
 
             val ballotProvider = RandomBallotProvider(manifest)
             repeat(nballots) {
-                val pballot = ballotProvider.getFakeBallot(manifest, "ballotStyle", "ballot$it")
+                val pballot = ballotProvider.getFakeBallot(manifest, null, "ballot$it")
                 publisher.writePlaintextBallot(plaintextBallotDir, listOf(pballot))
                 val pballotFilename = "$plaintextBallotDir/pballot-${pballot.ballotId}.json"
                 val deviceIdx = if(devices.size == 1) 0 else Random.nextInt(devices.size)

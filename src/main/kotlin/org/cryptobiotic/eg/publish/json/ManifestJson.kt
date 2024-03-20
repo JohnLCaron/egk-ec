@@ -12,12 +12,12 @@ data class ManifestJson(
     val start_date: String,
     val end_date: String,
     val geopolitical_units: List<GeopoliticalUnitJson>,
-    val parties: List<PartyJson>,
-    val candidates: List<CandidateJson>,
-    val contests: List<ContestJson>,
     val ballot_styles: List<BallotStyleJson>,
-    val name: List<LanguageJson>,
+    val contests: List<ContestJson>,
+    val candidates: List<CandidateJson>,
     val contact_information: ContactJson?,
+    val name: List<LanguageJson>,
+    val parties: List<PartyJson>,
 )
 
 fun Manifest.publishJson() : ManifestJson {
@@ -28,12 +28,12 @@ fun Manifest.publishJson() : ManifestJson {
         this.startDate,
         this.endDate,
         this.geopoliticalUnits.map { it.publishJson() },
-        this.parties.map { it.publishJson() },
-        this.candidates.map { it.publishJson() },
-        this.contests.map { it.publishJson() },
         this.ballotStyles.map { it.publishJson() },
-        this.name.map { it.publishJson() },
+        this.contests.map { it.publishJson() },
+        this.candidates.map { it.publishJson() },
         this.contactInformation?.publishJson(),
+        this.name.map { it.publishJson() },
+        this.parties.map { it.publishJson() },
     )
 }
 
@@ -46,12 +46,12 @@ fun ManifestJson.import(): Manifest {
         this.start_date,
         this.end_date,
         this.geopolitical_units.map { it.import() },
-        this.parties.map { it.import() },
-        this.candidates.map { it.import() },
-        this.contests.map { it.import() },
         this.ballot_styles.map { it.import() },
-        this.name.map { it.import() },
+        this.contests.map { it.import() },
+        this.candidates.map { it.import() },
         contact_information?.import(),
+        this.name.map { it.import() },
+        this.parties.map { it.import() },
     )
 }
 

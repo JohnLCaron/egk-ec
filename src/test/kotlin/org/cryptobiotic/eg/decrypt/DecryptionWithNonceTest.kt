@@ -24,7 +24,7 @@ class DecryptionWithNonceTest {
     fun testDecryptionWithPrimaryNonce() {
         val electionRecord = readElectionRecord(input)
         val init = electionRecord.electionInit()!!
-        val encryptor = Encryptor(electionRecord.group, electionRecord.manifest(), ElGamalPublicKey(init.jointPublicKey), init.extendedBaseHash, "device")
+        val encryptor = Encryptor(electionRecord.group, electionRecord.manifest(), init.jointPublicKey, init.extendedBaseHash, "device")
 
         RandomBallotProvider(electionRecord.manifest(), nballots).ballots().forEach { ballot ->
             val primaryNonce = UInt256.random()
@@ -33,7 +33,7 @@ class DecryptionWithNonceTest {
             val encryptedBallot = ciphertextBallot.submit(EncryptedBallot.BallotState.CAST)
 
             // decrypt with primary nonce
-            val decryptionWithPrimaryNonce = DecryptBallotWithNonce(electionRecord.group, init.jointPublicKey(), init.extendedBaseHash)
+            val decryptionWithPrimaryNonce = DecryptBallotWithNonce(electionRecord.group, init.jointPublicKey, init.extendedBaseHash)
             val decryptedBallotResult = with (decryptionWithPrimaryNonce) { encryptedBallot.decrypt(primaryNonce) }
             assertFalse(decryptedBallotResult is Err, "decryptionWithPrimaryNonce error on ballot ${ballot.ballotId} errors = $decryptedBallotResult")
             val decryptedBallot = decryptedBallotResult.unwrap()
@@ -73,7 +73,7 @@ class DecryptionWithNonceTest {
     fun testDecryptionOfContestData() {
         val electionRecord = readElectionRecord(input)
         val init = electionRecord.electionInit()!!
-        val encryptor = Encryptor(electionRecord.group, electionRecord.manifest(), ElGamalPublicKey(init.jointPublicKey), init.extendedBaseHash, "device")
+        val encryptor = Encryptor(electionRecord.group, electionRecord.manifest(), init.jointPublicKey, init.extendedBaseHash, "device")
 
         val nb = 100
         RandomBallotProvider(electionRecord.manifest(), nb).withWriteIns().ballots().forEach { ballot ->
@@ -82,7 +82,7 @@ class DecryptionWithNonceTest {
             val encryptedBallot = ciphertextBallot!!.submit(EncryptedBallot.BallotState.CAST)
 
             // decrypt with primary nonce
-            val decryptionWithPrimaryNonce = DecryptBallotWithNonce(electionRecord.group, init.jointPublicKey(), init.extendedBaseHash)
+            val decryptionWithPrimaryNonce = DecryptBallotWithNonce(electionRecord.group, init.jointPublicKey, init.extendedBaseHash)
             val decryptedBallotResult = with (decryptionWithPrimaryNonce) { encryptedBallot.decrypt(primaryNonce) }
             assertFalse(decryptedBallotResult is Err, "decryptionWithPrimaryNonce error on ballot ${ballot.ballotId} errors = $decryptedBallotResult")
             val decryptedBallot = decryptedBallotResult.unwrap()

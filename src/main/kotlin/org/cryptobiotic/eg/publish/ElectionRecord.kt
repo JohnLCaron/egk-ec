@@ -32,7 +32,7 @@ interface ElectionRecord {
     /** The extended base hash, He.  */
     fun extendedBaseHash(): UInt256?
     /** Joint election key, K in the spec.  */
-    fun jointPublicKey(): ElementModP?
+    fun jointPublicKey(): ElGamalPublicKey?
     /** public data of the guardians. */
     fun guardians(): List<Guardian> // may be empty
     fun electionInit(): ElectionInitialized?

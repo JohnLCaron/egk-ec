@@ -5,7 +5,7 @@ import org.cryptobiotic.eg.core.*
 /** Results of KeyCeremony, used for all the rest of the election processing. */
 data class ElectionInitialized(
     val config: ElectionConfig,
-    val jointPublicKey: ElementModP, // aka K
+    val jointPublicKey: ElGamalPublicKey, // aka K
     val extendedBaseHash: UInt256, // aka He
     val guardians: List<Guardian>,
     val metadata: Map<String, String> = emptyMap(),
@@ -17,9 +17,6 @@ data class ElectionInitialized(
         }
     }
 
-    fun jointPublicKey(): ElGamalPublicKey {
-        return ElGamalPublicKey(this.jointPublicKey)
-    }
     fun cryptoExtendedBaseHash(): ElementModQ {
         return this.extendedBaseHash.toElementModQ(jointPublicKey.context)
     }
@@ -37,10 +34,10 @@ data class ElectionInitialized(
     fun show(): String = buildString {
         appendLine("ElectionInitialized")
         append(config.show())
-        appendLine(" jointPublicKey ${jointPublicKey}")
-        appendLine(" extendedBaseHash ${extendedBaseHash}")
+        appendLine(" jointPublicKey $jointPublicKey")
+        appendLine(" extendedBaseHash $extendedBaseHash")
         guardians.forEach {
-            appendLine(" ${it}")
+            appendLine(" $it")
         }
     }
 }

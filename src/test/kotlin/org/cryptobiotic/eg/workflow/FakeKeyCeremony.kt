@@ -112,7 +112,7 @@ fun runFakeKeyCeremony(
     val guardians: List<Guardian> = trustees.map { makeGuardian(it) }
     val init = ElectionInitialized(
         newConfig,
-        jointPublicKey,
+        ElGamalPublicKey(jointPublicKey),
         He,
         guardians,
     )

@@ -31,7 +31,7 @@ class RunTallyAccumulationTest {
         val electionInit = initResult.unwrap()
         val manifest = consumerIn.makeManifest(electionInit.config.manifestBytes)
 
-        val accumulator = AccumulateTally(group, manifest, "name", electionInit.extendedBaseHash, electionInit.jointPublicKey())
+        val accumulator = AccumulateTally(group, manifest, "name", electionInit.extendedBaseHash, electionInit.jointPublicKey)
         // nothing accumulated
         val tally: EncryptedTally = accumulator.build()
         assertNotNull(tally)

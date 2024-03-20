@@ -181,13 +181,13 @@ fun ChaumPedersenRangeProofKnownNonce.verify(
 fun ChaumPedersenProof.verify(
     extendedBaseHash: UInt256, // He
     separator: Byte,
-    publicKey: ElementModP, // K
+    publicKey: ElGamalPublicKey, // K
     x: ElementModP,
     y: ElementModP,
     X: ElementModP,
     Y: ElementModP,
 ): Boolean {
-    val group = compatibleContextOrFail(publicKey, x, y, X, Y)
+    val group = compatibleContextOrFail(publicKey.key, x, y, X, Y)
     val a = (x powP this.r) * (X powP this.c)
     val b = (y powP this.r) * (Y powP this.c)
 
@@ -213,11 +213,11 @@ fun ChaumPedersenProof.verify(
  */
 fun ChaumPedersenProof.verifyDecryption(
     extendedBaseHash: UInt256, // He
-    publicKey: ElementModP, // K
+    publicKey: ElGamalPublicKey, // K
     encryptedVote: ElGamalCiphertext,
     bOverM: ElementModP, // T or S
 ): Boolean {
-    val group = compatibleContextOrFail(publicKey, encryptedVote.pad, encryptedVote.data, bOverM)
+    val group = compatibleContextOrFail(publicKey.key, encryptedVote.pad, encryptedVote.data, bOverM)
     val M: ElementModP = encryptedVote.data / bOverM // eq 9.1
     val a = group.gPowP(this.r) * (publicKey powP this.c) // 9.2
     val b = (encryptedVote.pad powP this.r) * (M powP this.c) // 9.3
@@ -244,12 +244,12 @@ fun ChaumPedersenProof.verifyDecryption(
  *   (11.B) The challenge value c satisfies c = H(HE ; 0x31, K, C0 , C1 , C2 , a, b, β).
  */
 fun ChaumPedersenProof.verifyContestDataDecryption(
-    publicKey: ElementModP, // K
+    publicKey: ElGamalPublicKey, // K
     extendedBaseHash: UInt256, // He
     beta: ElementModP,
     hashedCiphertext: HashedElGamalCiphertext,
 ): Boolean {
-    val group = compatibleContextOrFail(publicKey, hashedCiphertext.c0, beta)
+    val group = compatibleContextOrFail(publicKey.key, hashedCiphertext.c0, beta)
     val a = group.gPowP(this.r) * (publicKey powP this.c) // 11.1
     val b = (hashedCiphertext.c0 powP this.r) * (beta powP this.c) // 11.2
 

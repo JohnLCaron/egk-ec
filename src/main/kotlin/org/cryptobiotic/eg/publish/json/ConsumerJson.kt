@@ -12,7 +12,6 @@ import java.io.InputStream
 import java.nio.file.*
 import java.nio.file.spi.FileSystemProvider
 import java.util.function.Predicate
-import java.util.stream.Stream
 import kotlin.io.path.isDirectory
 
 import org.cryptobiotic.eg.election.*
@@ -23,7 +22,6 @@ import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.publish.Consumer
 import org.cryptobiotic.util.ErrorMessages
 
-
 /**
  * Read only access to an election record.
  * There must at least be a constants.json and an election_config.json file. If not, then
@@ -32,7 +30,6 @@ import org.cryptobiotic.util.ErrorMessages
  * [usegroup] caller may provide the group to be used. Must match the election record.
  */
 class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consumer {
-    private val logger = KotlinLogging.logger("ConsumerJson")
 
     var fileSystem : FileSystem = FileSystems.getDefault()
     var fileSystemProvider : FileSystemProvider = fileSystem.provider()
@@ -169,7 +166,8 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         if (!Files.exists(topBallotPath)) {
             return emptyList()
         }
-        val deviceDirs: Stream<Path> = Files.list(topBallotPath)
+        val deviceDirs: List<Path> = Files.list(topBallotPath).filter { Files.isDirectory(it) }.toList()
+        if (deviceDirs.isEmpty()) return listOf("")
         return deviceDirs.map { it.getName( it.nameCount - 1).toString() }.toList() // last name in the path
     }
 

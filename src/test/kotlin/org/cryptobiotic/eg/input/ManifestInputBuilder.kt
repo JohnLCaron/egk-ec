@@ -82,9 +82,11 @@ class ManifestInputBuilder(val manifestName: String) {
         return Manifest(
             manifestName, "2.0.0", Manifest.ElectionType.general,
             "start", "end",
-            districts, parties, candidates.values.toList(),
+            districts,
+            ballotStyles,
             contests.map { it.build() },
-            ballotStyles, emptyList(), null
+            candidates.values.toList(),
+            null, emptyList(), parties,
         )
     }
 

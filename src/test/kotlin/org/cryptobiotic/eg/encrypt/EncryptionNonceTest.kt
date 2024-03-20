@@ -25,7 +25,7 @@ class EncryptionNonceTest {
         val encryptor = Encryptor(
             electionRecord.group,
             electionRecord.manifest(),
-            ElGamalPublicKey(electionInit.jointPublicKey),
+            electionInit.jointPublicKey,
             electionInit.extendedBaseHash,
             "device"
         )
@@ -37,7 +37,7 @@ class EncryptionNonceTest {
             val decryptionWithNonce = VerifyEmbeddedNonces(
                 electionRecord.group,
                 electionRecord.manifest(),
-                electionInit.jointPublicKey(),
+                electionInit.jointPublicKey,
                 electionInit.extendedBaseHash
             )
             val decryptedBallot = with(decryptionWithNonce) { ciphertextBallot.decrypt() }

@@ -16,9 +16,10 @@ data class EncryptedBallot(
         override val electionId : UInt256,
         override val contests: List<Contest>,
         override val state: BallotState,
-        override val encryptedSn: ElGamalCiphertext?,
+        override val encryptedSn: ElGamalCiphertext? = null,
         val isPreencrypt: Boolean = false,
-    ) : EncryptedBallotIF {
+        override val encryptedStyle: ElGamalCiphertext? = null,
+        ) : EncryptedBallotIF {
 
     init {
         require(ballotId.isNotEmpty())

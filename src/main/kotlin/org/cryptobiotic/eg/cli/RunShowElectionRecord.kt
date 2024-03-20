@@ -32,7 +32,7 @@ class RunShowElectionRecord {
             val show by parser.option(
                 ArgType.String,
                 shortName = "show",
-                description = "[all,constants,manifest,guardians,lagrange,trustees]"
+                description = "[all,constants,manifest,guardians,lagrange,trustees,ballots]"
             )
             val details by parser.option(
                 ArgType.Boolean,
@@ -70,7 +70,7 @@ class RunShowElectionRecord {
 
             }
             if (showSet.has("manifest")) {
-                print(" ${electionRecord.manifest().show(details, ballotStyle)}")
+                print( show(electionRecord.manifest(), details, ballotStyle) )
             }
             println()
 
@@ -101,6 +101,12 @@ class RunShowElectionRecord {
             val ecount = consumer.iterateAllEncryptedBallots { true }.count()
             println(" $ecount encryptedBallots")
             println()
+
+            if (showSet.has("ballots")) {
+                consumer.iterateAllEncryptedBallots { true }.forEach {
+                    println(" ballot ${it.ballotId} style ${it.ballotStyleId}")
+                }
+            }
 
             if (electionRecord.stage() == ElectionRecord.Stage.ENCRYPTED) {
                 return
@@ -139,24 +145,31 @@ class RunShowElectionRecord {
             }
         }
 
-        fun Manifest.show(details: Boolean, wantBallotStyle: String?): String {
-            val builder = StringBuilder(5000)
-            builder.appendLine("\nManifest scopeId=${this.electionScopeId} type=${this.electionType} spec=${this.specVersion}")
-            builder.appendLine("  gpus: ${this.geopoliticalUnits}")
-            if (wantBallotStyle == null ) {
-                builder.appendLine("  styles: ${this.ballotStyles}\n")
-            } else {
-                val ballotStyle = this.ballotStyles.find {it.ballotStyleId == wantBallotStyle}
-                if (ballotStyle == null) {
-                    builder.appendLine("  NOT FOUND ballot style '$wantBallotStyle'")
-                    return builder.toString()
+        fun show(manifest: Manifest, details: Boolean, wantBallotStyle: String?=null): String {
+            return buildString {
+                appendLine("\nManifest scopeId=${manifest.electionScopeId} type=${manifest.electionType} spec=${manifest.specVersion}")
+                appendLine("  gpus: ${manifest.geopoliticalUnits}")
+                if (wantBallotStyle == null) {
+                    appendLine("  styles: [")
+                    manifest.ballotStyles.forEach {
+                        val count = manifest.contestsForBallotStyle(it.ballotStyleId)!!.map { it.selections.size }.sum()
+                        appendLine("    $it, ncontests = ${manifest.contestsForBallotStyle(it.ballotStyleId)!!.size}, nselections= $count")
+                    }
+                    appendLine("  ]")
                 } else {
-                    builder.appendLine("  ballot style: ${ballotStyle}")
+                    val ballotStyle = manifest.ballotStyles.find { it.ballotStyleId == wantBallotStyle }
+                    if (ballotStyle == null) {
+                        appendLine("  NOT FOUND ballot style '$wantBallotStyle'")
+                        return toString()
+                    } else {
+                        appendLine("  ballot style: ${ballotStyle}")
+                    }
                 }
+                val wantContests =
+                    if (wantBallotStyle == null) manifest.contests else manifest.styleToContestsMap[wantBallotStyle]
+                        ?: emptyList()
+                append(wantContests.showContests(details))
             }
-            val wantContests = if (wantBallotStyle == null) this.contests else this.styleToContestsMap[wantBallotStyle]?: emptyList()
-            builder.append(wantContests.showContests(details))
-            return builder.toString()
         }
 
         fun List<Manifest.ContestDescription>.showContests(details: Boolean): String {
@@ -216,7 +229,7 @@ class RunShowElectionRecord {
 
         fun SchnorrProof.show(): String {
             val builder = StringBuilder(5000)
-            builder.append("SchnorrProof key=${this.publicKey.toStringShort()}")
+            builder.append("SchnorrProof key=${this.publicCommitment.toStringShort()}")
             builder.append(" challenge=${this.challenge}")
             builder.append(" response=${this.response}")
             return builder.toString()

@@ -148,7 +148,7 @@ private class ElectionRecordImpl(val consumer: Consumer,
         return init?.extendedBaseHash
     }
 
-    override fun jointPublicKey(): ElementModP? {
+    override fun jointPublicKey(): ElGamalPublicKey? {
         return init?.jointPublicKey
     }
 

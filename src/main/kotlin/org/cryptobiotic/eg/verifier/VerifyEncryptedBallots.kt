@@ -109,7 +109,7 @@ class VerifyEncryptedBallots(
         }
 
         stats.of("verifyEncryptions", "selection").accum(stopwatch.stop(), nselections)
-        if (debugBallots) println(" Ballot '${ballot.ballotId}' ncontests = $ncontests nselections = $nselections")
+        if (debugBallots) println(" Ballot '${ballot.ballotId}' 'style = ${ballot.ballotStyleId}' ncontests = $ncontests nselections = $nselections")
 
         return !errs.hasErrors()
     }
@@ -321,7 +321,6 @@ class VerifyEncryptedBallots(
         verify: (EncryptedBallot) -> Boolean,
     ) = launch(Dispatchers.Default) {
         for (ballot in input) {
-            if (debugBallots) println("$id channel working on ${ballot.ballotId}")
             val result = verify(ballot)
             mutex.withLock {
                 if (result) {

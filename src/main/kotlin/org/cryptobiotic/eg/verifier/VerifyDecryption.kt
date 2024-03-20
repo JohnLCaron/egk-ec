@@ -15,11 +15,8 @@ import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.yield
 import org.cryptobiotic.util.Stopwatch
-
-private const val debug = false
 
 /** Box [9, 10, 11] (tally), and [12, 13, 14] (ballot). can be multithreaded. */
 // Note that 12,13,14 (ballot) are almost the same as 9,10,11 (tally). Only diff is 13.B,C
@@ -125,7 +122,7 @@ class VerifyDecryption(
 
     // Verification 9 (Correctness of tally decryptions)
     private fun DecryptedTallyOrBallot.Selection.verifySelection(): Boolean {
-        return this.proof.verifyDecryption(extendedBaseHash, publicKey.key, this.encryptedVote, this.bOverM)
+        return this.proof.verifyDecryption(extendedBaseHash, publicKey, this.encryptedVote, this.bOverM)
 
     }
 
@@ -144,7 +141,7 @@ class VerifyDecryption(
         if (!decryptedContestData.proof.r.inBounds()) {
             errs.add("     (11.A,14.A) The value v is not in the set Zq.")
         }
-        if (!decryptedContestData.proof.verifyContestDataDecryption(publicKey.key, extendedBaseHash, decryptedContestData.beta, decryptedContestData.encryptedContestData)) {
+        if (!decryptedContestData.proof.verifyContestDataDecryption(publicKey, extendedBaseHash, decryptedContestData.beta, decryptedContestData.encryptedContestData)) {
             errs.add("     (11.B,14.B) The challenge value is wrong")
         }
     }
@@ -158,7 +155,7 @@ class VerifyDecryption(
         errs: ErrorMessages,
         stats: Stats,
         showTime: Boolean,
-    ): Boolean {
+    ): Pair<Boolean, Int> {
         val stopwatch = Stopwatch()
 
         runBlocking {
@@ -175,7 +172,7 @@ class VerifyDecryption(
         }
 
         if (showTime) println("   verifyChallengedBallots ${stopwatch.tookPer(count, "ballots")}")
-        return !errs.hasErrors()
+        return Pair(!errs.hasErrors(), count)
     }
 
     private var count = 0
@@ -188,8 +185,6 @@ class VerifyDecryption(
             }
             channel.close()
         }
-
-    private val mutex = Mutex()
 
     private fun CoroutineScope.launchVerifier(
         input: ReceiveChannel<DecryptedTallyOrBallot>,

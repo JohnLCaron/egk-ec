@@ -21,12 +21,11 @@ import org.cryptobiotic.util.ErrorMessages
 class Recorder(
     val group: GroupContext,
     val manifest: ManifestIF,
-    val publicKey: ElementModP,
+    val publicKey: ElGamalPublicKey,
     val extendedBaseHash: UInt256,
     val votingDevice: String,
     sigma : (UInt256) -> String, // hash trimming function Ω
 ) {
-    val publicKeyEG = ElGamalPublicKey(publicKey)
     val extendedBaseHashQ = extendedBaseHash.toElementModQ(group)
     val preEncryptor = PreEncryptor( group, manifest, publicKey, extendedBaseHash, sigma)
 
@@ -91,7 +90,7 @@ class Recorder(
         val selections = this.makeSelections(preeContest, errs)
 
         val texts: List<ElGamalCiphertext> = selections.map { it.ciphertext }
-        val ciphertextAccumulation: ElGamalCiphertext = texts.encryptedSum()?: 0.encrypt(publicKeyEG)
+        val ciphertextAccumulation: ElGamalCiphertext = texts.encryptedSum()?: 0.encrypt(publicKey)
         val nonces: Iterable<ElementModQ> = selections.map { it.selectionNonce }
         val aggNonce: ElementModQ = with(group) { nonces.addQ() }
         val totalVotes = votedFor.map{ if (it) 1 else 0 }.sum()
@@ -100,7 +99,7 @@ class Recorder(
             totalVotes,      // (ℓ in the spec)
             manifest.contestLimit(contestId),  // (L in the spec)
             aggNonce,
-            publicKeyEG,
+            publicKey,
             extendedBaseHash,
         )
 
@@ -110,7 +109,7 @@ class Recorder(
             ContestDataStatus.normal
         )
 
-        val contestDataEncrypted = contestData.encrypt(publicKeyEG, extendedBaseHash, preeContest.contestId,
+        val contestDataEncrypted = contestData.encrypt(publicKey, extendedBaseHash, preeContest.contestId,
             preeContest.sequenceOrder, ballotNonce, manifest.contestLimit(contestId))
 
         // we are going to substitute preencryptionHash (eq 94) instead of eq 57 when we validate TODO WTF?
@@ -138,7 +137,7 @@ class Recorder(
         val combinedEncryption = mutableListOf<ElGamalCiphertext>()
         repeat(nselections) { idx ->
             val componentEncryptions : List<ElGamalCiphertext> = this.selectedVectors.map { it.encryptions[idx] }
-            combinedEncryption.add( componentEncryptions.encryptedSum()?: 0.encrypt(publicKeyEG) )
+            combinedEncryption.add( componentEncryptions.encryptedSum()?: 0.encrypt(publicKey) )
         }
 
         // the encryption nonces are added to create suitable nonces
@@ -170,7 +169,7 @@ class Recorder(
                 if (this.votedFor[idx]) 1 else 0,
                 1,
                 combinedNonces[idx],
-                publicKeyEG,
+                publicKey,
                 extendedBaseHash
             )
             result.add( PendingEncryptedBallot.Selection(selection.selectionId, selection.sequenceOrder, encryption, proof, combinedNonces[idx]))
