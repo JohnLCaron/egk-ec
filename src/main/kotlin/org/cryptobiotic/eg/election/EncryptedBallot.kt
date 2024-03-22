@@ -18,7 +18,6 @@ data class EncryptedBallot(
         override val state: BallotState,
         override val encryptedSn: ElGamalCiphertext? = null,
         val isPreencrypt: Boolean = false,
-        override val encryptedStyle: ElGamalCiphertext? = null,
         ) : EncryptedBallotIF {
 
     init {

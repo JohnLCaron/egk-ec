@@ -100,15 +100,13 @@ class BallotDecryptor(
     ): DecryptedTallyOrBallot? {
         var selectionCount = 0
         val contests = eballot.contests.mapIndexed { contestIdx, econtest ->
-            val cerrs = errs.nested("Contest ${econtest.contestId}")
             val selections = econtest.selections.map { eselection ->
-                val serrs = cerrs.nested("Selection ${eselection.selectionId}")
                 val (decryption, proof) = decryptions[selectionCount++]
                 val (T, tally) = decryption.decryptCiphertext(publicKey)
 
                 DecryptedTallyOrBallot.Selection(
                     eselection.selectionId,
-                    tally!!,
+                    tally?: 0, // TODO
                     T,
                     (decryption.cipher as Ciphertext).delegate,
                     proof

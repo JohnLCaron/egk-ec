@@ -8,7 +8,7 @@ class Manifest(
     val startDate: String, // ISO 8601 formatted date/time
     val endDate: String, // ISO 8601 formatted date/time
     val geopoliticalUnits: List<GeopoliticalUnit>,
-    ballotStylesInput: List<BallotStyle>,
+    val ballotStyles: List<BallotStyle>,
     contestsInput: List<ContestDescription>,
     val candidates: List<Candidate>,
     val contactInformation: ContactInformation?,
@@ -16,14 +16,14 @@ class Manifest(
     val parties: List<Party>,
 ) : ManifestIF {
     // we need deterministic ordering
-    override val ballotStyles: List<BallotStyle> = ballotStylesInput.sortedBy { it.ballotStyleId }
+    override val ballotStyleIds: List<String> = ballotStyles.map { it.ballotStyleId }
     override val contests: List<ContestDescription> = contestsInput.sortedBy { it.sequenceOrder }
 
     /** Map of ballotStyleId to all Contests that use it. */
     val styleToContestsMap = mutableMapOf<String, List<ContestDescription>>() // key = ballotStyleId
     init {
         val gpuToContests: Map<String, List<ContestDescription>> = contests.groupBy { it.geopoliticalUnitId } // key = geopoliticalUnitId
-        ballotStylesInput.forEach { style ->
+        ballotStyles.forEach { style ->
             val contestSet = mutableSetOf<ContestDescription>()
             style.geopoliticalUnitIds.forEach {
                 val contestList = gpuToContests[it]

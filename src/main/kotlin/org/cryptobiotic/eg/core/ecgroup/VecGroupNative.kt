@@ -50,8 +50,8 @@ class VecGroupNative(
 
     override fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean) = VecElementPnative(this, x, y, safe)
 
-    override fun sqrt(a: BigInteger): BigInteger {
-       return VEC.sqrt(a, primeModulus).toPositive()
+    override fun sqrt(x: BigInteger): BigInteger {
+       return VEC.sqrt(x, primeModulus).toPositive()
     }
 
     override fun prodPowers(bases: List<ElementModP>, exps: List<ElementModQ>): VecElementP {
