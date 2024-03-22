@@ -151,13 +151,13 @@ class RunShowElectionRecord {
                 appendLine("  gpus: ${manifest.geopoliticalUnits}")
                 if (wantBallotStyle == null) {
                     appendLine("  styles: [")
-                    manifest.ballotStyles.forEach {
-                        val count = manifest.contestsForBallotStyle(it.ballotStyleId)!!.map { it.selections.size }.sum()
-                        appendLine("    $it, ncontests = ${manifest.contestsForBallotStyle(it.ballotStyleId)!!.size}, nselections= $count")
+                    manifest.ballotStyleIds.forEach {
+                        val count = manifest.contestsForBallotStyle(it)!!.map { it.selections.size }.sum()
+                        appendLine("    $it, ncontests = ${manifest.contestsForBallotStyle(it)!!.size}, nselections= $count")
                     }
                     appendLine("  ]")
                 } else {
-                    val ballotStyle = manifest.ballotStyles.find { it.ballotStyleId == wantBallotStyle }
+                    val ballotStyle = manifest.ballotStyleIds.find { it == wantBallotStyle }
                     if (ballotStyle == null) {
                         appendLine("  NOT FOUND ballot style '$wantBallotStyle'")
                         return toString()

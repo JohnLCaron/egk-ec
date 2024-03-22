@@ -53,7 +53,6 @@ class VerifyEncryptedBallots(
             repeat(nthreads) {
                 verifierJobs.add(
                     launchVerifier(
-                        it,
                         ballotProducer,
                         aggregator
                     ) { ballot -> verifyEncryptedBallot(ballot, errs.nested("ballot ${ballot.ballotId}"), stats) })
@@ -315,7 +314,6 @@ class VerifyEncryptedBallots(
     private val mutex = Mutex()
 
     private fun CoroutineScope.launchVerifier(
-        id: Int,
         input: ReceiveChannel<EncryptedBallot>,
         aggregator: SelectionAggregator,
         verify: (EncryptedBallot) -> Boolean,

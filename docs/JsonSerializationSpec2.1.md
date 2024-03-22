@@ -1,6 +1,6 @@
 # Egk Election Record JSON 2.1 serialization (proposed specification)
 
-draft 03/11/2024
+draft 03/22/2024
 
 <!-- TOC -->
 * [Egk Election Record JSON 2.1 serialization (proposed specification)](#egk-election-record-json-21-serialization-proposed-specification)
@@ -81,7 +81,40 @@ For group "P-256" its serialization is a byte array of 33 bytes, encoded as a po
 
 ### Manifest
 
-TODO
+The current manifest.json is some version of common standards developed by NIST and others, possibly captured 
+at [Election Results Reporting Common Data Format (CDF) Specification](https://github.com/usnistgov/ElectionResultsReporting).
+For our purposes, we only need a small subset of this information, described by the following interface. When the
+electionguard serialization formats are standardized, we will implement those.
+
+````
+interface ManifestIF {
+   val ballotStyleIds: List<String> // in order by id
+   val contests: List<Contest> // in order by sequence number
+
+    interface Contest {
+        val contestId: String
+        val sequenceOrder: Int
+        val selections: List<Selection> // in order by sequence number
+    }
+
+    interface Selection {
+        val selectionId: String
+        val sequenceOrder: Int
+    }
+
+    /** get the sorted contests for the given ballotStyle */
+    fun contestsForBallotStyle(ballotStyleId : String): List<Contest>?
+
+    /** get the contest for the given contestId */
+    fun findContest(contestId: String): Contest?
+
+    /** get the contest selection limit (aka votesAllowed) for the given contest id */
+    fun contestLimit(contestId : String): Int
+
+    /** get the option selection limit for the given contest id */
+    fun optionLimit(contestId : String): Int
+}
+````
 
 ### ElectionConfig
 
