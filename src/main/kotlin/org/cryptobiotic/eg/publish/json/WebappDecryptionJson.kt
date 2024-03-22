@@ -39,29 +39,23 @@ fun SetMissingRequestJson.import(group: GroupContext): SetMissingRequest? {
 
 ///////////////////////////////////////////
 
+data class DecryptRequest(val texts: List<ElementModP>)
+
 @Serializable
-@SerialName("ChallengeResponses")
-data class ChallengeResponsesJson(
-    val err: String?,
-    val batchId: Int,
-    val responses: List<ElementModQJson>
+@SerialName("DecryptRequest")
+data class DecryptRequestJson(
+    val texts: List<ElementModPJson>
 )
 
-fun ChallengeResponses.publishJson() = ChallengeResponsesJson(
-    this.err,
-    this.batchId,
-    this.responses.map { it.publishJson() }
-)
+fun  DecryptRequest.publishJson() = DecryptRequestJson( this.texts.map { it.publishJson() } )
 
-fun ChallengeResponsesJson.import(group: GroupContext): Result<ChallengeResponses, String> {
-    val responses = this.responses.map { it.import(group) }
+fun DecryptRequestJson.import(group: GroupContext): Result< List<ElementModP>, String> {
+    val responses = this.texts.map { it.import(group) }
     val allgood = responses.map { it != null }.reduce { a, b -> a && b }
 
-    return if (allgood) Ok( ChallengeResponses(this.err, this.batchId, this.responses.map { it.import(group)!! }))
-    else Err("importChallengeResponse error")
+    return if (allgood) Ok( responses.filterNotNull() )
+    else Err("DecryptRequestJson error")
 }
-
-///////////////////////////////////////////
 
 @Serializable
 @SerialName("PartialDecryptions")
@@ -105,4 +99,49 @@ fun PartialDecryptionJson.import(group: GroupContext): PartialDecryption? {
     val b = this.b.import(group)
     return if (mbari == null || a == null || b == null) null
     else PartialDecryption(mbari, a, b)
+}
+
+
+///////////////////////////////////////////
+
+data class ChallengeRequest(val batchId: Int, val texts: List<ElementModQ>)
+
+@Serializable
+@SerialName("ChallengeRequest")
+data class ChallengeRequestJson(
+    val batchId: Int,
+    val texts: List<ElementModQJson>
+) {
+
+    fun import(group: GroupContext): Result<ChallengeRequest, String> {
+        val responses = this.texts.map { it.import(group) }
+        val allgood = responses.map { it != null }.reduce { a, b -> a && b }
+
+        return if (allgood) Ok( ChallengeRequest(this.batchId, responses.filterNotNull() ))
+               else Err("DecryptRequestJson error")
+    }
+}
+
+fun ChallengeRequest.publishJson() = ChallengeRequestJson (batchId, texts.map { it.publishJson() })
+
+@Serializable
+@SerialName("ChallengeResponses")
+data class ChallengeResponsesJson(
+    val err: String?,
+    val batchId: Int,
+    val responses: List<ElementModQJson>
+)
+
+fun ChallengeResponses.publishJson() = ChallengeResponsesJson(
+    this.err,
+    this.batchId,
+    this.responses.map { it.publishJson() }
+)
+
+fun ChallengeResponsesJson.import(group: GroupContext): Result<ChallengeResponses, String> {
+    val responses = this.responses.map { it.import(group) }
+    val allgood = responses.map { it != null }.reduce { a, b -> a && b }
+
+    return if (allgood) Ok( ChallengeResponses(this.err, this.batchId, this.responses.map { it.import(group)!! }))
+    else Err("importChallengeResponse error")
 }

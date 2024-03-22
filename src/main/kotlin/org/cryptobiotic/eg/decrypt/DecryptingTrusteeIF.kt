@@ -25,7 +25,7 @@ interface DecryptingTrusteeIF {
 
 /** These are the messages exchanged with the Decrypting Trustee's */
 
-data class PartialDecryptions(val err: String?, val batchId : Int, val partial: List<PartialDecryption>)
+data class PartialDecryptions(val err: String?, val batchId: Int, val partial: List<PartialDecryption>)
 
 data class PartialDecryption (
     val Mi: ElementModP, // Mi = A ^ P(i); spec 2.0.0, eq 66 or = C0 ^ P(i); eq 77
