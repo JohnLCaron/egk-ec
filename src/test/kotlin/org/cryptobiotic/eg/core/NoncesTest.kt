@@ -1,10 +1,34 @@
 package org.cryptobiotic.eg.core
 
-import org.cryptobiotic.eg.core.productionGroup
+import org.cryptobiotic.eg.core.Base64.toBase64
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class NoncesTest {
+    @Test
+    fun equalsTest() {
+        runTest {
+            val context = productionGroup()
+            val nonces1 = Nonces(context.ONE_MOD_Q, "sample_text1")
+            val nonces1p = Nonces(context.ONE_MOD_Q, "sample_text1")
+            val nonces2 = Nonces(context.ONE_MOD_Q, "sample_text2")
+
+            assertEquals(nonces1, nonces1p)
+            assertNotEquals(nonces1, nonces2)
+            assertNotEquals(nonces1.hashCode(), nonces2.hashCode())
+
+            assertEquals(nonces1.toString(), "Nonces(jfuELVNiNwQGvH+9FDEUhpZiQRBnKbheWeqQ8HJ8eYo=)")
+
+            assertEquals(nonces1, nonces1p)
+            println("${nonces1.internalSeed.toBase64()} vs ${nonces1p.internalSeed.toBase64()}")
+            assertEquals(nonces1.internalSeed.toBase64(), nonces1p.internalSeed.toBase64())
+
+            println("${nonces1.hashCode()} vs ${nonces1p.hashCode()}")
+            assertEquals(nonces1.hashCode(), nonces1p.hashCode())
+        }
+    }
+
     @Test
     fun sequencesAreLazy() {
         runTest {
@@ -38,6 +62,24 @@ class NoncesTest {
             val (also0, also1) = nonces
             assertEquals(expected0, also0)
             assertEquals(expected1, also1)
+        }
+    }
+
+    @Test
+    fun noncesSupportComponents() {
+        runTest {
+            val context = productionGroup()
+            val nonces = Nonces(context.ONE_MOD_Q, "sample_text")
+
+            assertEquals(nonces[0], nonces.component1())
+            assertEquals(nonces[1], nonces.component2())
+            assertEquals(nonces[2], nonces.component3())
+            assertEquals(nonces[3], nonces.component4())
+            assertEquals(nonces[4], nonces.component5())
+            assertEquals(nonces[5], nonces.component6())
+            assertEquals(nonces[6], nonces.component7())
+            assertEquals(nonces[7], nonces.component8())
+            assertEquals(nonces[8], nonces.component9())
         }
     }
 }

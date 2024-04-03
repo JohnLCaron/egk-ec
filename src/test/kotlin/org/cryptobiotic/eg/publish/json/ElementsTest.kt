@@ -4,6 +4,7 @@ import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.productionGroup
 
 import io.kotest.property.checkAll
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlin.test.*
 import kotlinx.serialization.json.*
 import org.cryptobiotic.eg.core.Base64.fromBase64
@@ -11,6 +12,7 @@ import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
 import org.cryptobiotic.eg.core.intgroup.tinyGroup
 
 
+@OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T> jsonRoundTripWithStringPrimitive(value: T): T {
     val jsonReader = Json { explicitNulls = false; ignoreUnknownKeys = true; prettyPrint = true }
 

@@ -6,6 +6,7 @@ import io.kotest.property.checkAll
 import io.kotest.property.forAll
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
 import org.cryptobiotic.eg.core.intgroup.tinyGroup
+import org.cryptobiotic.util.Stopwatch
 import kotlin.test.*
 
 class GroupTest {
@@ -19,12 +20,20 @@ class GroupTest {
     @Test
     fun basics() {
         groups.forEach { testBasics(it) }
+        groups.forEach { testBasicsL(it) }
     }
 
     fun testBasics(context: GroupContext) {
         val three = context.uIntToElementModQ(3U)
         val four = context.uIntToElementModQ(4U)
         val seven = context.uIntToElementModQ(7U)
+        assertEquals(seven, three + four)
+    }
+
+    fun testBasicsL(context: GroupContext) {
+        val three = context.uLongToElementModQ(3U)
+        val four = context.uLongToElementModQ(4U)
+        val seven = context.uLongToElementModQ(7U)
         assertEquals(seven, three + four)
     }
 
@@ -82,42 +91,6 @@ class GroupTest {
         }
     }
 
-    /*
-    @Test
-    fun base64RoundTrip() {
-        runTest {
-            val context = productionGroup()
-            forAll(propTestFastConfig, elementsModP(context)) {
-                it == context.base64ToElementModP(it.base64())
-            }
-            forAll(propTestFastConfig, elementsModQ(context)) {
-                it == context.base64ToElementModQ(it.base64())
-            }
-        }
-    }
-
-    fun GroupContext.base64ToElementModQ(s: String): ElementModQ? =
-        s.fromBase64()?.let { binaryToElementModQ(it) }
-
-    fun GroupContext.base64ToElementModP(s: String): ElementModP? =
-        s.fromBase64()?.let { binaryToElementModP(it) }
-
-    // Converts from any [Element] to a base64 string representation.
-    fun Element.base64(): String = byteArray().toBase64()
-
-    @Test
-    fun baseConversionFails() {
-        runTest {
-            val context = productionGroup()
-            listOf("", "@@", "-10", "1234567890".repeat(1000))
-                .forEach {
-                    assertNull(context.base64ToElementModP(it))
-                    assertNull(context.base64ToElementModQ(it))
-                }
-        }
-    }
-     */
-
     @Test
     fun additionBasics() {
         groups.forEach { additionBasics(it) }
@@ -146,7 +119,7 @@ class GroupTest {
     internal val intTestQ = 134217689 // KLUDGE
     fun additionWrappingQ(context: GroupContext) {
         runTest {
-            checkAll(propTestFastConfig, Arb.int(min=0, max= intTestQ - 1)) { i ->
+            checkAll(propTestFastConfig, Arb.int(min = 0, max = intTestQ - 1)) { i ->
                 val iq = context.uIntToElementModQ(i.toUInt())
                 val q = context.ZERO_MOD_Q - iq
                 assertTrue(q.inBounds())
@@ -261,7 +234,7 @@ class GroupTest {
     fun divisionP(context: GroupContext) {
         runTest {
             forAll(propTestFastConfig, validResiduesOfP(context), validResiduesOfP(context))
-                { a, b -> (a * b) / b == a }
+            { a, b -> (a * b) / b == a }
         }
     }
 
@@ -350,41 +323,26 @@ class GroupTest {
         }
     }
 
-    /*
-    @Test
-    fun groupConstantsCompatibility() {
-        runTest {
-            val ctxP =
-                productionGroup(
-                    acceleration = PowRadixOption.NO_ACCELERATION,
-                    mode = ProductionMode.Mode4096
-                )
-            val ctxP2 =
-                productionGroup(
-                    acceleration = PowRadixOption.LOW_MEMORY_USE,
-                    mode = ProductionMode.Mode4096
-                )
-            val ctx3 =
-                productionGroup(
-                    acceleration = PowRadixOption.NO_ACCELERATION,
-                    mode = ProductionMode.Mode3072
-                )
-            val ctxT = tinyGroup()
 
-            assertTrue(ctxP.isCompatible(ctxP.constants))
-            assertTrue(ctxP.isCompatible(ctxP2.constants))
-            assertFalse(ctx3.isCompatible(ctxP))
-            assertFalse(ctxT.isCompatible(ctxP.constants))
+    @Test
+    fun testProdPowers() {
+        groups.forEach { groupN ->
+            val n = 100
+            val bases = List(n) { groupN.randomElementModP() }
+            val nonces = List(n) { groupN.randomElementModQ() }
+            val prodpow: ElementModP = groupN.prodPowers(bases, nonces)
+
+            val expected = List( bases.size) { bases[it].powP(nonces[it]) }.reduce { a, b -> (a * b) }
+            assertEquals(expected, prodpow)
         }
     }
-     */
 }
 
 fun GroupContext.showOpCountResults(where: String): String {
     val opCounts = this.getAndClearOpCounts()
     return buildString {
         appendLine("$where:")
-        opCounts.toSortedMap().forEach{ (key, value) ->
+        opCounts.toSortedMap().forEach { (key, value) ->
             appendLine("   $key : $value")
         }
     }

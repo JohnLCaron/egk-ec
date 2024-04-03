@@ -1,5 +1,8 @@
 package org.cryptobiotic.gmp.vec
 
+// Im leaving this in (for now) in case we decide to rewrite the VEC C code. This is an example
+// of doing that for the
+
 /*
 import java.lang.foreign.Arena
 import java.lang.foreign.MemorySegment

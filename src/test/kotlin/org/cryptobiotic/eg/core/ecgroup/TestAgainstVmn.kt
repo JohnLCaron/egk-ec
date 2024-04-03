@@ -9,7 +9,8 @@ import java.math.BigInteger
 
 import kotlin.test.Test
 
-class TestCalcYfromX {
+// testing against values obtained from verificatum
+class TestAgainstVmn {
 
     @Test
     fun testRoundtrip() {
@@ -107,7 +108,6 @@ class TestCalcYfromX {
         println(" y1 == y2.neg.mod = ${ vec1.y == vec2.y.negate().mod(vecGroup.primeModulus)}")
         println(" y1 == y2.mod = ${ vec1.y == vec2.y.mod(vecGroup.primeModulus)}")
         println(" y1 == y2.neg = ${ vec1.y == vec2.y.negate()}")
-
     }
 
 }

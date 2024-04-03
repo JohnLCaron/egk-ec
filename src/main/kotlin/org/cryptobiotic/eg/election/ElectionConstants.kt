@@ -5,13 +5,17 @@ import org.cryptobiotic.eg.core.hashFunction
 import org.cryptobiotic.eg.core.normalize
 import java.math.BigInteger
 
+/**
+ * Generalization of ElectionGuard 2.0 section 3.1 "Parameter requirements"
+ * to also describe elliptic curve groups, as well as the ElectionGuard integer group.
+ */
 enum class GroupType { IntegerGroup, EllipticCurve }
 
 data class ElectionConstants(
     val name: String,
     val type: GroupType,
     val protocolVersion: String,
-    val constants: Map<String, BigInteger>
+    val constants: Map<String, BigInteger> // 3.1.1 Standard baseline cryptographic parameters
 ) {
     val parameterBaseHash by lazy {
         parameterBaseHash(this).bytes
@@ -44,11 +48,21 @@ data class ElectionConstants(
     }
 }
 
+/**
+ *  ElectionGuard 2.0 section 3.1.2 Parameter base hash (Hp).
+ *  Generalize to also allow EllipticCurve in the obvious way.
+ */
 fun parameterBaseHash(constants : ElectionConstants) : UInt256 {
-    // HP = H(ver; 0x00, p, q, g) ; spec 2.0.0 p 16, eq 4
-    // The symbol ver denotes the version byte array that encodes the used version of this specification.
-    // The array has length 32 and contains the UTF-8 encoding of the string “v2.0.0” followed by 0x00-
-    // bytes, i.e. ver = 0x76322E302E30 ∥ b(0, 27). FIX should be b(0, 26)
+    // spec 2.0.0 p 16, eq 4
+    //   integer groups : HP = H(ver; 0x00, p, q, g)
+    //      The symbol ver denotes the version byte array that encodes the used version of this specification.
+    //      The array has length 32 and contains the UTF-8 encoding of the string “v2.0.0” followed by 0x00 bytes
+    //      i.e. ver = 0x76322E302E30 ∥ b(0, 26)
+    //      ver = org.cryptobiotic.eg.core.intgroup.GroupConstants.protocolVersion = "v2.0.0"
+
+    //   elliptic groups: HP = H(ver; 0x00, elliptic parameters... )
+    //      ver = org.cryptobiotic.eg.core.ecgroup.VecGroup.protocolVersion = "v2.1.0"
+
     val version = constants.protocolVersion.toByteArray()
     val HV = ByteArray(32) { if (it < version.size) version[it] else 0 }
 
