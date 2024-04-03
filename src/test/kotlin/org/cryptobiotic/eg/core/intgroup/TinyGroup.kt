@@ -62,7 +62,7 @@ internal class TinyGroupContext(
 
     override fun isProductionStrength() = false
 
-    val groupConstants = GroupConstants(name,
+    val groupConstants = IntGroupConstants(name,
         BigInteger(1, p.toByteArray()),
         BigInteger(1, q.toByteArray()),
         BigInteger(1, r.toByteArray()),

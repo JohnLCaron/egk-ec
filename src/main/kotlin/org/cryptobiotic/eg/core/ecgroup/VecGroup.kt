@@ -70,7 +70,7 @@ open class VecGroup(
     val qbyteLength = (qbitLength + 7) / 8
 
     val constants by lazy {
-        ElectionConstants(curveName, GroupType.EllipticCurve, "v2.1.0",
+        ElectionConstants(curveName, GroupType.EllipticCurve, protocolVersion,
             mapOf(
                 "a" to a,
                 "b" to b,
@@ -81,6 +81,12 @@ open class VecGroup(
                 "h" to h,
             )
         )
+    }
+
+    val pIs3mod4: Boolean
+    init {
+        require (!primeModulus.equals(BigInteger.TWO))
+        pIs3mod4 = primeModulus.testBit(0) && primeModulus.testBit(1) // p mod 4 = 3, true for P-256
     }
 
     open fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean = false) = VecElementP(this, x, y, safe)
@@ -143,7 +149,6 @@ open class VecGroup(
         throw RuntimeException("Failed to randomize a ro element")
     }
 
-    // note this isnt == BigInteger.sqrt(). This is EC sqrt(), but we only need the x coordinate.
     open fun sqrt(x: BigInteger): BigInteger {
         val p: BigInteger = primeModulus
 
@@ -151,22 +156,21 @@ open class VecGroup(
         if (a.equals(BigInteger.ZERO)) {
             return BigInteger.ZERO
         }
-        if (p.equals(BigInteger.TWO)) {
-            return a
-        }
 
-        // p = 3 mod 4
-        if (p.testBit(0) && p.testBit(1)) {
-            // v = p + 1
-            var v = p.add(BigInteger.ONE)
+        require (pIs3mod4)
 
-            // v = v / 4
-            v = v.shiftRight(2)
+        // v = p + 1
+        var v = p.add(BigInteger.ONE)
 
-            // return a^v mod p
-            // return --> a^((p + 1) / 4) mod p
-            return a.modPow(v, p)
-        }
+        // v = v / 4
+        v = v.shiftRight(2)
+
+        // return a^v mod p
+        // return --> a^((p + 1) / 4) mod p
+        return a.modPow(v, p)
+
+        /* TODO this code is failing when p mod 4 != 3, remove for now
+        println("not p = 3 mod 4")
 
         // Compute k and s, where p = 2^s (2k+1) +1
 
@@ -179,6 +183,7 @@ open class VecGroup(
             s++
             // k = k / 2
             k = k.shiftRight(1)
+            println(" loop k=$k")
         }
 
         // k = (k - 1) / 2
@@ -207,6 +212,7 @@ open class VecGroup(
         // while z quadratic residue
         while (jacobiSymbol(z, p) == 1) {
             z = z.add(BigInteger.ONE)
+            println(" loop z=$z")
         }
 
         // v = 2k
@@ -218,6 +224,7 @@ open class VecGroup(
         // c = z^v mod p
         var c: BigInteger = z.modPow(v, p)
 
+        val prevN = n
         while (n.compareTo(BigInteger.ONE) > 0) {
             k = n
             var t = s
@@ -229,6 +236,7 @@ open class VecGroup(
                 k = k.multiply(k).mod(p)
                 // s = s + 1
                 s++
+                println(" loop k != 1: $k")
             }
 
             // t = t - s
@@ -249,8 +257,16 @@ open class VecGroup(
 
             // n = n * c mod p
             n = n.multiply(c).mod(p)
+
+            if (prevN == n) {
+                println(" loop n=$n")
+            } else {
+                println(" loop n=$n")
+            }
         }
         return r.toPositive()
+
+         */
     }
 
     fun BigInteger.toPositive(): BigInteger {
@@ -300,10 +316,10 @@ open class VecGroup(
     // Applies the curve's formula f(x) = x^3 + ax + b on the given parameter.
     // 3 mult, 2 add, 5 mod
     fun equationf(x: BigInteger): BigInteger {
-        var right = x.multiply(x).mod(primeModulus) // TODO  can we skip primeModulus on some intermediate terms ?
+        var right = x.multiply(x).mod(primeModulus)
         right = right.multiply(x).mod(primeModulus)
         val aterm = x.multiply(a).mod(primeModulus)
-        right = right.add(aterm).mod(primeModulus) // maybe skip on the add ?
+        right = right.add(aterm).mod(primeModulus)
         right = right.add(b).mod(primeModulus)
         return right
     }
@@ -326,6 +342,7 @@ open class VecGroup(
     }
 
     companion object {
+        val protocolVersion = "v2.1.0"
         /** Will be used for the "infinity" element of the group.  */
         val MINUS_ONE = BigInteger((-1).toString(16), 16)
 

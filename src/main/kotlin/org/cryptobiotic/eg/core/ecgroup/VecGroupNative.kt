@@ -38,7 +38,7 @@ class VecGroupNative(
     curveName: String,
     a: BigInteger,
     b: BigInteger,
-    primeModulus: BigInteger, // Prime primeModulus of the underlying field
+    primeModulus: BigInteger, // primeModulus of the underlying field
     order: BigInteger,
     gx: BigInteger,
     gy: BigInteger,

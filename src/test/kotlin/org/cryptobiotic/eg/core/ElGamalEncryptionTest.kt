@@ -11,7 +11,6 @@ import io.kotest.property.checkAll
 import io.kotest.property.forAll
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
 
-import org.cryptobiotic.eg.core.productionGroup
 import kotlin.test.assertEquals
 
 private fun smallInts() = Arb.int(min = 0, max = 1000)
@@ -76,6 +75,23 @@ private fun testEncryption(name: String, group: GroupContext) = wordSpec {
     }
 
     name should {
+        "match message and reencrypt" {
+            runTest {
+                checkAll(
+                    propTestFastConfig,
+                    elGamalKeypairs(group),
+                    smallInts()
+                ) { keypair, message ->
+                    val encryption = message.encrypt(keypair)
+                    val reencryption = encryption.reencrypt(keypair.publicKey, group.randomElementModQ(minimum = 1))
+                    val decryption = reencryption.decrypt(keypair)
+                    message shouldBe decryption
+                }
+            }
+        }
+    }
+
+    name should {
         "match encrypt and decrypt extra nonce messages" {
             runTest {
                 var count = 0
@@ -114,7 +130,7 @@ private fun testEncryption(name: String, group: GroupContext) = wordSpec {
     }
 
     name should {
-        "homomorphic sccumulation" {
+        "homomorphic accumulation" {
             runTest {
                 forAll(
                     propTestFastConfig,
@@ -129,6 +145,27 @@ private fun testEncryption(name: String, group: GroupContext) = wordSpec {
                     val csum = c1 + c2
                     val d = csum.decrypt(keypair)
                     p1 + p2 == d
+                }
+            }
+        }
+    }
+
+    name should {
+        "add list" {
+            runTest {
+                forAll(
+                    propTestFastConfig,
+                    elGamalKeypairs(group),
+                    smallInts(),
+                    smallInts(),
+                    elementsModQNoZero(group),
+                    elementsModQNoZero(group)
+                ) { keypair, p1, p2, n1, n2 ->
+                    val list1 = listOf(p1.encrypt(keypair, n1), p2.encrypt(keypair, n2))
+                    val list2 = listOf(p1.encrypt(keypair, n2), p2.encrypt(keypair, n1))
+                    val list3 = list1.add(list2)
+                    val list4 = list2.add(list1)
+                    list3 == list4
                 }
             }
         }

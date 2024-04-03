@@ -59,7 +59,7 @@ class ProductionGroupContext(
         montgomeryPPrime = montPPrimeBytes.toBigInteger()
     }
 
-    val groupConstants = GroupConstants(name, p, q, r, g)
+    val groupConstants = IntGroupConstants(name, p, q, r, g)
     override val constants = groupConstants.constants
 
     override fun isProductionStrength() = true

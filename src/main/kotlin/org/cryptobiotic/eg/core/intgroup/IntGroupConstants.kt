@@ -4,13 +4,11 @@ import org.cryptobiotic.eg.election.ElectionConstants
 import org.cryptobiotic.eg.election.GroupType
 import java.math.BigInteger
 
-const val protocolVersion = "v2.0.0"
-
 /**
  * A public description of the mathematical group used for the encryption and processing of ballots.
  * The byte arrays are defined to be big-endian.
  */
-data class GroupConstants(
+data class IntGroupConstants(
     /** name of the constants defining the Group*/
     val name: String,
     /** large prime or P. */
@@ -38,9 +36,23 @@ data class GroupConstants(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as GroupConstants
+        other as IntGroupConstants
 
         if (name != other.name) return false
+        if (largePrime != other.largePrime) return false
+        if (smallPrime != other.smallPrime) return false
+        if (cofactor != other.cofactor) return false
+        if (generator != other.generator) return false
+
+        return true
+    }
+
+    fun isCompatible(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as IntGroupConstants
+
         if (largePrime != other.largePrime) return false
         if (smallPrime != other.smallPrime) return false
         if (cofactor != other.cofactor) return false
@@ -60,5 +72,9 @@ data class GroupConstants(
 
     override fun toString(): String {
         return "GroupConstants(name='$name', largePrime=$largePrime, smallPrime=$smallPrime, cofactor=$cofactor, generator=$generator)"
+    }
+
+    companion object {
+        const val protocolVersion = "v2.0.0"
     }
 }

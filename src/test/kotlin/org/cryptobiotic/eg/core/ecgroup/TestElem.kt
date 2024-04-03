@@ -46,6 +46,10 @@ class TestElem {
         assertEquals(fx.mul(fx), fx.square())
         assertEquals(fx.mul(fx).hashCode(), fx.square().hashCode())
 
+        assertEquals(0, fx.compareTo(fx))
+        assertEquals(-1, fx.compareTo(fy))
+        assertEquals(1, fy.compareTo(fx))
+
         println(" group.ONE = ${group.ONE}")
     }
     // // random ECqPGroupElement = (3ee3f1b3ddd8e71d9a68f44406354cc0592d8f2d0d7298b31f3f04d6f1289dfe, ae1cebf4f07c1ce434ce91c0bddfa238070ad8cb18a5ff88d6a10caaba0b961c) len=34

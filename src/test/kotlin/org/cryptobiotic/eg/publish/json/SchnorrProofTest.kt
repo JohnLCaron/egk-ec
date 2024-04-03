@@ -29,7 +29,6 @@ class SchnorrProofTest {
 
     fun testRoundtrip(group: GroupContext) {
         runTest {
-            val group = productionGroup()
             checkAll(
                 iterations = 33,
                 elGamalKeypairs(group),

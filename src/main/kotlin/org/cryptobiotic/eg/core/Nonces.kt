@@ -1,5 +1,7 @@
 package org.cryptobiotic.eg.core
 
+import org.cryptobiotic.eg.core.Base64.toBase64
+
 /**
  * Generates a sequence of random elements in [0,Q), seeded from an initial element in [0,Q). If you
  * start with the same seed, you'll get exactly the same sequence. Optional string or [Element]
@@ -20,18 +22,25 @@ package org.cryptobiotic.eg.core
  */
 class Nonces(seed: ElementModQ, vararg headers: Any) {
     val internalGroup = compatibleContextOrFail(seed)
-    val internalSeed =
-        if (headers.isNotEmpty()) hashFunction(seed.byteArray(), *headers).bytes else seed.byteArray()
+    val internalSeed = if (headers.isNotEmpty()) hashFunction(seed.byteArray(), *headers).bytes else seed.byteArray()
 
-    override fun equals(other: Any?) =
-        when (other) {
-            is Nonces -> internalSeed.contentEquals(other.internalSeed)
-            else -> false
-        }
+    override fun toString() = "Nonces(${internalSeed.toBase64()})"
 
-    override fun hashCode() = internalSeed.hashCode()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Nonces) return false
 
-    override fun toString() = "Nonces($internalSeed)"
+        if (internalGroup != other.internalGroup) return false
+        if (!internalSeed.contentEquals(other.internalSeed)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = internalGroup.hashCode()
+        result = 31 * result + internalSeed.contentHashCode()
+        return result
+    }
 }
 
 /** Get the requested nonce from the sequence. */

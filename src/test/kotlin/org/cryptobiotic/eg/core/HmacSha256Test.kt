@@ -1,8 +1,6 @@
 package org.cryptobiotic.eg.core
 
 import org.cryptobiotic.eg.core.intgroup.Primes4096
-import org.cryptobiotic.eg.core.intgroup.protocolVersion
-import org.cryptobiotic.eg.election.parameterBaseHash
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

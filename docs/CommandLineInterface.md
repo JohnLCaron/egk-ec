@@ -1,6 +1,6 @@
 # EGK Workflow and Command Line Programs
 
-last update 03/11/2024
+last update 04/01/2024
 
 <!-- TOC -->
 * [EGK Workflow and Command Line Programs](#egk-workflow-and-command-line-programs)
@@ -29,8 +29,7 @@ last update 03/11/2024
    2. Create a manifest in code with the _org.cryptobiotic.eg.election.Manifest_ classes, and write it out
           with a Publisher. 
    3. Create a fake manifest for testing with [_RunCreateTestManifest_ CLI](#create-a-fake-election-manifest).
-   4. Use an existing fake manifest for testing in _src/commonTest/data/startManifest/manifest.json_ or
-      _src/commonTest/data/startManifestProto/manifest.protobuf_.
+   4. Use an existing fake manifest for testing in _src/commonTest/data/startManifest/manifest.json_.
 
 2. **Create an ElectionConfig record**
    1. Create an ElectionConfig record from a Manifest and configuration values using [_RunCreateElectionConfig_ CLI](#create-an-election-configuration)
@@ -47,12 +46,15 @@ last update 03/11/2024
 
 5. **Encryption**.
    1. The [_RunEncryptBallot_ CLI](#run-encrypt-ballot) reads a plaintext ballot from disk and writes its encryption to disk.
-   2. The [_RunBatchEncryption_ CLI](#run-batch-encryption) reads an ElectionInitialized record and input plaintext
+   2. The [_RunExampleEncryption_ CLI](#run-example-encryption) reads an ElectionInitialized record, generates fake plaintext
+       ballots, then calls RunEncryptBallot to encrypt the ballots. This can simulate more complex election
+       records with multiple voting devices.
+   3. The [_RunBatchEncryption_ CLI](#run-batch-encryption) reads an ElectionInitialized record and input plaintext
        ballots, encrypts the ballots and writes out EncryptedBallot records. If any input plaintext ballot fails validation,
        it is annotated and written to a separate directory, and not encrypted.
-   3. _org.cryptobiotic.eg.encrypt.AddEncryptedBallot_ is a class that your program calls to encrypt plaintext ballots
+   4. _org.cryptobiotic.eg.encrypt.AddEncryptedBallot_ is a class that your program calls to encrypt plaintext ballots
        and add them to the election record. (See _org.cryptobiotic.eg.cli.ExampleEncryption_ as an example of using AddEncryptedBallot). 
-   4. To run encryption with the Encryption server, see the webapps CLI. This allows you to run the encryption on a 
+   5. To run encryption with the Encryption server, see the webapps CLI. This allows you to run the encryption on a 
       different machine than where ballots are generated, and/or to call from a non-JVM program.
 
 6. **Accumulate Tally**.
@@ -70,11 +72,11 @@ last update 03/11/2024
     1. [_VerifyElectionRecord_ CLI](#run-verifier) reads an election record and verifies it.
 
 9. **Complete test Workflow**.
-    1. A complete test workflow can be run from _org.cryptobiotic.eg.workflow.TestWorkflow_ (int the test code).
+    1. A complete test workflow can be run by _org.cryptobiotic.eg.workflow.TestWorkflow_ (in the test code).
 
 ## Make ekglib uberJar
 
-For classpath simplicity, the examples below use the [ekglib uberJar](GettingStarted.md#building-a-library-with-all-dependencies-uber-jar).
+For classpath simplicity, the examples below use the [ekglib uberJar](https://github.com/JohnLCaron/egk-ec/blob/main/docs/GettingStarted.md#building-a-library-with-all-dependencies-uber-jar).
 
 ## Create a fake Election Manifest
 

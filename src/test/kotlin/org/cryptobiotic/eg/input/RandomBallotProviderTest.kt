@@ -1,7 +1,6 @@
 package org.cryptobiotic.eg.input
 
 import org.cryptobiotic.eg.publish.readElectionRecord
-import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertFailsWith
