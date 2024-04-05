@@ -9,9 +9,10 @@ import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.testOut
 import kotlin.test.*
 
+// test what happens when AddEncryptedBallot is called after being closed
 class AddBallotSyncTest {
     val inputJson = "src/test/data/workflow/allAvailableEc"
-    val outputDirTop = "$testOut/encrypt/AddBallotSyncTest"
+    val outputDirTop = "$testOut/encrypt/addEncryptedBallot/SyncTest"
     val nballots = 4
 
     @Test
@@ -35,7 +36,6 @@ class AddBallotSyncTest {
             device,
             outputDir,
             "$outputDir/invalidDir",
-            isJson = publisher.isJson(),
         )
         val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 
@@ -83,7 +83,6 @@ class AddBallotSyncTest {
             device,
             outputDir,
             "$outputDir/invalidDir",
-            isJson = publisher.isJson(),
         )
         val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 

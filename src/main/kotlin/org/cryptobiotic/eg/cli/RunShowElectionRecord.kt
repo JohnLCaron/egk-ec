@@ -9,7 +9,6 @@ import kotlinx.cli.ArgType
 import kotlinx.cli.required
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
-import org.cryptobiotic.eg.decrypt.LagrangeCoordinate
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.Consumer
 import org.cryptobiotic.eg.publish.ElectionRecord
@@ -17,7 +16,7 @@ import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
 
-/** Show the election record in inputDir. */
+/** Show information from the election record. */
 class RunShowElectionRecord {
 
     companion object {
@@ -32,7 +31,7 @@ class RunShowElectionRecord {
             val show by parser.option(
                 ArgType.String,
                 shortName = "show",
-                description = "[all,constants,manifest,guardians,lagrange,trustees,ballots]"
+                description = "[all,constants,manifest,guardians,trustees,ballots,tally]"
             )
             val details by parser.option(
                 ArgType.Boolean,
@@ -127,11 +126,7 @@ class RunShowElectionRecord {
 
             val dtally = electionRecord.decryptionResult()
             if (dtally != null) {
-                // println(" decryptedTally available=${dtally.lagrangeCoordinates.size}")
                 println(" decryptedTally ${dtally.decryptedTally.show(details, electionRecord.manifest())}")
-                //if (showSet.has("lagrange")) {
-                //    print(dtally.lagrangeCoordinates.showLagrange())
-                // }
             }
         }
 
@@ -232,39 +227,6 @@ class RunShowElectionRecord {
             builder.append("SchnorrProof key=${this.publicCommitment.toStringShort()}")
             builder.append(" challenge=${this.challenge}")
             builder.append(" response=${this.response}")
-            return builder.toString()
-        }
-
-        fun DecryptedTallyOrBallot.show(details: Boolean, manifest: Manifest): String {
-            val builder = StringBuilder(5000)
-            builder.appendLine(" DecryptedTallyOrBallot $id")
-            contests.sortedBy { it.contestId }.forEach { contest ->
-                if (details) {
-                    builder.appendLine("  Contest ${contest.contestId}")
-                    contest.selections.sortedBy { -it.tally }.forEach {
-                        val candidate =
-                            manifest.selectionCandidate["${contest.contestId}/${it.selectionId}"] ?: "unknown"
-                        builder.appendLine("   $candidate (${it.selectionId}) = ${it.tally}")
-                    }
-                } else {
-                    builder.append("  ${contest.contestId}")
-                    contest.selections.sortedBy { -it.tally }.forEach {
-                        val candidate =
-                            manifest.selectionCandidate["${contest.contestId}/${it.selectionId}"] ?: "unknown"
-                        builder.append("   ${candidate} (${it.tally})")
-                    }
-                }
-                builder.appendLine()
-            }
-            return builder.toString()
-        }
-
-        fun List<LagrangeCoordinate>.showLagrange(): String {
-            val builder = StringBuilder(5000)
-            builder.appendLine(" LagrangeCoordinates")
-            this.sortedBy { it.guardianId }.forEach { lagrange ->
-                builder.appendLine("  ${lagrange.guardianId} xcoord=${lagrange.xCoordinate} coefficient=${lagrange.lagrangeCoefficient}")
-            }
             return builder.toString()
         }
     }

@@ -1,9 +1,9 @@
-# Egk Election Record JSON 2.1 serialization (proposed specification)
+# Egk Election Record JSON version 2.1 serialization (proposed specification)
 
-draft 03/22/2024
+draft 04/04/2024
 
 <!-- TOC -->
-* [Egk Election Record JSON 2.1 serialization (proposed specification)](#egk-election-record-json-21-serialization-proposed-specification)
+* [Egk Election Record JSON version 2.1 serialization (proposed specification)](#egk-election-record-json-version-21-serialization-proposed-specification)
     * [Constants](#constants)
     * [Elements](#elements)
       * [UInt256Json](#uint256json)
@@ -68,25 +68,24 @@ UInt256 is the output of the SHA-256 hash function. It is 32 bytes.
 #### ElementModQJson
 
 ElementModQ is an element of the Z_q modular group. 
-For both "Integer4096" and "P-256" its serialization is a byte array of 32 bytes long.
+For both "Integer4096" and "P-256", its serialization is a byte array of 32 bytes.
 
 #### ElementModPJson
 
 ElementModP is an element of the Z_p modular group. 
 
-For "Integer4096" its serialization is a byte array of 512 bytes. 
+For group "Integer4096", its serialization is a byte array of 512 bytes. 
 
-For group "P-256" its serialization is a byte array of 33 bytes, encoded as a point-compressed elliptic curve coordinate as specified in
-[The Elliptic Curve Digital Signature Algorithm (ECDSA)](https://safecurves.cr.yp.to/grouper.ieee.org/groups/1363/private/x9-62-09-20-98.pdf)
-, section 4.2.1.
+For group "P-256", its serialization is a byte array of 33 bytes, encoded as a point-compressed elliptic curve coordinate as specified in
+[The Elliptic Curve Digital Signature Algorithm (ECDSA)](https://safecurves.cr.yp.to/grouper.ieee.org/groups/1363/private/x9-62-09-20-98.pdf), section 4.2.1.
 
 
 ### Manifest
 
 The current manifest.json is some version of common standards developed by NIST and others, possibly captured 
 at [Election Results Reporting Common Data Format (CDF) Specification](https://github.com/usnistgov/ElectionResultsReporting).
-For our purposes, we only need a small subset of this information, described by the following interface. When the
-electionguard serialization formats are standardized, we will implement those.
+For our purposes, we only need a small subset of this information, described by the following interface. (When the
+electionguard serialization formats are standardized, we will implement those.)
 
 ````
 interface ManifestIF {
@@ -104,10 +103,10 @@ interface ManifestIF {
         val sequenceOrder: Int
     }
 
-    /** get the sorted contests for the given ballotStyle */
+    /** get the sorted contests for the given ballotStyle id */
     fun contestsForBallotStyle(ballotStyleId : String): List<Contest>?
 
-    /** get the contest for the given contestId */
+    /** get the contest for the given contest id */
     fun findContest(contestId: String): Contest?
 
     /** get the contest selection limit (aka votesAllowed) for the given contest id */
@@ -361,12 +360,11 @@ data class EncryptedBallotJson(
     val timestamp: Long,  // Timestamp at which the ballot encryption is generated, in seconds since the epoch UTC.
     val code_baux: String, // Baux in eq 59
     val confirmation_code: UInt256Json,
-    val election_id: UInt256Json,
+    val election_id: UInt256Json,  // safety check this belongs to the right election
     val contests: List<EncryptedContestJson>,
     val state: String, // BallotState
     val encrypted_sn: ElGamalCiphertextJson?,
     val is_preencrypt: Boolean,
-    val primary_nonce: UInt256Json?, // only when uncast
 )
 
 @Serializable
@@ -670,7 +668,7 @@ data class DecryptedTallyOrBallotJson(
 data class DecryptedContestJson(
     val contest_id: String,
     val selections: List<DecryptedSelectionJson>,
-    val ballot_count: Int,                     // number of ballots voting on this contest
+    val ballot_count: Int,                     // number of ballots voting on this contest (for tally)
     val decrypted_contest_data: DecryptedContestDataJson?, //  ballot decryption only
 )
 
@@ -681,6 +679,14 @@ data class DecryptedSelectionJson(
     val b_over_m: ElementModPJson, // eq 65
     val encrypted_vote: ElGamalCiphertextJson,
     val proof: ChaumPedersenJson,
+)
+
+@Serializable
+data class DecryptedContestDataJson(
+    val contest_data: ContestDataJson,
+    val encrypted_contest_data: HashedElGamalCiphertextJson,  // matches EncryptedBallotContest.encrypted_contest_data
+    val proof: ChaumPedersenJson,
+    val beta: ElementModPJson, //  β = C0^s mod p ; needed to verify 10.2
 )
 
 // (incomplete) strawman for contest data (section 3.3.7)
@@ -694,6 +700,7 @@ data class ContestDataJson(
     val write_ins: List<String>, //  list of write_in strings
     val status: String,
 )
+
 ````
 
 Example:

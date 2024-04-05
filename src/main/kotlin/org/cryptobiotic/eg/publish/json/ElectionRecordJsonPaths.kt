@@ -1,16 +1,62 @@
 package org.cryptobiotic.eg.publish.json
 
+/*
+````
+topdir/
+    constants.json
+    election_config.json
+    election_initialized.json
+    encrypted_tally.json
+    manifest.json
+    tally.json
+
+    encrypted_ballots/
+      eballot-<ballotId>.json
+      eballot-<ballotId>.json
+      eballot-<ballotId>.json
+      ...
+
+    challenged_ballots/
+      dballot-<ballotId>.json
+      dballot-<ballotId>.json
+      dballot-<ballotId>.json
+      ...
+````
+
+The encrypted_ballots directory may optionally be divided into "device" subdirectories.
+If using ballot chaining, each such subdirectory is a separate ballot chain.
+
+````
+topdir/
+    ...
+    encrypted_ballots/
+       deviceName1/
+          ballot_chain.json
+          eballot-<ballotId>.json
+          eballot-<ballotId>.json
+          eballot-<ballotId>.json
+          ...
+        deviceName2/
+          ballot_chain.json
+          eballot-<ballotId>.json
+          eballot-<ballotId>.json
+          eballot-<ballotId>.json
+        deviceName3/
+           ...
+````
+ */
+
 data class ElectionRecordJsonPaths(val topDir : String) {
     private val electionRecordDir = topDir
 
     companion object {
         const val JSON_SUFFIX = ".json"
         const val DECRYPTING_TRUSTEE_PREFIX = "decryptingTrustee"
-        const val MANIFEST_FILE = "manifest$JSON_SUFFIX"
         const val ELECTION_CONSTANTS_FILE = "constants$JSON_SUFFIX"
         const val ELECTION_CONFIG_FILE = "election_config$JSON_SUFFIX"
         const val ELECTION_INITIALIZED_FILE = "election_initialized$JSON_SUFFIX"
         const val ENCRYPTED_TALLY_FILE = "encrypted_tally$JSON_SUFFIX"
+        const val MANIFEST_FILE = "manifest$JSON_SUFFIX"
         const val DECRYPTED_TALLY_FILE = "tally$JSON_SUFFIX"
 
         const val ENCRYPTED_BALLOT_PREFIX = "eballot-"

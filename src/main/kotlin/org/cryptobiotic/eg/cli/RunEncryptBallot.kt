@@ -21,7 +21,6 @@ import org.cryptobiotic.eg.publish.EncryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.util.ErrorMessages
-import kotlin.system.exitProcess
 
 /**
  * Reads a plaintext ballot from disk and writes its encryption to disk.
@@ -36,10 +35,10 @@ class RunEncryptBallot {
         @JvmStatic
         fun main(args: Array<String>) {
             val parser = ArgParser("RunEncryptBallot")
-            val configDir by parser.option(
+            val inputDir by parser.option(
                 ArgType.String,
-                shortName = "config",
-                description = "Directory containing election configuration"
+                shortName = "in",
+                description = "Directory containing input election record"
             ).required()
             val device by parser.option(
                 ArgType.String,
@@ -59,13 +58,13 @@ class RunEncryptBallot {
             parser.parse(args)
 
             logger.info {
-                "starting\n configDir= $configDir\n ballotFilename= $ballotFilename\n encryptBallotDir = $encryptBallotDir\n device = $device"
+                "starting\n inputDir= $inputDir\n ballotFilename= $ballotFilename\n encryptBallotDir = $encryptBallotDir\n device = $device"
             }
 
-            val consumerIn = makeConsumer(configDir)
+            val consumerIn = makeConsumer(inputDir)
             try {
                 if (ballotFilename == "CLOSE") {
-                    exitProcess( close(consumerIn.group, device, encryptBallotDir))
+                   close(consumerIn.group, device, encryptBallotDir)
                 } else {
                     val retval = encryptBallot(
                         consumerIn,
@@ -75,13 +74,13 @@ class RunEncryptBallot {
                     )
                     if (retval != 0) {
                         logger.info { "encryptBallot retval=$retval" }
-                        exitProcess(retval)
+                        // exitProcess(retval)
                     }
                 }
 
             } catch (t: Throwable) {
                 logger.error(t) { "failed ${t.message}" }
-                exitProcess(10)
+                // exitProcess(10)
             }
         }
 

@@ -8,7 +8,7 @@ import com.github.michaelbull.result.unwrapError
 data class PublicKeys(
     val guardianId: String,
     val guardianXCoordinate: Int,
-    val coefficientProofs: List<SchnorrProof>, // contains the coefficientCommitments and public key
+    val coefficientProofs: List<SchnorrProof>, // contain the coefficient public commitment and public key
 ) {
     init {
         require(guardianId.isNotEmpty())

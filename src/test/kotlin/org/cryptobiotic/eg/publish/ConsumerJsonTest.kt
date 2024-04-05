@@ -1,76 +1,77 @@
 package org.cryptobiotic.eg.publish
 
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.datatest.withData
+import org.cryptobiotic.eg.cli.ManifestBuilder.Companion.electionScopeId
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.Test
 
-import org.cryptobiotic.eg.cli.ManifestBuilder.Companion.electionScopeId
+class ConsumerJsonTest {
+    val detail = false
+    val topdirs = listOf("src/test/data/workflow/someAvailable",
+                         "src/test/data/workflow/someAvailableEc",
+                         "src/test/data/workflow/allAvailable",
+                         "src/test/data/workflow/allAvailableEc",
+                         "src/test/data/encrypt/testBallotChain",
+                         "src/test/data/encrypt/testBallotNoChain",
+                         "src/test/data/encrypt/testChallenged",
+    )
 
-class ConsumerJsonTest : FunSpec({
-    val inputIg = "src/test/data/workflow/someAvailable"
-    val inputEc = "src/test/data/workflow/someAvailableEc"
-    context("ConsumerJson tests") {
-        withData(inputIg, inputEc) { topDir ->
-            testElectionRecord(topDir)
-            readChallengedBallots(topDir)
-            readEncryptedBallots(topDir)
-            readEncryptedBallotsCast(topDir)
-            readAllChallengedBallots(topDir)
+    @Test
+    fun testElectionRecord() {
+        topdirs.forEach { topdir ->
+            val electionRecord = readElectionRecord(topdir)
+            val electionInit = electionRecord.electionInit()
+            if (electionInit == null) {
+                println("readElectionRecord error $topdir")
+            }
+
+            val manifest = electionRecord.manifest()
+            assertEquals(electionScopeId, manifest.electionScopeId)
         }
     }
-})
 
-fun testElectionRecord(topdir: String) {
-    val electionRecord = readElectionRecord(topdir)
-    val electionInit = electionRecord.electionInit()
+    @Test
+    fun iterateEncryptedBallots() {
+        topdirs.forEach { topdir ->
+            val consumerIn = makeConsumer(topdir)
+            val electionId = readElectionRecord(consumerIn).extendedBaseHash()
 
-    if (electionInit == null) {
-        println("readElectionRecord error $topdir")
+            var countEncrypted = 0
+            for (ballot in consumerIn.iterateAllEncryptedBallots { true }) {
+                if (detail) println(" $countEncrypted ballot = ${ballot.ballotId}")
+                assertTrue(ballot.electionId == electionId)
+                countEncrypted++
+            }
+
+            var countCast = 0
+            for (ballot in consumerIn.iterateAllCastBallots()) {
+                assertTrue(ballot.electionId == electionId)
+                countCast++
+            }
+
+            var countChallenged = 0
+            for (ballot in consumerIn.iterateAllChallengedBallots()) {
+                assertTrue(ballot.electionId == electionId)
+                countChallenged++
+            }
+
+            println("iterateEncryptedBallots cast = $countCast challenged = $countChallenged total = $countEncrypted for $topdir")
+            assertEquals(countEncrypted, countCast + countChallenged)
+        }
     }
 
-    val manifest = electionRecord.manifest()
-    println("electionRecord.manifest.specVersion = ${manifest.specVersion}")
-    assertEquals(electionScopeId, manifest.electionScopeId)
-    // assertEquals(protocolVersion, manifest.specVersion)
-}
-
-fun readChallengedBallots(topdir: String) {
-    val consumerIn = makeConsumer(topdir)
-    var count = 0
-    for (ballot in consumerIn.iterateDecryptedBallots()) {
-        println("$count tally = ${ballot.id}")
-        assertTrue(ballot.id.startsWith("ballot-id"))
-        count++
+    @Test
+    fun iterateDecryptedBallots() {
+        topdirs.forEach { topdir ->
+            val consumerIn = makeConsumer(topdir)
+            val electionId = readElectionRecord(consumerIn).extendedBaseHash()
+            var count = 0
+            for (ballot in consumerIn.iterateDecryptedBallots()) {
+                assertTrue(ballot.electionId == electionId)
+                count++
+            }
+            println("iterateDecryptedBallots count = $count for $topdir")
+        }
     }
-}
 
-fun readEncryptedBallots(topdir: String) {
-    val consumerIn = makeConsumer(topdir)
-    var count = 0
-    for (ballot in consumerIn.iterateAllEncryptedBallots { true }) {
-        println("$count ballot = ${ballot.ballotId}")
-        assertTrue(ballot.ballotId.contains("id-"))
-        count++
-    }
-}
-
-fun readEncryptedBallotsCast(topdir: String) {
-    val consumerIn = makeConsumer(topdir)
-    var count = 0
-    for (ballot in consumerIn.iterateAllCastBallots()) {
-        println("$count ballot = ${ballot.ballotId}")
-        assertTrue(ballot.ballotId.contains("id-"))
-        count++
-    }
-}
-
-fun readAllChallengedBallots(topdir: String) {
-    val consumerIn = makeConsumer(topdir)
-    var count = 0
-    for (ballot in consumerIn.iterateAllChallengedBallots()) {
-        println("$count ballot = ${ballot.ballotId}")
-        assertTrue(ballot.ballotId.contains("id-"))
-        count++
-    }
 }

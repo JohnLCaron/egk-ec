@@ -226,10 +226,12 @@ class VerifyEncryptedBallots(
     //////////////////////////////////////////////////////////////////////////////
     // ballot chaining without EncryptedBallotChain
 
-    fun verifyConfirmationChain2(consumer: Consumer, errs: ErrorMessages): Boolean {
+    fun assembleAndVerifyChains(consumer: Consumer, errs: ErrorMessages): Boolean {
         var allOk = true
-        consumer.encryptingDevices().forEach { device ->
-            verifyOneChain(consumer, device, errs)
+        val devices = consumer.encryptingDevices()
+
+        devices.forEach { device ->
+            assembleAndVerifyOneChain(consumer, device, errs)
             if (errs.hasErrors()) {
                 println(" device '$device' has errors $errs")
                 allOk = false
@@ -238,7 +240,7 @@ class VerifyEncryptedBallots(
         return allOk
     }
 
-    fun verifyOneChain(consumer: Consumer, device: String, errs: ErrorMessages) {
+    fun assembleAndVerifyOneChain(consumer: Consumer, device: String, errs: ErrorMessages) {
         val ballotChain: EncryptedBallotChain? =
             assembleChain(consumer, device, null, config.configBaux0, extendedBaseHash, errs)
         if (ballotChain == null) {

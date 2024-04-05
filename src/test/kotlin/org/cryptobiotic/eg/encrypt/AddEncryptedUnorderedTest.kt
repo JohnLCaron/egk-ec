@@ -13,15 +13,16 @@ import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.testOut
 
+// check AddEncryptedBallot doesnt depend on the order that ballots are submitted
 class AddEncryptedUnorderedTest {
     val input = "src/test/data/workflow/allAvailableEc"
-    val outputDirProto = "$testOut/encrypt/AddEncryptedUnorderedTest"
+    val outputDirTop = "$testOut/encrypt/addEncryptedBallot/UnorderedTest"
 
     val nballots = 3
 
     @Test
     fun testJustOneDevice() {
-        val outputDir = "$outputDirProto/testJustOne"
+        val outputDir = "$outputDirTop/testJustOne"
         val device = "device0"
 
         val electionRecord = readElectionRecord(input)
@@ -39,7 +40,6 @@ class AddEncryptedUnorderedTest {
             device,
             outputDir,
             "${outputDir}/invalidDir",
-            isJson = publisher.isJson(),
         )
         val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 
@@ -51,7 +51,7 @@ class AddEncryptedUnorderedTest {
             cballots.add(result)
         }
         cballots.shuffle()
-        cballots.forEach { encryptor.submit(it.confirmationCode, EncryptedBallot.BallotState.CAST) }
+        cballots.forEach { encryptor.cast(it.confirmationCode) }
         encryptor.close()
 
         checkOutput(outputDir, nballots, false)
@@ -59,7 +59,7 @@ class AddEncryptedUnorderedTest {
 
     @Test
     fun testMultipleDevices() {
-        val outputDir = "$outputDirProto/testMultipleDevices"
+        val outputDir = "$outputDirTop/testMultipleDevices"
 
         val electionRecord = readElectionRecord(input)
         val electionInit = electionRecord.electionInit()!!
@@ -77,7 +77,6 @@ class AddEncryptedUnorderedTest {
                 "device$it",
                 outputDir,
                 "$outputDir/invalidDir",
-                isJson = publisher.isJson(),
             )
             val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 
@@ -98,7 +97,7 @@ class AddEncryptedUnorderedTest {
 
     @Test
     fun testOneWithChain() {
-        val outputDir = "$outputDirProto/testOneWithChain"
+        val outputDir = "$outputDirTop/testOneWithChain"
         val device = "device0"
 
         val electionRecord = readElectionRecord(input)
@@ -118,7 +117,6 @@ class AddEncryptedUnorderedTest {
             device,
             outputDir,
             "${outputDir}/invalidDir",
-            isJson = publisher.isJson(),
         )
         val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 
@@ -138,7 +136,7 @@ class AddEncryptedUnorderedTest {
 
     @Test
     fun testMultipleDevicesChaining() {
-        val outputDir = "$outputDirProto/testMultipleDevicesChaining"
+        val outputDir = "$outputDirTop/testMultipleDevicesChaining"
 
         val electionRecord = readElectionRecord(input)
         val configWithChaining = electionRecord.config().copy(chainConfirmationCodes = true)
@@ -158,7 +156,6 @@ class AddEncryptedUnorderedTest {
                 "device$it",
                 outputDir,
                 "$outputDir/invalidDir",
-                isJson = publisher.isJson(),
             )
             val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 
@@ -180,7 +177,7 @@ class AddEncryptedUnorderedTest {
     // TODO concurrent modification exception
     @Test
     fun testCallMultipleTimes() {
-        val outputDir = "$outputDirProto/testCallMultipleTimes"
+        val outputDir = "$outputDirTop/testCallMultipleTimes"
         testMultipleCalls(outputDir, true, true, false)
         testMultipleCalls(outputDir, false, true, false)
         testMultipleCalls(outputDir, true, false, false)
@@ -222,7 +219,6 @@ class AddEncryptedUnorderedTest {
                     device,
                     outputDir,
                     "${outputDir}/invalidDir",
-                    isJson = publisher.isJson(),
                 )
                 val ballotProvider = RandomBallotProvider(electionRecord.manifest())
 

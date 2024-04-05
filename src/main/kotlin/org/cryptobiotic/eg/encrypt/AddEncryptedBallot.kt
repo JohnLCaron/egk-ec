@@ -34,7 +34,6 @@ class AddEncryptedBallot(
     val device: String,
     val outputDir: String, // write ballots to outputDir/encrypted_ballots/deviceName, must not have multiple writers to same directory
     val invalidDir: String, // write plaintext ballots that fail validation
-    val isJson: Boolean, // must match election record serialization type
 ) : Closeable {
     val publisher = makePublisher(outputDir, false)
     val consumerIn = makeConsumer(outputDir)
@@ -53,8 +52,8 @@ class AddEncryptedBallot(
         extendedBaseHash
     )
 
-    val sink: EncryptedBallotSinkIF = publisher.encryptedBallotSink(device)
-    var currentChain: EncryptedBallotChain? = null
+    private val sink: EncryptedBallotSinkIF = publisher.encryptedBallotSink(device)
+    private var currentChain: EncryptedBallotChain? = null
     private val pending = mutableMapOf<UInt256, PendingEncryptedBallot>() // key = ccode.toHex()
     private var closed = false
 
@@ -153,17 +152,8 @@ class AddEncryptedBallot(
             return Err("Tried to submit unknown ballot ccode=$ccode")
         }
         try {
-            val eballot = cballot.spoil()
+            val eballot = cballot.challenge()
             sink.writeEncryptedBallot(eballot) // record the encrypted, challenged ballot
-            if (chaining) {
-                currentChain = EncryptedBallotChain.writeChain(
-                    publisher,
-                    null,
-                    eballot.ballotId,
-                    eballot.confirmationCode,
-                    currentChain!!
-                )
-            }
 
             with(decryptor) {
                 val dballotResult: Result<PlaintextBallot, String> = eballot.decrypt(cballot.ballotNonce)
@@ -184,7 +174,7 @@ class AddEncryptedBallot(
         if (pending.isNotEmpty()) {
             val copyPending = pending.toMap() // make copy so it can be modified
             copyPending.keys.forEach {
-                logger.error { "pending Ciphertext ballot ${it} was not submitted, marking 'UNKNOWN'" }
+                logger.error { "pending Ciphertext ballot $it was not submitted, marking 'UNKNOWN'" }
                 submit(it, EncryptedBallot.BallotState.UNKNOWN)
             }
         }

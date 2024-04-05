@@ -2,7 +2,7 @@ package org.cryptobiotic.eg.keyceremony
 
 import org.cryptobiotic.eg.core.*
 
-/** Pi(x), spec 2.0.0, section 3.2.1. Must be kept secret. */
+/** Pi(x), spec 2.0, section 3.2.1. Must be kept secret. */
 data class ElectionPolynomial(
     val guardianId: String,
 
@@ -83,26 +83,6 @@ fun GroupContext.generatePolynomial(
         coefficients.add(keypair.secretKey.key)
         commitments.add(keypair.publicKey.key)
         proofs.add(keypair.schnorrProof(guardianXCoord, coeff))
-    }
-    return ElectionPolynomial(guardianId, coefficients, commitments, proofs)
-}
-
-// possibly only used in testing?
-fun GroupContext.regeneratePolynomial(
-    guardianId: String,
-    guardianXCoord: Int,
-    coefficients : List<ElementModQ>,
-): ElectionPolynomial {
-    val commitments = mutableListOf<ElementModP>()
-    val proofs = mutableListOf<SchnorrProof>()
-
-    var coeffIdx = 0
-    coefficients.forEach { privateKey ->
-        val publicKey = this.gPowP(privateKey)
-        val keypair = ElGamalKeypair(ElGamalSecretKey(privateKey), ElGamalPublicKey(publicKey))
-        commitments.add(keypair.publicKey.key)
-        proofs.add(keypair.schnorrProof(guardianXCoord, coeffIdx))
-        coeffIdx++
     }
     return ElectionPolynomial(guardianId, coefficients, commitments, proofs)
 }

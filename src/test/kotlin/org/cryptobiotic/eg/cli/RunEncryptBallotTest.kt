@@ -2,8 +2,6 @@ package org.cryptobiotic.eg.cli
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.unwrap
-import org.cryptobiotic.eg.core.ElGamalPublicKey
 import org.cryptobiotic.eg.core.removeAllFiles
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
@@ -39,7 +37,7 @@ class RunEncryptBallotTest {
 
         RunEncryptBallot.main(
             arrayOf(
-                "--configDir", inputDir,
+                "--inputDir", inputDir,
                 "--ballotFilename", "$outputDir/pballot-$ballotId.json",
                 "--encryptBallotDir", outputDir,
                 "-device", "device42",
@@ -53,9 +51,9 @@ class RunEncryptBallotTest {
     }
 
     @Test
-    fun testRunEncryptBallotNoChainingBut() {
+    fun testRunEncryptBallotsNoChaining() {
         val inputDir = "src/test/data/encrypt/testBallotNoChain"
-        val outputDir = "$testOut/encrypt/testRunEncryptBallotNoChainingBut"
+        val outputDir = "$testOut/encrypt/testRunEncryptBallotsNoChaining"
         val nballots = 10
 
         val consumerIn = makeConsumer(inputDir)
@@ -75,7 +73,7 @@ class RunEncryptBallotTest {
             val ballotFilename = "$outputDir/pballot-$ballotId.json"
             RunEncryptBallot.main(
                 arrayOf(
-                    "--configDir", inputDir,
+                    "--inputDir", inputDir,
                     "--ballotFilename", ballotFilename,
                     "--encryptBallotDir", outputDir,
                     "-device", "device42",
@@ -94,37 +92,42 @@ class RunEncryptBallotTest {
 
 
     @Test
-    fun testRunEncryptBallotChaining() {
+    fun testRunEncryptBallotsChaining() {
         val inputDir = "src/test/data/encrypt/testBallotChain"
-        val outputDir = "$testOut/encrypt/testRunEncryptBallotChaining"
+        val outputDir = "$testOut/encrypt/testRunEncryptBallotsChaining"
+        val device = "device42"
+        val outputDeviceDir = "$testOut/encrypt/testRunEncryptBallotsChaining/$device"
         val nballots = 10
 
         val consumerIn = makeConsumer(inputDir)
         val record = readElectionRecord(consumerIn)
         val manifest = record.manifest()
-        val publisher = makePublisher(outputDir, true)
+        val publisher = makePublisher(outputDeviceDir, true)
 
         val ballotProvider = RandomBallotProvider(manifest)
         repeat(nballots) {
             val ballotId = Random.nextInt().toString()
             val ballot = ballotProvider.getFakeBallot(manifest, null, ballotId)
 
-            publisher.writePlaintextBallot(outputDir, listOf(ballot))
+            publisher.writePlaintextBallot(outputDeviceDir, listOf(ballot))
 
-            val ballotFilename = "$outputDir/pballot-$ballotId.json"
+            val ballotFilename = "$outputDeviceDir/pballot-$ballotId.json"
             RunEncryptBallot.main(
                 arrayOf(
-                    "--configDir", inputDir,
+                    "--inputDir", inputDir,
                     "--ballotFilename", ballotFilename,
-                    "--encryptBallotDir", outputDir,
+                    "--encryptBallotDir", outputDeviceDir,
                     "-device", "device42",
                 )
             )
 
-            val result = consumerIn.readEncryptedBallot(outputDir, ballotId)
+            val result = consumerIn.readEncryptedBallot(outputDeviceDir, ballotId)
+            if (result is Err) {
+                println("Error = $result")
+            }
             assertTrue( result is Ok)
         }
-        val count = verifyOutput(inputDir, outputDir, true)
+        val count = verifyOutput(inputDir, outputDeviceDir, true)
         assertEquals(nballots, count)
     }
 }
@@ -155,7 +158,7 @@ fun verifyOutput(inputDir: String, ballotDir: String, chained: Boolean = false):
 
     if (chained) {
         val chainErrs = ErrorMessages("verifyConfirmationChain2")
-        val chainOk = verifier.verifyConfirmationChain2(consumerBallots, chainErrs)
+        val chainOk = verifier.assembleAndVerifyChains(consumerBallots, chainErrs)
         println("  verifyConfirmationChain2 $ballotDir: ok= $chainOk result= $errs")
         if (chainErrs.hasErrors()) {
             println(chainErrs)

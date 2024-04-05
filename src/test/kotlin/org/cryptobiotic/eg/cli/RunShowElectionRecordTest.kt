@@ -1,6 +1,5 @@
 package org.cryptobiotic.eg.cli
 
-import org.cryptobiotic.util.testOut
 import kotlin.test.Test
 
 class RunShowElectionRecordTest {
@@ -8,9 +7,30 @@ class RunShowElectionRecordTest {
     fun testRunShowElectionRecord() {
         RunShowElectionRecord.main(
             arrayOf(
-                "-in", "/home/stormy/tmp/testOut/egmixnet/working/public",
- //               "-in", "$testOut/workflow/allAvailableEc",
-                "-show", "ballots",
+                "-in", "src/test/data/workflow/allAvailableEc",
+                "-show", "all,constants,manifest,guardians,trustees,ballots",
+            )
+        )
+    }
+
+    @Test
+    fun testDetails() {
+        RunShowElectionRecord.main(
+            arrayOf(
+                "-in", "src/test/data/workflow/allAvailableEc",
+                "-show", "all,constants,manifest,guardians,trustees,ballots",
+                "--details"
+            )
+        )
+    }
+
+    @Test
+    fun testOneStyle() {
+        RunShowElectionRecord.main(
+            arrayOf(
+                "-in", "src/test/data/workflow/allAvailableEc",
+                "-show", "manifest",
+                "-ballotStyle", "BallotStyle5",
             )
         )
     }

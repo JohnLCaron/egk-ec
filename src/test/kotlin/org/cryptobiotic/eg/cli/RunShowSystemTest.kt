@@ -8,8 +8,7 @@ class RunShowSystemTest {
     fun testRunShowSystem() {
         RunShowSystem.main(
             arrayOf(
-                "-set", "/usr/local/lib:/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib",
-                "-show", "hasVEC",
+                "-show", "properties,java.library.path,hasVEC",
             )
         )
     }

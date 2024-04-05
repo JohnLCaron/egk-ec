@@ -11,7 +11,6 @@ import org.cryptobiotic.eg.publish.DecryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.EncryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.Publisher
 import java.io.FileOutputStream
-import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
@@ -168,20 +167,6 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
         }
     }
 
-}
-
-// not used for now, keep for proto or batch
-fun writeVlen(input: Int, output: OutputStream) {
-    var value = input
-    while (true) {
-        if (value and 0x7F.inv() == 0) {
-            output.write(value)
-            return
-        } else {
-            output.write(value and 0x7F or 0x80)
-            value = value ushr 7
-        }
-    }
 }
 
 /** Make sure output directories exists and are writeable.  */

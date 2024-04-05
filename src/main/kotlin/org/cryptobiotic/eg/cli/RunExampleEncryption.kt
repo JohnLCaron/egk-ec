@@ -19,7 +19,7 @@ import kotlin.system.exitProcess
  * Simulates using RunEncryptBallot one ballot at a time.
  * Note that chaining is controlled by config.chainConfirmationCodes, and handled by RunEncryptBallot.
  * Note that this does not allow for benolah challenge, ie voter submits a ballot, gets a confirmation code
- * (with or without ballot chaining), then decide to challenge or cast. */
+ * (with or without ballot chaining), then decide to challenge or cast. So all ballots are cast. */
 class RunExampleEncryption {
 
     companion object {
@@ -28,10 +28,10 @@ class RunExampleEncryption {
         @JvmStatic
         fun main(args: Array<String>) {
             val parser = ArgParser("RunExampleEncryption")
-            val configDir by parser.option(
+            val inputDir by parser.option(
                 ArgType.String,
-                shortName = "config",
-                description = "Directory containing election configuration"
+                shortName = "in",
+                description = "Directory containing input election record"
             ).required()
             val nballots by parser.option(
                 ArgType.Int,
@@ -57,16 +57,16 @@ class RunExampleEncryption {
                 ArgType.Boolean,
                 shortName = "deviceDir",
                 description = "Add device name to encrypted ballots directory"
-            ).default(false)
+            ).default(true)
             parser.parse(args)
 
             val devices = deviceNames.split(",")
             logger.info {
-                "starting\n configDir= $configDir\n  nballots= $nballots\n  plaintextBallotDir = $plaintextBallotDir\n" +
+                "starting\n inputDir= $inputDir\n  nballots= $nballots\n  plaintextBallotDir = $plaintextBallotDir\n" +
                         "  encryptBallotDir = $encryptBallotDir\n  devices = $devices\n  addDeviceNameToDir= $addDeviceNameToDir"
             }
 
-            val consumerIn = makeConsumer(configDir)
+            val consumerIn = makeConsumer(inputDir)
             val initResult = consumerIn.readElectionInitialized()
             if (initResult is Err) {
                 logger.error { "readElectionInitialized error ${initResult.error}" }
@@ -79,6 +79,7 @@ class RunExampleEncryption {
                 logger.error { "ManifestInputValidation error ${errors}" }
                 throw RuntimeException("ManifestInputValidation error $errors")
             }
+            val chaining = electionInit.config.chainConfirmationCodes
             val publisher = makePublisher(plaintextBallotDir)
             var allOk = true
 
@@ -89,7 +90,7 @@ class RunExampleEncryption {
                 val pballotFilename = "$plaintextBallotDir/pballot-${pballot.ballotId}.json"
                 val deviceIdx = if(devices.size == 1) 0 else Random.nextInt(devices.size)
                 val device = devices[deviceIdx]
-                val eballotDir = if (addDeviceNameToDir) "$encryptBallotDir/$device" else encryptBallotDir
+                val eballotDir = if (chaining || addDeviceNameToDir) "$encryptBallotDir/$device" else encryptBallotDir
                 createDirectories(eballotDir)
 
                 val retval = RunEncryptBallot.encryptBallot(
@@ -100,9 +101,9 @@ class RunExampleEncryption {
                 )
                 if (retval != 0) allOk = false
             }
-            if (electionInit.config.chainConfirmationCodes) {
+            if (chaining) {
                 devices.forEach { device ->
-                    val eballotDir = if (addDeviceNameToDir) "$encryptBallotDir/$device" else encryptBallotDir
+                    val eballotDir = "$encryptBallotDir/$device"
                     if (RunEncryptBallot.close(consumerIn.group, device, eballotDir) != 0) allOk = false
                 }
             }

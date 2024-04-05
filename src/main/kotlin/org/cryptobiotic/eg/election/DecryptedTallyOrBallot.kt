@@ -1,5 +1,8 @@
 package org.cryptobiotic.eg.election
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import org.cryptobiotic.eg.core.*
 
 /**
@@ -57,13 +60,55 @@ data class DecryptedTallyOrBallot(
         }
     }
 
-    fun show() : String = buildString {
-        appendLine("Ballot ${id}")
+    fun show(details: Boolean, manifest: Manifest): String = buildString {
+        appendLine(" DecryptedTallyOrBallot $id")
+        contests.sortedBy { it.contestId }.forEach { contest ->
+            if (details) {
+                appendLine("  Contest ${contest.contestId}")
+                contest.selections.sortedBy { -it.tally }.forEach {
+                    val candidate =
+                        manifest.selectionCandidate["${contest.contestId}/${it.selectionId}"] ?: "unknown"
+                    appendLine("   $candidate (${it.selectionId}) = ${it.tally}")
+                }
+            } else {
+                append("  ${contest.contestId}")
+                contest.selections.sortedBy { -it.tally }.forEach {
+                    val candidate =
+                        manifest.selectionCandidate["${contest.contestId}/${it.selectionId}"] ?: "unknown"
+                    append("   ${candidate} (${it.tally})")
+                }
+            }
+            appendLine()
+        }
+    }
+
+    fun compare(pballot: PlaintextBallot): Result<Boolean, String> {
+        val errs = mutableListOf<String>()
+        if (pballot.contests.size != contests.size) {
+            errs.add("Number of contests differ ${pballot.contests.size} != ${contests.size}")
+        }
+        val pcontests = pballot.contests.associateBy { it.contestId }
         contests.forEach { contest ->
-            appendLine("  Contest ${contest.contestId}")
-            contest.selections.forEach {
-                appendLine("    Selection ${it.selectionId} ${it.tally} ")
+            val pcontest = pcontests[contest.contestId]
+            if (pcontest == null) {
+                errs.add("Cant find ${contest.contestId}")
+            } else {
+                if (pcontest.selections.size != contest.selections.size) {
+                    errs.add("Number of selections for ${contest.contestId} differ ${pcontest.selections.size} != ${contest.selections}")
+                }
+
+                val pselections = pcontest.selections.associateBy { it.selectionId }
+                contest.selections.forEach { selection ->
+                    val pselection = pselections[selection.selectionId]
+                    if (pselection == null) {
+                        errs.add("Cant find ${contest.contestId}/${selection.selectionId}")
+                    } else {
+                        if (pselection.vote != selection.tally)
+                            errs.add(" Error ${contest.contestId}/${selection.selectionId} ${pselection.vote} != ${selection.tally}")
+                    }
+                }
             }
         }
+        return if (errs.isEmpty()) Ok(true) else Err(errs.joinToString(","))
     }
 }

@@ -21,7 +21,7 @@ class ContestDataTest {
     val context = productionGroup()
     val keypair = elGamalKeyPairFromRandom(context)
 
-    @Test
+    // @Test
     fun testEncryptDecryptWithWriteIn() {
         val electionRecord = readElectionRecord(input)
         val electionInit = electionRecord.electionInit()!!

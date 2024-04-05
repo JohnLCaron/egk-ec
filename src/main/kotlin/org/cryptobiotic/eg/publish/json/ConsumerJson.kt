@@ -161,33 +161,6 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         return iter.iterator().hasNext()
     }
 
-    override fun encryptingDevices(): List<String> {
-        val topBallotPath = Path.of(jsonPaths.encryptedBallotDir())
-        if (!Files.exists(topBallotPath)) {
-            return emptyList()
-        }
-        val deviceDirs: List<Path> = Files.list(topBallotPath).filter { Files.isDirectory(it) }.toList()
-        if (deviceDirs.isEmpty()) return listOf("")
-        return deviceDirs.map { it.getName( it.nameCount - 1).toString() }.toList() // last name in the path
-    }
-
-    override fun readEncryptedBallotChain(device: String, ballotDir: String?) : Result<EncryptedBallotChain, ErrorMessages> {
-        val errs = ErrorMessages("readEncryptedBallotChain device '$device'")
-        val ballotChainPath = Path.of(jsonPaths.encryptedBallotChain(device, ballotDir))
-        if (!Files.exists(ballotChainPath)) {
-            return errs.add("'$ballotChainPath' file does not exist")
-        }
-        return try {
-            fileSystemProvider.newInputStream(ballotChainPath, StandardOpenOption.READ).use { inp ->
-                val json = jsonReader.decodeFromStream<EncryptedBallotChainJson>(inp)
-                val chain = json.import(errs)
-                if (errs.hasErrors()) Err(errs) else Ok(chain!!)
-            }
-        } catch (t: Throwable) {
-            errs.add("Exception= ${t.message} ${t.stackTraceToString()}")
-        }
-    }
-
     override fun iterateEncryptedBallotsFromDir(ballotDir: String, pathFilter: Predicate<Path>?, filter: Predicate<EncryptedBallot>? ): Iterable<EncryptedBallot> {
         val path = fileSystem.getPath(ballotDir)
         if (!Files.exists(path)) {
@@ -210,6 +183,23 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         }
     }
 
+    override fun iterateAllEncryptedBallots(filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot> {
+        val devices = encryptingDevices()
+        return Iterable { DeviceIterator(devices.iterator(), filter) }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////
+
+    override fun encryptingDevices(): List<String> {
+        val topBallotPath = Path.of(jsonPaths.encryptedBallotDir())
+        if (!Files.exists(topBallotPath)) {
+            return emptyList()
+        }
+        val deviceDirs: List<Path> = Files.list(topBallotPath).filter { Files.isDirectory(it) }.toList()
+        if (deviceDirs.isEmpty()) return listOf("") // this allows reading encrypted_ballots when there are no device subdirectories
+        return deviceDirs.map { it.getName( it.nameCount - 1).toString() }.toList() // last name in the path
+    }
+
     override fun iterateEncryptedBallots(device: String, filter : Predicate<EncryptedBallot>?): Iterable<EncryptedBallot> {
         val deviceDirPath = Path.of(jsonPaths.encryptedBallotDir(device))
         if (!Files.exists(deviceDirPath)) {
@@ -224,9 +214,21 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         return Iterable { EncryptedBallotFileIterator(deviceDirPath, null, filter) }
     }
 
-    override fun iterateAllEncryptedBallots(filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot> {
-        val devices = encryptingDevices()
-        return Iterable { DeviceIterator(devices.iterator(), filter) }
+    override fun readEncryptedBallotChain(device: String, ballotOverrideDir: String?) : Result<EncryptedBallotChain, ErrorMessages> {
+        val errs = ErrorMessages("readEncryptedBallotChain device '$device'")
+        val ballotChainPath = Path.of(jsonPaths.encryptedBallotChain(device, ballotOverrideDir))
+        if (!Files.exists(ballotChainPath)) {
+            return errs.add("'$ballotChainPath' file does not exist")
+        }
+        return try {
+            fileSystemProvider.newInputStream(ballotChainPath, StandardOpenOption.READ).use { inp ->
+                val json = jsonReader.decodeFromStream<EncryptedBallotChainJson>(inp)
+                val chain = json.import(errs)
+                if (errs.hasErrors()) Err(errs) else Ok(chain!!)
+            }
+        } catch (t: Throwable) {
+            errs.add("Exception= ${t.message} ${t.stackTraceToString()}")
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -577,25 +579,4 @@ fun Path.pathListNoDirs(filter: Predicate<Path>?): List<Path> {
     return Files.walk(this, 1).use { fileStream ->
         fileStream.filter { it != this && !it.isDirectory() &&  (filter == null || filter.test(it)) }.toList()
     }
-}
-
-// variable length (base 128) int32
-fun readVlen(input: InputStream): Int {
-    var ib: Int = input.read()
-    if (ib == -1) {
-        return -1
-    }
-
-    var result = ib.and(0x7F)
-    var shift = 7
-    while (ib.and(0x80) != 0) {
-        ib = input.read()
-        if (ib == -1) {
-            return -1
-        }
-        val im = ib.and(0x7F).shl(shift)
-        result = result.or(im)
-        shift += 7
-    }
-    return result
 }

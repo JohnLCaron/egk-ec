@@ -18,12 +18,11 @@ data class EncryptedBallotJson(
     val timestamp: Long, // Timestamp at which the ballot encryption is generated, in seconds since the epoch UTC.
     val code_baux: String, // Baux in eq 59
     val confirmation_code: UInt256Json,
-    val election_id: UInt256Json,
+    val election_id: UInt256Json,  // safety check this belongs to the right election
     val contests: List<EncryptedContestJson>,
     val state: String, // BallotState
     val encrypted_sn: ElGamalCiphertextJson?,
     val is_preencrypt: Boolean,
-    val primary_nonce: UInt256Json?, // only when uncast
 )
 
 @Serializable
@@ -45,7 +44,7 @@ data class EncryptedSelectionJson(
     val proof: RangeProofJson,
 )
 
-fun EncryptedBallot.publishJson(primaryNonce : UInt256? = null): EncryptedBallotJson {
+fun EncryptedBallot.publishJson(): EncryptedBallotJson {
     val contests = this.contests.map { econtest ->
 
         EncryptedContestJson(
@@ -78,7 +77,6 @@ fun EncryptedBallot.publishJson(primaryNonce : UInt256? = null): EncryptedBallot
         this.state.name,
         this.encryptedSn?.publishJson(),
         this.isPreencrypt,
-        primaryNonce?.publishJson(),
     )
 }
 
@@ -154,7 +152,6 @@ fun EncryptedBallot.publishJson(recordedPreBallot: RecordedPreBallot) = Encrypte
     this.state.name,
     this.encryptedSn?.publishJson(),
     true,
-    null,
 )
 
 private fun EncryptedBallot.Contest.publishJson(recordedPreBallot: RecordedPreBallot): EncryptedContestJson {

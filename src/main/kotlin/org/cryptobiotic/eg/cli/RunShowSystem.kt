@@ -30,16 +30,10 @@ class RunShowSystem {
                 shortName = "set",
                 description = "set java.library.path"
             )
-            val showTally by parser.option(
-                ArgType.String,
-                shortName = "tally",
-                description = "summarize tally results"
-            )
             parser.parse(args)
 
             val showSet = if (show == null) emptySet() else show!!.split(",").toSet()
             showSystem(ShowSet(showSet), setPath)
-            if (showTally != null) showTally()
         }
 
         class ShowSet(val want: Set<String>) {
@@ -92,8 +86,5 @@ class RunShowSystem {
             }
         }
 
-        fun showTally() {
-            //TODO
-        }
     }
 }

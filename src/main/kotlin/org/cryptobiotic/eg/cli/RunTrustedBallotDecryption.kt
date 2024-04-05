@@ -115,7 +115,7 @@ class RunTrustedBallotDecryption {
 
             val ballotIter: Iterable<EncryptedBallot> =
                 when {
-                    (decryptChallenged == null) -> {
+                    (decryptChallenged == null) || (decryptChallenged == "challenged") -> {
                         logger.info {" use all challenged" }
                         consumerIn.iterateAllChallengedBallots()
                     }

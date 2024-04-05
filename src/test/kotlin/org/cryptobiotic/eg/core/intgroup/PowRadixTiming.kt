@@ -54,7 +54,7 @@ class PowRadixTiming {
         val groupExtreme = productionIntGroup(PowRadixOption.EXTREME_MEMORY_USE, ProductionMode.Mode4096 )
         val nonce = groupExtreme.randomElementModQ()
         groupExtreme.gPowP(nonce) // first time fills table
-        testWarmup(groupExtreme)
+        compareExp(groupExtreme,100)
     }
     // PowRadixOption.EXTREME_MEMORY_USE
     //   0 acc 1000 = .463 msec per acc
