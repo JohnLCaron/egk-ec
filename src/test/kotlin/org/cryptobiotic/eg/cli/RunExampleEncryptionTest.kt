@@ -17,7 +17,7 @@ class RunExampleEncryptionTest {
 
         RunExampleEncryption.main(
                 arrayOf(
-                    "--configDir", inputDir,
+                    "--inputDir", inputDir,
                     "--nballots", nballots.toString(),
                     "--plaintextBallotDir", "$outputDir/plaintext",
                     "--encryptBallotDir", "$outputDir/encrypted_ballots",
@@ -41,7 +41,7 @@ class RunExampleEncryptionTest {
 
         RunExampleEncryption.main(
             arrayOf(
-                "--configDir", inputDir,
+                "--inputDir", inputDir,
                 "--nballots", nballots.toString(),
                 "--plaintextBallotDir", "$outputDir/plaintext",
                 "-device", "device42,device11",

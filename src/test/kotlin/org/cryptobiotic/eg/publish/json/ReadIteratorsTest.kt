@@ -40,7 +40,7 @@ class ReadIteratorsTest {
 
         if (chained) {
             val chainErrs = ErrorMessages("verifyConfirmationChain")
-            val chainOk = verifier.verifyConfirmationChain2(consumerBallots, chainErrs)
+            val chainOk = verifier.assembleAndVerifyChains(consumerBallots, chainErrs)
             println("  verifyConfirmationChain: ok= $chainOk result= $errs")
             assertFalse(chainErrs.hasErrors())
         }

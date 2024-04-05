@@ -1,19 +1,29 @@
 package org.cryptobiotic.eg.workflow
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
 import org.cryptobiotic.eg.cli.RunAccumulateTally.Companion.runAccumulateBallots
 import org.cryptobiotic.eg.cli.RunBatchEncryption.Companion.batchEncryption
+import org.cryptobiotic.eg.cli.RunTrustedBallotDecryption.Companion.runDecryptBallots
 import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption.Companion.runDecryptTally
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.election.*
+import org.cryptobiotic.eg.encrypt.AddEncryptedBallot
+import org.cryptobiotic.eg.encrypt.compare
+import org.cryptobiotic.eg.input.BallotInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.verifier.Verifier
+import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
 import org.cryptobiotic.util.testOut
+import kotlin.random.Random
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -51,7 +61,7 @@ class TestWorkflow {
         makePublisher(workingDir, true)
 
         // key ceremony
-        val (manifest, init) = runFakeKeyCeremony(
+        val (manifest, electionInit) = runFakeKeyCeremony(
             configDirJson,
             workingDir,
             trusteeDir,
@@ -69,21 +79,40 @@ class TestWorkflow {
         println("RandomBallotProvider created ${ballots.size} ballots")
 
         // encrypt
-        batchEncryption(
-            inputDir = workingDir, ballotDir = ballotsDir, device = "runWorkflowDevice",
-            outputDir = workingDir, null, invalidDir = invalidDir, nthreads, "createdBy"
+        val encryptor = AddEncryptedBallot(
+            manifest,
+            BallotInputValidation(manifest),
+            electionInit.config.chainConfirmationCodes,
+            electionInit.config.configBaux0,
+            electionInit.jointPublicKey,
+            electionInit.extendedBaseHash,
+            device = "runWorkflowDevice",
+            outputDir = workingDir,
+            invalidDir = invalidDir,
         )
+        val nchallenged = encrypt(ballots, encryptor)
 
         // tally
         runAccumulateBallots(workingDir, workingDir, null, "RunWorkflow", "createdBy")
 
         // decrypt tally
+        val trustees = readDecryptingTrustees(workingDir, trusteeDir, electionInit, present)
         runDecryptTally(
             workingDir,
             workingDir,
-            readDecryptingTrustees(workingDir, trusteeDir, init, present),
+            trustees,
             "runWorkflowCreator"
         )
+
+        // decrypt challenged ballots
+        val ndecrypted = runDecryptBallots(
+            inputDir = workingDir,
+            outputDir = workingDir,
+            trustees,
+            "challenged",
+            11
+        )
+        assertEquals(nchallenged, ndecrypted)
 
         // verify
         println("\nRun Verifier")
@@ -104,5 +133,25 @@ class TestWorkflow {
     ): List<DecryptingTrusteeIF> {
         val consumer = makeConsumer(inputDir)
         return init.guardians.filter { present.contains(it.xCoordinate)}.map { consumer.readTrustee(trusteeDir, it.guardianId).unwrap() }
+    }
+
+    fun encrypt(ballots: List<PlaintextBallot>, encryptor : AddEncryptedBallot): Int {
+        var nchallenged = 0
+        ballots.forEach { ballot ->
+            val encrypted = encryptor.encrypt(ballot, ErrorMessages("testMultipleCalls"))
+            assertNotNull(encrypted)
+
+            val random = Random.nextInt(10)
+            val challengeThisOne = random < 2 // challenge 2 in 10
+            if (challengeThisOne) {
+                // println("  challenged ${encrypted.ballotId}")
+                val dresult = encryptor.challenge(encrypted.confirmationCode) // dont need to decrypt
+                assertTrue( dresult is Ok)
+                nchallenged++
+            } else {
+                encryptor.cast(encrypted.confirmationCode)
+            }
+        }
+        return nchallenged
     }
 }

@@ -93,7 +93,6 @@ data class ContestData(
 
     companion object {
         val logger = KotlinLogging.logger("ContestData")
-        private const val debug = false
         private const val BLOCK_SIZE : Int = 32
         private const val CHOP_WRITE_INS : Int = 30
 

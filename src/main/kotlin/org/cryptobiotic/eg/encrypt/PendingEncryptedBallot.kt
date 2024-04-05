@@ -41,7 +41,7 @@ fun PendingEncryptedBallot.cast(): EncryptedBallot {
     return this.submit(EncryptedBallot.BallotState.CAST)
 }
 
-fun PendingEncryptedBallot.spoil(): EncryptedBallot {
+fun PendingEncryptedBallot.challenge(): EncryptedBallot {
     return this.submit(EncryptedBallot.BallotState.CHALLENGED)
 }
 

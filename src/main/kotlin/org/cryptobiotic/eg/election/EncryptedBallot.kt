@@ -18,10 +18,11 @@ data class EncryptedBallot(
         override val state: BallotState,
         override val encryptedSn: ElGamalCiphertext? = null,
         val isPreencrypt: Boolean = false,
-        ) : EncryptedBallotIF {
+   ) : EncryptedBallotIF {
 
     init {
         require(ballotId.isNotEmpty())
+        require(ballotStyleId.isNotEmpty())
         require(contests.isNotEmpty())
     }
 

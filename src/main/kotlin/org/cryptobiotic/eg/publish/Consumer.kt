@@ -35,21 +35,19 @@ interface Consumer {
 
     /** Are there any encrypted ballots? */
     fun hasEncryptedBallots() : Boolean
-    /** The list of devices that have encrypted ballots. */
-    fun encryptingDevices(): List<String>
-    /**
-     * The encrypted ballot chain for the specified device.
-     * If the ballotDir is not overridden, then 'encrypted_ballots/device' will be used.
-     */
-    fun readEncryptedBallotChain(device: String, ballotDir: String? = null) : Result<EncryptedBallotChain, ErrorMessages>
     /** Read a specific file containing an encrypted ballot. */
     fun readEncryptedBallot(ballotDir: String, ballotId: String) : Result<EncryptedBallot, ErrorMessages>
-    /** Read encrypted ballots for specified device. */
-    fun iterateEncryptedBallots(device: String, filter : Predicate<EncryptedBallot>?): Iterable<EncryptedBallot>
     /** Read all encrypted ballots for all devices. */
     fun iterateAllEncryptedBallots(filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot>
     fun iterateAllCastBallots(): Iterable<EncryptedBallot>  = iterateAllEncryptedBallots{  it.state == EncryptedBallot.BallotState.CAST }
     fun iterateAllChallengedBallots(): Iterable<EncryptedBallot>  = iterateAllEncryptedBallots{  it.state == EncryptedBallot.BallotState.CHALLENGED }
+
+    /** The list of devices that have subdirectories in the encrypted ballots directory. */
+    fun encryptingDevices(): List<String>
+    /** Read encrypted ballots for specified device. */
+    fun iterateEncryptedBallots(device: String, filter : Predicate<EncryptedBallot>?): Iterable<EncryptedBallot>
+    /** Read  encrypted ballot chain for the specified device. If the ballotDir is not overridden, then 'encrypted_ballots/device' will be used. */
+    fun readEncryptedBallotChain(device: String, ballotOverrideDir: String? = null) : Result<EncryptedBallotChain, ErrorMessages>
 
     /** Read all decrypted ballots in the given directory, or the default if null. */
     fun iterateDecryptedBallots(ballotOverrideDir: String? = null): Iterable<DecryptedTallyOrBallot>
