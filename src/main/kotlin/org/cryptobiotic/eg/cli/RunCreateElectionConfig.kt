@@ -23,7 +23,7 @@ class RunCreateElectionConfig {
             val electionManifest by parser.option(
                 ArgType.String,
                 shortName = "manifest",
-                description = "Manifest file or directory (json or protobuf)"
+                description = "Manifest file or directory"
             ).required()
             val groupName by parser.option(
                 ArgType.String,
@@ -77,7 +77,7 @@ class RunCreateElectionConfig {
 
             val (_, _, manifestBytes) = readAndCheckManifest(electionManifest)
 
-            // As input, either specify the input directory that contains electionConfig.protobuf file,
+            // As input, either specify the election record directory,
             // OR the election manifest, nguardians and quorum.
             val config =
                 makeElectionConfig(

@@ -9,6 +9,7 @@ import java.nio.file.Path
 import java.util.function.Predicate
 import kotlin.test.assertFalse
 
+// TODO
 class ReadIteratorsTest {
 
     fun verifyOutput(inputDir: String, ballotDir: String, chained: Boolean = false) {
@@ -24,12 +25,7 @@ class ReadIteratorsTest {
         )
 
         val consumerBallots = makeConsumer(ballotDir, consumer.group)
-        // TODO should this be standard filter?
-        val pathFilter = Predicate<Path> {
-            val name = it.getFileName().toString()
-            name.startsWith("eballot")
-        }
-        val ballots = consumerBallots.iterateEncryptedBallotsFromDir(ballotDir, pathFilter, null )
+        val ballots = consumerBallots.iterateEncryptedBallotsFromDir(ballotDir, null )
         ballots.forEach {
             println("  ballot = ${it.ballotId}")
         }

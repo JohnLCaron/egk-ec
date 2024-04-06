@@ -1,9 +1,8 @@
 package org.cryptobiotic.eg.publish
 
 import org.cryptobiotic.eg.cli.ManifestBuilder.Companion.electionScopeId
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ConsumerJsonTest {
     val detail = false
@@ -39,19 +38,19 @@ class ConsumerJsonTest {
             var countEncrypted = 0
             for (ballot in consumerIn.iterateAllEncryptedBallots { true }) {
                 if (detail) println(" $countEncrypted ballot = ${ballot.ballotId}")
-                assertTrue(ballot.electionId == electionId)
+                assertEquals(ballot.electionId, electionId)
                 countEncrypted++
             }
 
             var countCast = 0
             for (ballot in consumerIn.iterateAllCastBallots()) {
-                assertTrue(ballot.electionId == electionId)
+                assertEquals(ballot.electionId, electionId)
                 countCast++
             }
 
             var countChallenged = 0
             for (ballot in consumerIn.iterateAllChallengedBallots()) {
-                assertTrue(ballot.electionId == electionId)
+                assertEquals(ballot.electionId, electionId)
                 countChallenged++
             }
 
@@ -67,11 +66,26 @@ class ConsumerJsonTest {
             val electionId = readElectionRecord(consumerIn).extendedBaseHash()
             var count = 0
             for (ballot in consumerIn.iterateDecryptedBallots()) {
-                assertTrue(ballot.electionId == electionId)
+                assertEquals(ballot.electionId, electionId)
                 count++
             }
             println("iterateDecryptedBallots count = $count for $topdir")
         }
+    }
+
+    // TODO how come this doesnt barf on ballot_chain.json ??
+    @Test
+    fun iterateEncryptedBallotsSkipChain() {
+        val topdir = "src/test/data/encrypt/testBallotChain"
+
+        val consumerIn = makeConsumer(topdir)
+        val electionId = readElectionRecord(consumerIn).extendedBaseHash()
+        var count = 0
+        for (ballot in consumerIn.iterateEncryptedBallotsFromDir("$topdir/encrypted_ballots/device1", null)) {
+            assertEquals(ballot.electionId, electionId)
+            count++
+        }
+        println("iterateDecryptedBallots count = $count for $topdir")
     }
 
 }

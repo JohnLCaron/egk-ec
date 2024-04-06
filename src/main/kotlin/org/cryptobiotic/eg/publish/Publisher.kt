@@ -5,7 +5,7 @@ import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import org.cryptobiotic.eg.publish.json.PublisherJson
 
-/** Write the Election Record as protobuf or json files. */
+/** Write the Election Record */
 interface Publisher {
     fun isJson() : Boolean
     fun topdir() : String

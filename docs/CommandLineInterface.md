@@ -115,7 +115,7 @@ java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
 ````
 Usage: RunCreateElectionConfig options_list
 Options: 
-    --electionManifest, -manifest -> Manifest file or directory (json or protobuf) (always required) { String }
+    --electionManifest, -manifest -> Manifest file or directory (always required) { String }
     --groupName, -group -> Group name  ('P-256' or 'Integer4096') (always required) { String }
     --nguardians, -nguardians -> number of guardians (always required) { Int }
     --quorum, -quorum -> quorum size (always required) { Int }
@@ -173,7 +173,7 @@ java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
 ````
 Usage: RunCreateInputBallots options_list
 Options: 
-    --manifestDirOrFile, -manifest -> Manifest file or directory (json or protobuf) (always required) { String }
+    --manifestDirOrFile, -manifest -> Manifest file or directory (always required) { String }
     --outputDir, -out -> Directory to write plaintext ballots (always required) { String }
     --nballots, -n [11] -> Number of ballots to generate { Int }
     --isJson, -json -> Generate Json ballots (default to manifest type) 
@@ -323,7 +323,7 @@ java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
 
 output:
 
-* outputDir/encrypted_tally.(json|protobuf)
+* outputDir/encrypted_tally.json
 
 Note that at this point in the cliWorkflow example, we are both reading from and writing to the electionRecord. A
 production workflow may be significantly different.
@@ -358,7 +358,7 @@ java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
 ````
 
 output:
-* outputDir/tally.(json|protobuf)
+* outputDir/tally.json
 
 ### Run trusted Ballot Decryption
 
@@ -378,10 +378,10 @@ Options:
 
 The decryptSpoiledList may be:
 
-1. a comma-delimited (no spaces) list of ballot Ids referencing encryptedBallots.protobuf
-2. a fully-qualified filename of a text file containing ballot Ids (one per line) referencing encryptedBallots.protobuf
-3. "All" -> decrypt all the ballots in encryptedBallots.protobuf
-4. omitted -> decrypt the ballots in encryptedBallots.protobuf that have been marked SPOILED.
+1. a comma-delimited (no spaces) list of ballot Ids
+2. a fully-qualified filename of a text file containing ballot Ids (one per line)
+3. "All" -> decrypt all the ballots
+4. "challenged" or omitted -> decrypt the ballots that have been marked CHALLENGED.
 
 Example:
 
