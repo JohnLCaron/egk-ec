@@ -55,7 +55,7 @@ class RunVerifier {
             }
 
             logger.debug { "${stopwatch.took()}" }
-            logger.info { "verified = ${allOk}" }
+            logger.info { "$inputDir verified = ${allOk}" }
             return allOk
         }
 

@@ -12,7 +12,6 @@ import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.testOut
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.function.Predicate
 import kotlin.random.Random
 import kotlin.test.*
 
@@ -94,7 +93,6 @@ class RunEncryptBallotTest {
     @Test
     fun testRunEncryptBallotsChaining() {
         val inputDir = "src/test/data/encrypt/testBallotChain"
-        val outputDir = "$testOut/encrypt/testRunEncryptBallotsChaining"
         val device = "device42"
         val outputDeviceDir = "$testOut/encrypt/testRunEncryptBallotsChaining/$device"
         val nballots = 10
@@ -145,12 +143,7 @@ fun verifyOutput(inputDir: String, ballotDir: String, chained: Boolean = false):
     )
 
     val consumerBallots = makeConsumer(ballotDir, consumer.group)
-    // TODO should this be standard filter?
-    val pathFilter = Predicate<Path> {
-        val name = it.getFileName().toString()
-        name.startsWith("eballot")
-    }
-    val ballots = consumerBallots.iterateEncryptedBallotsFromDir(ballotDir, pathFilter, null )
+    val ballots = consumerBallots.iterateEncryptedBallotsFromDir(ballotDir, null )
     val errs = ErrorMessages("verifyBallots")
     val (ok, count) = verifier.verifyBallots(ballots, errs)
     println("  verifyEncryptedBallots $ballotDir: ok= $ok result= $errs")

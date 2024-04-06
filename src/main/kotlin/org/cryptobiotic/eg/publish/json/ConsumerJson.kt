@@ -8,7 +8,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import java.io.ByteArrayInputStream
-import java.io.InputStream
 import java.nio.file.*
 import java.nio.file.spi.FileSystemProvider
 import java.util.function.Predicate
@@ -27,7 +26,7 @@ import org.cryptobiotic.util.ErrorMessages
  * There must at least be a constants.json and an election_config.json file. If not, then
  * the caller must provide the group.
  * [topDir] can be a directory or a zip file with the election record in it.
- * [usegroup] caller may provide the group to be used. Must match the election record.
+ * @param usegroup caller may provide the group to be used. Must match the election record.
  */
 class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consumer {
 
@@ -161,14 +160,6 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         return iter.iterator().hasNext()
     }
 
-    override fun iterateEncryptedBallotsFromDir(ballotDir: String, pathFilter: Predicate<Path>?, filter: Predicate<EncryptedBallot>? ): Iterable<EncryptedBallot> {
-        val path = fileSystem.getPath(ballotDir)
-        if (!Files.exists(path)) {
-            return emptyList()
-        }
-        return Iterable { EncryptedBallotFileIterator(path, pathFilter, filter) }
-    }
-
     override fun readEncryptedBallot(ballotDir: String, ballotId: String) : Result<EncryptedBallot, ErrorMessages> {
         val errs = ErrorMessages("readEncryptedBallot ballotId=$ballotId from directory $ballotDir")
         val ballotFilename = jsonPaths.encryptedBallotPath(ballotDir, ballotId)
@@ -186,6 +177,16 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
     override fun iterateAllEncryptedBallots(filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot> {
         val devices = encryptingDevices()
         return Iterable { DeviceIterator(devices.iterator(), filter) }
+    }
+
+    // TODO
+
+    override fun iterateEncryptedBallotsFromDir(ballotDir: String, filter: Predicate<EncryptedBallot>? ): Iterable<EncryptedBallot> {
+        val path = fileSystem.getPath(ballotDir)
+        if (!Files.exists(path)) {
+            return emptyList()
+        }
+        return Iterable { EncryptedBallotFileIterator(path, filter) }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
@@ -211,7 +212,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
             return Iterable { EncryptedBallotDeviceIterator(device, chain.ballotIds.iterator(), filter) }
         }
         // just read individual files
-        return Iterable { EncryptedBallotFileIterator(deviceDirPath, null, filter) }
+        return Iterable { EncryptedBallotFileIterator(deviceDirPath, filter) }
     }
 
     override fun readEncryptedBallotChain(device: String, ballotOverrideDir: String?) : Result<EncryptedBallotChain, ErrorMessages> {
@@ -436,7 +437,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         ballotDir: Path,
         private val filter: Predicate<PlaintextBallot>?
     ) : AbstractIterator<PlaintextBallot>() {
-        val pathList = ballotDir.pathListNoDirs(null)
+        val pathList = ballotDir.pathListNoDirs(PathFilter("pballot"))
         var idx = 0
 
         override fun computeNext() {
@@ -456,19 +457,12 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
     }
 
     //// Encrypted ballots iteration
-    // TODO how come this doesnt barf on ballot_chain/json ??
     private inner class EncryptedBallotFileIterator(
         ballotDir: Path,
-        filterPath: Predicate<Path>?,
-        private val filter: Predicate<EncryptedBallot>?,
+        private val filterBallot: Predicate<EncryptedBallot>?,
     ) : AbstractIterator<EncryptedBallot>() {
-        val pathList: List<Path>
+        val pathList: List<Path> = ballotDir.pathListNoDirs(PathFilter("eballot"))
         var idx = 0
-
-        init {
-            pathList = ballotDir.pathListNoDirs(filterPath)
-            idx = 0
-        }
 
         override fun computeNext() {
             while (idx < pathList.size) {
@@ -479,7 +473,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
                     if (errs.hasErrors()) {
                         logger.error { errs.toString() }
                     } else {
-                        if (filter == null || filter.test(encryptedBallot!!)) {
+                        if (filterBallot == null || filterBallot.test(encryptedBallot!!)) {
                             return setNext(encryptedBallot!!)
                         } // otherwise skip it
                     }
@@ -538,7 +532,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         ballotDir: Path,
         private val group: GroupContext,
     ) : AbstractIterator<DecryptedTallyOrBallot>() {
-        val pathList = ballotDir.pathListNoDirs(null)
+        val pathList = ballotDir.pathListNoDirs(PathFilter("dballot"))
         var idx = 0
 
         override fun computeNext() {
@@ -565,16 +559,14 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
 
 }
 
-fun Path.pathList(): List<Path> {
-    // LOOK does this sort?
-    // LOOK "API Note: This method must be used within a try-with-resources statement"
-    return Files.walk(this, 1).use { fileStream ->
-        fileStream.filter { it != this }.toList()
+private class PathFilter(val prefix: String): Predicate<Path> {
+    override fun test(t: Path): Boolean {
+        return t.getFileName().toString().startsWith(prefix)
     }
 }
 
 fun Path.pathListNoDirs(filter: Predicate<Path>?): List<Path> {
-    // LOOK does this sort?
+    // TODO does this sort?
     // TODO "API Note: This method must be used within a try-with-resources statement"
     return Files.walk(this, 1).use { fileStream ->
         fileStream.filter { it != this && !it.isDirectory() &&  (filter == null || filter.test(it)) }.toList()

@@ -54,7 +54,8 @@ interface Consumer {
 
     //// may be outside the election record
     /** read encrypted ballots in given directory. */
-    fun iterateEncryptedBallotsFromDir(ballotDir: String, pathFilter: Predicate<Path>?, filter : Predicate<EncryptedBallot>? ): Iterable<EncryptedBallot>
+    @Deprecated("to be removed")
+    fun iterateEncryptedBallotsFromDir(ballotDir: String, filter : Predicate<EncryptedBallot>? ): Iterable<EncryptedBallot> // TODO remove?
     /** read plaintext ballots in given directory, private data. */
     fun iteratePlaintextBallots(ballotDir: String, filter : ((PlaintextBallot) -> Boolean)? ): Iterable<PlaintextBallot>
     /** read trustee in given directory for given guardianId, private data. */

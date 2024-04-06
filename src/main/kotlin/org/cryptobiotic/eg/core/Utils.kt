@@ -40,9 +40,9 @@ fun createDirectories(directory: String): Boolean {
     }
     return try {
         Files.createDirectories(Path.of(directory))
-        logger.warn { "error createDirectories = '$directory' " }
         true
     } catch (t: Throwable) {
+        logger.warn( t) { "error createDirectories = '$directory' " }
         false
     }
 }
