@@ -45,10 +45,10 @@ class RunEncryptBallot {
                 shortName = "device",
                 description = "voting device name"
             ).required()
-            val ballotFilename by parser.option(
+            val ballotFilepath by parser.option(
                 ArgType.String,
                 shortName = "ballot",
-                description = "Plaintext ballot filename (or 'CLOSE')"
+                description = "Plaintext ballot filepath (or 'CLOSE')"
             ).required()
             val encryptBallotDir by parser.option(
                 ArgType.String,
@@ -58,17 +58,17 @@ class RunEncryptBallot {
             parser.parse(args)
 
             logger.info {
-                "starting\n inputDir= $inputDir\n ballotFilename= $ballotFilename\n encryptBallotDir = $encryptBallotDir\n device = $device"
+                "starting\n inputDir= $inputDir\n ballotFilepath= $ballotFilepath\n encryptBallotDir = $encryptBallotDir\n device = $device"
             }
 
             val consumerIn = makeConsumer(inputDir)
             try {
-                if (ballotFilename == "CLOSE") {
+                if (ballotFilepath == "CLOSE") {
                    close(consumerIn.group, device, encryptBallotDir)
                 } else {
                     val retval = encryptBallot(
                         consumerIn,
-                        ballotFilename,
+                        ballotFilepath,
                         encryptBallotDir,
                         device,
                     )
@@ -86,7 +86,7 @@ class RunEncryptBallot {
 
         fun encryptBallot(
             consumerIn: Consumer,
-            ballotFilename: String,
+            ballotFilepath: String,
             encryptBallotDir: String,
             device: String,
         ): Int {
@@ -111,7 +111,7 @@ class RunEncryptBallot {
                 device,
             )
 
-            val result = consumerIn.readPlaintextBallot(ballotFilename)
+            val result = consumerIn.readPlaintextBallot(ballotFilepath)
             if (result is Err) {
                 logger.error { "readPlaintextBallot $result" }
                 return 3
@@ -128,7 +128,7 @@ class RunEncryptBallot {
             } else {
                 val consumerChain = makeConsumer(encryptBallotDir, consumerIn.group)
                 // this will read in an existing chain, and so recover from machine going down.
-                val pair = makeCodeBaux(consumerChain, device, encryptBallotDir, configBaux0, electionInit.extendedBaseHash, )
+                val pair = makeCodeBaux(consumerChain, device, encryptBallotDir, configBaux0, electionInit.extendedBaseHash )
                 codeBaux = pair.first
                 currentChain = pair.second
             }
@@ -181,7 +181,7 @@ class RunEncryptBallot {
             val retval = if (chainResult is Ok) {
                 val chain = chainResult.unwrap()
                 val publisher = makePublisher(encryptBallotDir) // TODO not placing it into the device directory?
-                val termval = terminateChain(publisher, device, encryptBallotDir, chain,)
+                val termval = terminateChain(publisher, device, encryptBallotDir, chain)
                 if (termval != 0) {
                     logger.info { "Cant terminateBallotChain retval=$termval" }
                 }

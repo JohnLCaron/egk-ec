@@ -26,9 +26,8 @@ class RunExampleEncryptionTest {
                 )
             )
 
-        val count1 = verifyOutput(inputDir, "$outputDir/encrypted_ballots/device11", true)
-        val count2 = verifyOutput(inputDir, "$outputDir/encrypted_ballots/device42", true)
-        assertEquals(nballots, count1 + count2)
+        val count = verifyOutput(inputDir, "$outputDir", true)
+        assertEquals(nballots, count)
     }
 
     @Test
@@ -50,9 +49,8 @@ class RunExampleEncryptionTest {
             )
         )
 
-        val count1 = verifyOutput(inputDir, "$outputDir/encrypted_ballots/device11", false)
-        val count2 = verifyOutput(inputDir, "$outputDir/encrypted_ballots/device42", false)
-        assertEquals(nballots, count1 + count2)
+        val count = verifyOutput(inputDir, "$outputDir", false)
+        assertEquals(nballots, count)
     }
 
 }

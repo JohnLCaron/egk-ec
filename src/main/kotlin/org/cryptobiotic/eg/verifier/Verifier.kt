@@ -3,6 +3,10 @@ package org.cryptobiotic.eg.verifier
 import com.github.michaelbull.result.*
 
 import org.cryptobiotic.eg.core.*
+import org.cryptobiotic.eg.core.intgroup.IntGroupConstants
+import org.cryptobiotic.eg.core.intgroup.Primes4096
+import org.cryptobiotic.eg.core.intgroup.Primes4096.nbytes
+import org.cryptobiotic.eg.core.intgroup.ProductionGroupContext
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.ElectionRecord
 import org.cryptobiotic.util.ErrorMessages
@@ -32,9 +36,8 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
         val stopwatch = Stopwatch()
         val config = record.config()
 
-        // TODO
-        //val parametersOk = verifyParameters(config, record.manifestBytes())
-        //println(" 1. verifyParameters= $parametersOk")
+        var parametersOk = verifyParameters(config, record.manifestBytes());
+        println(" 1. verifyParameters= $parametersOk")
 
         if (record.stage() < ElectionRecord.Stage.INIT) {
             println("election record stage = ${record.stage()}, stopping verification now\n")
@@ -114,32 +117,36 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
             println(challengedErrs)
         }
 
-        val allOk = /* (parametersOk is Ok) && */ (guardiansOk is Ok) && (publicKeyOk is Ok) && (baseHashOk is Ok) &&
+        val allOk = (parametersOk is Ok) && (guardiansOk is Ok) && (publicKeyOk is Ok) && (baseHashOk is Ok) &&
                 ballotsOk && chainOk && tallyOk && tdOk && challengedOk
 
         println("verify allOK = $allOk\n")
         return allOk
     }
 
-    /* Verification 1 (Parameter validation)
+    // Verification Box 1
     private fun verifyParameters(config : ElectionConfig, manifestBytes: ByteArray): Result<Boolean, String> {
         val check: MutableList<Result<Boolean, String>> = mutableListOf()
-        val constants = config.constants
 
-        if (config.configVersion != protocolVersion) {
-            check.add(Err("  1.A The election record specification version '${config.configVersion}' does not match '$protocolVersion'"))
+        if (config.constants.protocolVersion != "v2.0.0" && config.constants.protocolVersion != "v2.1.0") {
+            check.add(Err("  1.A The election record protocolVersion is unknown: '${config.constants.protocolVersion}'"))
         }
-        if (!constants.largePrime.contentEquals(group.constants.largePrime)) {
-            check.add(Err("  1.B The large prime is not equal to p defined in Section 3.1.1"))
-        }
-        if (!constants.smallPrime.contentEquals(group.constants.smallPrime)) {
-            check.add(Err("  1.C The small prime is not equal to q defined in Section 3.1.1"))
-        }
-        if (!constants.cofactor.contentEquals(group.constants.cofactor)) {
-            check.add(Err("  1.D The cofactor is not equal to r defined in Section 3.1.1"))
-        }
-        if (!constants.generator.contentEquals(group.constants.generator)) {
-            check.add(Err("  1.E The generator is not equal to g defined in Section 3.1.1"))
+
+        if (group.constants.type == GroupType.IntegerGroup) {
+            val constants: IntGroupConstants = (group as ProductionGroupContext).groupConstants
+
+            if (!constants.largePrime.toByteArray().normalize(512).contentEquals(Primes4096.largePrimeBytes)) {
+                check.add(Err("  1.B The large prime is not equal to p defined in Section 3.1.1"))
+            }
+            if (!constants.smallPrime.toByteArray().normalize(32).contentEquals(Primes4096.smallPrimeBytes)) {
+                check.add(Err("  1.C The small prime is not equal to q defined in Section 3.1.1"))
+            }
+            if (!constants.cofactor.toByteArray().normalize(512).contentEquals(Primes4096.residualBytes)) {
+                check.add(Err("  1.D The cofactor is not equal to r defined in Section 3.1.1"))
+            }
+            if (!constants.generator.toByteArray().normalize(512).contentEquals(Primes4096.generatorBytes)) {
+                check.add(Err("  1.E The generator is not equal to g defined in Section 3.1.1"))
+            }
         }
 
         val Hp = parameterBaseHash(config.constants)
@@ -157,8 +164,6 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
 
         return check.merge()
     }
-
-     */
 
     // Verification Box 2
     private fun verifyGuardianPublicKey(): Result<Boolean, String> {

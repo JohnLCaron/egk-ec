@@ -203,7 +203,7 @@ Usage: RunEncryptBallot options_list
 Options: 
     --inputDir, -in -> Directory containing input election record (always required) { String }
     --device, -device -> voting device name (always required) { String }
-    --ballotFilename, -ballot -> Plaintext ballot filename (or 'CLOSE') (always required) { String }
+    --ballotFilepath, -ballot -> Plaintext ballot filepath (or 'CLOSE') (always required) { String }
     --encryptBallotDir, -output -> Write encrypted ballot to this directory (always required) { String }
     --help, -h -> Usage info     
 ````
@@ -213,8 +213,8 @@ The standard place to write encrypted ballots is to _workingDir/encrypted_ballot
 named _eballot-ballotId.json_, where _ballotId_ is taken from the plaintext ballot.
 
 If the config file has chainConfirmationCodes = true, then RunEncryptBallot will expect to be able to read
-and write _ballot_chain.json_ in the _encryptBallotDir/device_ directory. The ballot chaining should be closed by sending 
-ballotFilename = "Close" when the chain is complete. The directory name should have the device name in it as per the example.
+and write _ballot_chain.json_ in the _encryptBallotDir_ directory. The ballot chaining should be closed by sending 
+ballotFilename = "Close" when the chain is complete.
 
 Example:
 

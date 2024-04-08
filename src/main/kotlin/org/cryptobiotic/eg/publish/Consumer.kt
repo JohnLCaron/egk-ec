@@ -35,9 +35,9 @@ interface Consumer {
 
     /** Are there any encrypted ballots? */
     fun hasEncryptedBallots() : Boolean
-    /** Read a specific file containing an encrypted ballot. */
-    fun readEncryptedBallot(ballotDir: String, ballotId: String) : Result<EncryptedBallot, ErrorMessages>
-    /** Read all encrypted ballots for all devices. */
+    /** Find and read the encrypted ballot with the given ballotId. */
+    fun readEncryptedBallot(device: String?, ballotId: String) : Result<EncryptedBallot, ErrorMessages>
+    /** Read encrypted ballots for all devices. */
     fun iterateAllEncryptedBallots(filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot>
     fun iterateAllCastBallots(): Iterable<EncryptedBallot>  = iterateAllEncryptedBallots{  it.state == EncryptedBallot.BallotState.CAST }
     fun iterateAllChallengedBallots(): Iterable<EncryptedBallot>  = iterateAllEncryptedBallots{  it.state == EncryptedBallot.BallotState.CHALLENGED }
@@ -61,7 +61,7 @@ interface Consumer {
     /** read trustee in given directory for given guardianId, private data. */
     fun readTrustee(trusteeDir: String, guardianId: String): Result<DecryptingTrusteeIF, ErrorMessages>
     /** read plaintext ballot. */
-    fun readPlaintextBallot(ballotFilename: String): Result<PlaintextBallot, ErrorMessages>
+    fun readPlaintextBallot(ballotFilepath: String): Result<PlaintextBallot, ErrorMessages>
 }
 
 /**

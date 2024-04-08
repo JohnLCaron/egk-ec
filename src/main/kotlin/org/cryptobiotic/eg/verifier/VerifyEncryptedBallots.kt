@@ -247,7 +247,6 @@ class VerifyEncryptedBallots(
             errs.add("Cant assembleChain")
             return
         }
-        val ballotDir = "wtf"
 
         // If chainCodes is true, and configBaux0 is empty, then the device name UTF-8 bytes will be used when creating the
         // confirmation codes during encryption. This allows the configuration file to be used across multiple devices,
@@ -264,7 +263,7 @@ class VerifyEncryptedBallots(
         var ballotCount = 0
 
         ballotChain.ballotIds.forEach { ballotId ->
-            val eballotResult = consumer.readEncryptedBallot(ballotDir, ballotId)
+            val eballotResult = consumer.readEncryptedBallot(device, ballotId)
             if (eballotResult is Err) {
                 errs.add("Cant find $ballotId")
             } else {
@@ -276,19 +275,20 @@ class VerifyEncryptedBallots(
                     errs.add("    7.E. additional input byte array Baux != H(Bj−1 ) ∥ Baux,0 for ballot=${eballot.ballotId}")
                 }
                 prevCC = eballot.confirmationCode.bytes
-
-                // 7.F The final additional input byte array is equal to Baux = H(Bℓ ) ∥ Baux,0 ∥ b(“CLOSE”, 5) and
-                //      H(Bℓ ) is the final confirmation code on this device.
-                val bauxFinal = prevCC + baux0 + "CLOSE".encodeToByteArray()
-
-                // 7.G The closing hash is correctly computed as H = H(HE ; 0x24, Baux )
-                val expectedClosingHash = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
-                if (expectedClosingHash != ballotChain.closingHash) {
-                    errs.add("    7.G. The closing hash is not equal to H = H(HE ; 24, bauxFinal ) for encrypting device=$device")
-                }
-                ballotCount++
             }
+            ballotCount++
         }
+        // 7.F The final additional input byte array is equal to Baux = H(Bℓ ) ∥ Baux,0 ∥ b(“CLOSE”, 5) and
+        //      H(Bℓ ) is the final confirmation code on this device.
+        val bauxFinal = prevCC + baux0 + "CLOSE".encodeToByteArray()
+
+        // 7.G The closing hash is correctly computed as H = H(HE ; 0x24, Baux )
+        val expectedClosingHash = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), bauxFinal)
+        if (expectedClosingHash != ballotChain.closingHash) {
+            errs.add("    7.G. The closing hash is not equal to H = H(HE ; 24, bauxFinal ) for encrypting device=$device")
+        }
+
+        println(" assembleAndVerifyOneChain $device nballots = $ballotCount errs= $errs")
     }
 
     data class ConfirmationCode(val ballotId: String, val code: UInt256, val codeBaux: ByteArray) {
