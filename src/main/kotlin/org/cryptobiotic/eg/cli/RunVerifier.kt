@@ -59,22 +59,6 @@ class RunVerifier {
             return allOk
         }
 
-        // RunVerifier.runVerifier(group, consumerIn, 11, true)
-        fun runVerifier(consumer: Consumer, nthreads: Int, showTime: Boolean = false): Boolean {
-            val stopwatch = Stopwatch() // start timing here
-
-            val electionRecord = readElectionRecord(consumer)
-            val verifier = Verifier(electionRecord, nthreads)
-            val stats = Stats()
-            val allOk = verifier.verify(stats, showTime)
-            if (showTime) {
-                stats.show(logger)
-            }
-
-            logger.info { "RunVerifier ${stopwatch.took()} OK = ${allOk}" }
-            return allOk
-        }
-
         fun verifyEncryptedBallots(inputDir: String, nthreads: Int) {
             val stopwatch = Stopwatch() // start timing here
 
