@@ -73,7 +73,6 @@ class ConsumerJsonTest {
         }
     }
 
-    // TODO how come this doesnt barf on ballot_chain.json ??
     @Test
     fun iterateEncryptedBallotsSkipChain() {
         val topdir = "src/test/data/encrypt/testBallotChain"
@@ -81,7 +80,7 @@ class ConsumerJsonTest {
         val consumerIn = makeConsumer(topdir)
         val electionId = readElectionRecord(consumerIn).extendedBaseHash()
         var count = 0
-        for (ballot in consumerIn.iterateEncryptedBallotsFromDir("$topdir/encrypted_ballots/device1", null)) {
+        for (ballot in consumerIn.iterateAllEncryptedBallots(null)) {
             assertEquals(ballot.electionId, electionId)
             count++
         }

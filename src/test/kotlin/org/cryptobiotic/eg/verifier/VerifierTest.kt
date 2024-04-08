@@ -25,12 +25,14 @@ class VerifierTest {
     }
 
     @Test
-    fun verificationAllJson() {
+    fun verificationEc() {
         RunVerifier.runVerifier("src/test/data/workflow/allAvailableEc", 11, true)
+        RunVerifier.runVerifier("src/test/data/workflow/someAvailableEc", 11, true)
     }
 
     @Test
-    fun verificationSomeJson() {
+    fun verificationInteger() {
+        RunVerifier.runVerifier("src/test/data/workflow/allAvailable", 11, true)
         RunVerifier.runVerifier("src/test/data/workflow/someAvailable", 11, true)
     }
 

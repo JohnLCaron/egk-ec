@@ -160,9 +160,9 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         return iter.iterator().hasNext()
     }
 
-    override fun readEncryptedBallot(ballotDir: String, ballotId: String) : Result<EncryptedBallot, ErrorMessages> {
-        val errs = ErrorMessages("readEncryptedBallot ballotId=$ballotId from directory $ballotDir")
-        val ballotFilename = jsonPaths.encryptedBallotPath(ballotDir, ballotId)
+    override fun readEncryptedBallot(device: String?, ballotId: String) : Result<EncryptedBallot, ErrorMessages> {
+        val errs = ErrorMessages("readEncryptedBallot ballotId=$ballotId from device $device")
+        val ballotFilename = jsonPaths.encryptedBallotDevicePath(device, ballotId)
         if (!Files.exists(fileSystem.getPath(ballotFilename))) {
             return errs.add("'$ballotFilename' file does not exist")
         }
@@ -266,12 +266,12 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
     }
 
     // read the PlaintextBallot from the given filename
-    override fun readPlaintextBallot(ballotFilename: String): Result<PlaintextBallot, ErrorMessages> {
-        val errs = ErrorMessages("readPlaintextBallot $ballotFilename")
-        if (!Files.exists(fileSystem.getPath(ballotFilename))) {
+    override fun readPlaintextBallot(ballotFilepath: String): Result<PlaintextBallot, ErrorMessages> {
+        val errs = ErrorMessages("readPlaintextBallot $ballotFilepath")
+        if (!Files.exists(fileSystem.getPath(ballotFilepath))) {
             return errs.add("file does not exist ")
         }
-        val file = fileSystem.getPath(ballotFilename)
+        val file = fileSystem.getPath(ballotFilepath)
         return try {
             fileSystemProvider.newInputStream(file, StandardOpenOption.READ).use { inp ->
                 val json = jsonReader.decodeFromStream<PlaintextBallotJson>(inp)

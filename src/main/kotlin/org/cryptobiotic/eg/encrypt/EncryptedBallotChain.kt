@@ -153,7 +153,7 @@ data class EncryptedBallotChain(
             }
 
             if (showChain) {
-                println("ballotChainNew")
+                println("assembleChain")
                 bauxMap.forEach { println("  $it") }
             }
 
