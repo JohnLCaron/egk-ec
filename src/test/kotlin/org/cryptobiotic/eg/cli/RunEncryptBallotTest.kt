@@ -9,7 +9,7 @@ import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.verifier.VerifyEncryptedBallots
 import org.cryptobiotic.util.ErrorMessages
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.random.Random
@@ -20,7 +20,7 @@ class RunEncryptBallotTest {
     @Test
     fun testRunEncryptOneBallotNoChaining() {
         val inputDir = "src/test/data/encrypt/testBallotNoChain"
-        val outputDir = "$testOut/encrypt/testRunEncryptOneBallotNoChaining"
+        val outputDir = "${Testing.testOut}/encrypt/testRunEncryptOneBallotNoChaining"
         val ballotId = "3842034"
 
         val consumerIn = makeConsumer(inputDir)
@@ -52,7 +52,7 @@ class RunEncryptBallotTest {
     @Test
     fun testRunEncryptBallotsNoChaining() {
         val inputDir = "src/test/data/encrypt/testBallotNoChain"
-        val outputDir = "$testOut/encrypt/testRunEncryptBallotsNoChaining"
+        val outputDir = "${Testing.testOut}/encrypt/testRunEncryptBallotsNoChaining"
         val nballots = 10
         val device = "device42"
 
@@ -98,7 +98,7 @@ class RunEncryptBallotTest {
     fun testRunEncryptBallotsChaining() {
         val inputDir = "src/test/data/encrypt/testBallotChain"
         val device = "device42"
-        val outputDir = "$testOut/encrypt/testRunEncryptBallotsChaining"
+        val outputDir = "${Testing.testOut}/encrypt/testRunEncryptBallotsChaining"
         val outputDeviceDir = "$outputDir/encrypted_ballots/$device"
         val nballots = 10
 

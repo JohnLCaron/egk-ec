@@ -1,7 +1,7 @@
 package org.cryptobiotic.eg.workflow
 
 import org.cryptobiotic.eg.cli.RunCreateTestManifest
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import kotlin.test.Test
 
 class CreateTestManifest {
@@ -12,7 +12,7 @@ class CreateTestManifest {
             arrayOf(
                 "-ncontests", "20",
                 "-nselections", "4",
-                "-out", "$testOut/manifest/runCreateTestManifest",
+                "-out", "${Testing.testOut}/manifest/runCreateTestManifest",
             )
         )
     }

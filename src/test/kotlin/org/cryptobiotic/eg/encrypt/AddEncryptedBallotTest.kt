@@ -14,11 +14,11 @@ import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.verifier.VerifyEncryptedBallots
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 
 class AddEncryptedBallotTest {
     val input = "src/test/data/workflow/allAvailableEc"
-    val outputDir = "$testOut/encrypt/addEncryptedBallot/Plain"
+    val outputDir = "${Testing.testOut}/encrypt/addEncryptedBallot/Plain"
     val nballots = 4
 
     @Test

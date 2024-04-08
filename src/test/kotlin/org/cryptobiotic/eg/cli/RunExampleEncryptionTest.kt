@@ -1,7 +1,7 @@
 package org.cryptobiotic.eg.cli
 
 import org.cryptobiotic.eg.core.removeAllFiles
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import java.nio.file.Path
 import kotlin.test.*
 
@@ -10,7 +10,7 @@ class RunExampleEncryptionTest {
     @Test
     fun testExampleEncryptionWithChaining() {
         val inputDir = "src/test/data/encrypt/testBallotChain"
-        val outputDir = "$testOut/encrypt/testExampleEncryptionWithChaining"
+        val outputDir = "${Testing.testOut}/encrypt/testExampleEncryptionWithChaining"
         val nballots = 33
 
         removeAllFiles(Path.of("$outputDir/encrypted_ballots"))
@@ -33,7 +33,7 @@ class RunExampleEncryptionTest {
     @Test
     fun testExampleEncryptionWithNoChaining() {
         val inputDir = "src/test/data/encrypt/testBallotNoChain"
-        val outputDir = "$testOut/encrypt/testExampleEncryptionNoChaining"
+        val outputDir = "${Testing.testOut}/encrypt/testExampleEncryptionNoChaining"
         val nballots = 33
 
         removeAllFiles(Path.of("$outputDir/encrypted_ballots"))

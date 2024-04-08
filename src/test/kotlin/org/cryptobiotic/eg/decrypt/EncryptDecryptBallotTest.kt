@@ -13,13 +13,13 @@ import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
 import org.cryptobiotic.eg.verifier.VerifyDecryption
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import kotlin.math.roundToInt
 import kotlin.test.*
 
 class EncryptDecryptBallotTest {
     val configDir = "src/test/data/startConfigEc"
-    val outputDir = "$testOut/RecoveredDecryptionTest"
+    val outputDir = "${Testing.testOut}/RecoveredDecryptionTest"
     val trusteeDir = "$outputDir/private_data"
 
     @Test

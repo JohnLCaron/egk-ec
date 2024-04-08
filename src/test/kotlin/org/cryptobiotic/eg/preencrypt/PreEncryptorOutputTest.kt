@@ -9,7 +9,7 @@ import org.cryptobiotic.eg.publish.json.publishJson
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import kotlin.random.Random
 import kotlin.test.Test
 
@@ -31,7 +31,7 @@ class PreEncryptorOutputTest {
 
         runCompleteOutput(
             "src/test/data/workflow/allAvailableEc",
-            "$testOut/preencrypt/PreEncryptorOutputJson",
+            "${Testing.testOut}/preencrypt/PreEncryptorOutputJson",
             "testPreencrypt",
             manifest,
             ::markBallotToLimit,

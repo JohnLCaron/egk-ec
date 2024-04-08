@@ -11,12 +11,12 @@ import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 
 import org.cryptobiotic.util.ErrorMessages
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 
 // check AddEncryptedBallot doesnt depend on the order that ballots are submitted
 class AddEncryptedUnorderedTest {
     val input = "src/test/data/workflow/allAvailableEc"
-    val outputDirTop = "$testOut/encrypt/addEncryptedBallot/UnorderedTest"
+    val outputDirTop = "${Testing.testOut}/encrypt/addEncryptedBallot/UnorderedTest"
 
     val nballots = 3
 

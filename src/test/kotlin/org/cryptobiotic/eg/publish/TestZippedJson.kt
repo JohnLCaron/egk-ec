@@ -19,7 +19,7 @@ import kotlin.test.assertNotNull
 
 import org.cryptobiotic.eg.publish.json.*
 import org.cryptobiotic.util.ErrorMessages
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 
 
 // run verifier on zipped JSON record, only supported on JVM
@@ -28,7 +28,7 @@ class TestZippedJson {
     val jsonReader = Json { explicitNulls = false; ignoreUnknownKeys = true; prettyPrint = true }
 
     val inputDir = "src/test/data/workflow/allAvailableEc"
-    val zippedJson = "$testOut/allAvailableJson.zip"
+    val zippedJson = "${Testing.testOut}/allAvailableJson.zip"
     val fs: FileSystem
     val fsp: FileSystemProvider
 

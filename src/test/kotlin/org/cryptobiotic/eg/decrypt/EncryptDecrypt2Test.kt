@@ -10,12 +10,12 @@ import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.eg.verifier.VerifyDecryption
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import kotlin.test.*
 
 class EncryptDecrypt2Test {
     val configDir = "src/test/data/startConfigEc"
-    val outputDir = "$testOut/RecoveredDecryptionTest"
+    val outputDir = "${Testing.testOut}/RecoveredDecryptionTest"
     val trusteeDir = "$outputDir/private_data"
 
     @Test

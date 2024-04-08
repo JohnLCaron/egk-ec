@@ -1,6 +1,6 @@
 package org.cryptobiotic.eg.cli
 
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import kotlin.test.Test
 
 class RunTrustedKeyCeremonyTest {
@@ -9,8 +9,8 @@ class RunTrustedKeyCeremonyTest {
         RunTrustedKeyCeremony.main(
             arrayOf(
                 "-in", "src/test/data/startConfigEc",
-                "-trustees", "$testOut/cliWorkflow/keyceremonyEc/trustees",
-                "-out", "$testOut/cliWorkflow/keyceremonyEc",
+                "-trustees", "${Testing.testOut}/cliWorkflow/keyceremonyEc/trustees",
+                "-out", "${Testing.testOut}/cliWorkflow/keyceremonyEc",
             )
         )
     }

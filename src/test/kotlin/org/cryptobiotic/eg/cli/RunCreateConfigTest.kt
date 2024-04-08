@@ -1,9 +1,26 @@
 package org.cryptobiotic.eg.cli
 
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
+import java.nio.file.Files
 import kotlin.test.Test
 
 class RunCreateConfigTest {
+
+    @Test
+    fun showTestDirs() {
+        println("topdir = ${Testing.tmpdir}")
+        //println("testOut = $testOut")
+        //println("testOutMixnet = $testOutMixnet")
+    }
+
+    @Test
+    fun getTTT() {
+        val tmpdir = Files.createTempDirectory("tmpDirPrefix").toFile().absolutePath
+        val tmpDirsLocation = System.getProperty("java.io.tmpdir")
+        require(tmpdir.startsWith(tmpDirsLocation))
+        println("tmpdir = $tmpdir")
+        println("tmpDirsLocation = $tmpDirsLocation")
+    }
 
     @Test
     fun testCreateConfigJson() {
@@ -14,7 +31,7 @@ class RunCreateConfigTest {
                 "-nguardians", "3",
                 "-quorum", "3",
                 "-out",
-                "$testOut/config/startConfigJson",
+                "${Testing.testOut}/config/startConfigJson",
                 "-device",
                 "device information",
             )
@@ -31,7 +48,7 @@ class RunCreateConfigTest {
                 "-quorum", "3",
                 "-createdBy", "testCreateConfigDirectoryJson",
                 "-out",
-                "$testOut/config/testCreateConfigDirectoryJson",
+                "${Testing.testOut}/config/testCreateConfigDirectoryJson",
                 "-device",
                 "device information",
             )

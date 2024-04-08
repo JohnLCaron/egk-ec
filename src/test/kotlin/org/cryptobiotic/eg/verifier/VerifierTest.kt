@@ -1,7 +1,6 @@
 package org.cryptobiotic.eg.verifier
 
 import org.cryptobiotic.eg.cli.RunVerifier
-import org.cryptobiotic.eg.core.productionGroup
 import kotlin.test.Test
 
 class VerifierTest {
