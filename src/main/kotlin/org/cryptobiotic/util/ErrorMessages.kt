@@ -27,6 +27,13 @@ class ErrorMessages(val id: String, private val level: Int = 1) {
         return mess
     }
 
+    fun incr(): ErrorMessages {
+        val result = ErrorMessages(id, level + 1)
+        messages.forEach { result.add(it) }
+        nested.forEach { result.addNested(it.incr()) }
+        return result
+    }
+
     override fun toString(): String {
         if (!hasErrors()) {
             return "$id all OK"
@@ -35,7 +42,7 @@ class ErrorMessages(val id: String, private val level: Int = 1) {
             append("$id has errors:")
             messages.forEach { append("\n$indent$it") }
             nested.forEach {
-                if (it.hasErrors()) { append("$indent$it") }
+                if (it.hasErrors()) { append("\n$indent$it") }
             }
         }
     }
@@ -61,7 +68,7 @@ class ErrorMessages(val id: String, private val level: Int = 1) {
 
 fun mergeErrorMessages(top: String, errss: List<ErrorMessages>) : ErrorMessages {
     val result = ErrorMessages(top)
-    errss.forEach { result.addNested(it) }
+    errss.forEach { result.addNested(it.incr()) }
     return result
 }
 

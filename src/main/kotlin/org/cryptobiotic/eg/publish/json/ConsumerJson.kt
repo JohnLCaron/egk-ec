@@ -256,7 +256,7 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
     }
 
     // read the trustee in the given directory for the given guardianId
-    override fun readTrustee(trusteeDir: String, guardianId: String): Result<DecryptingTrusteeIF,ErrorMessages> {
+    override fun readTrustee(trusteeDir: String, guardianId: String): Result<DecryptingTrusteeIF, ErrorMessages> {
         val errs = ErrorMessages("readTrustee $guardianId from directory $trusteeDir")
         val filename = jsonPaths.decryptingTrusteePath(trusteeDir, guardianId)
         if (!Files.exists(fileSystem.getPath(filename))) {
