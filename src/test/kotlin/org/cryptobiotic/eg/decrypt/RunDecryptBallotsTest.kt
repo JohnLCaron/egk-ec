@@ -4,7 +4,7 @@ import org.cryptobiotic.eg.cli.RunTrustedBallotDecryption
 import org.cryptobiotic.eg.cli.RunTrustedBallotDecryption.Companion.runDecryptBallots
 import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption.Companion.readDecryptingTrustees
 import org.cryptobiotic.eg.publish.makeConsumer
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,7 +23,7 @@ class RunDecryptBallotsTest {
     fun testDecryptBallotsAll() {
         val inputDir = "src/test/data/workflow/allAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
-        val outputDir = "$testOut/decrypt/testDecryptBallotsAll"
+        val outputDir = "${Testing.testOut}/decrypt/testDecryptBallotsAll"
         println("\ntestDecryptBallotsAll")
         val n = runDecryptBallots(
             inputDir,
@@ -39,7 +39,7 @@ class RunDecryptBallotsTest {
     fun testDecryptBallotsSomeFromList() {
         val inputDir = "src/test/data/workflow/someAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
-        val outputDir = "$testOut/decrypt/testDecryptBallotsSomeFromList"
+        val outputDir = "${Testing.testOut}/decrypt/testDecryptBallotsSomeFromList"
         println("\ntestDecryptBallotsSomeFromList")
         val n = runDecryptBallots(
             inputDir, outputDir, readDecryptingTrustees(inputDir, trusteeDir, "5"),
@@ -56,7 +56,7 @@ class RunDecryptBallotsTest {
         val inputDir = "src/test/data/workflow/someAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
         val wantBallots = "$inputDir/private_data/wantedBallots.txt"
-        val outputDir = "$testOut/decrypt/testDecryptBallotsSomeFromFile"
+        val outputDir = "${Testing.testOut}/decrypt/testDecryptBallotsSomeFromFile"
         println("\ntestDecryptBallotsSomeFromFile")
         val n = runDecryptBallots(
             inputDir, outputDir, readDecryptingTrustees(inputDir, trusteeDir, "4,5"),
@@ -77,7 +77,7 @@ class RunDecryptBallotsTest {
                 "-trustees",
                 "src/test/data/workflow/someAvailableEc/private_data/trustees",
                 "-out",
-                "$testOut/decrypt/testDecryptBallotsMainMultiThreaded",
+                "${Testing.testOut}/decrypt/testDecryptBallotsMainMultiThreaded",
                 "-challenged",
                 "all",
                 "-nthreads",
@@ -97,7 +97,7 @@ class RunDecryptBallotsTest {
                 "-trustees",
                 "src/test/data/workflow/someAvailableEc/private_data/trustees",
                 "-out",
-                "$testOut/decrypt/testDecryptBallotsMarkedChallenged",
+                "${Testing.testOut}/decrypt/testDecryptBallotsMarkedChallenged",
                 "-nthreads",
                 "1"
             )

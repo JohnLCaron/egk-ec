@@ -6,13 +6,13 @@ import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import kotlin.test.*
 
 // test what happens when AddEncryptedBallot is called after being closed
 class AddBallotSyncTest {
     val inputJson = "src/test/data/workflow/allAvailableEc"
-    val outputDirTop = "$testOut/encrypt/addEncryptedBallot/SyncTest"
+    val outputDirTop = "${Testing.testOut}/encrypt/addEncryptedBallot/SyncTest"
     val nballots = 4
 
     @Test

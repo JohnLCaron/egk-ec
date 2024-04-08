@@ -15,14 +15,13 @@ import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 
 import org.cryptobiotic.util.ErrorMessages
-import org.cryptobiotic.util.testOut
-import kotlin.test.assertEquals
+import org.cryptobiotic.util.Testing
 import kotlin.test.assertTrue
 
 // check AddEncryptedBallot doesnt depend on the order that ballots are submitted
 class AddEncryptedChallengedTest {
     val input = "src/test/data/workflow/allAvailableEc"
-    val outputDirTop = "$testOut/encrypt/addEncryptedBallot/ChallengedTest"
+    val outputDirTop = "${Testing.testOut}/encrypt/addEncryptedBallot/ChallengedTest"
 
     val nballots = 30
 

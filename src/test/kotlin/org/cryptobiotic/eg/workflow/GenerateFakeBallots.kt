@@ -4,13 +4,13 @@ import org.cryptobiotic.eg.election.PlaintextBallot
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import kotlin.test.Test
 
 /** Generate fake ballots for testing. No actual testing here. */
 class GenerateFakeBallots {
     val inputDir = "src/test/data/startConfigEc"
-    val outputDirJson =  "$testOut/fakeBallots"
+    val outputDirJson =  "${Testing.testOut}/fakeBallots"
 
     @Test
     fun generateFakeBallotsJson() {

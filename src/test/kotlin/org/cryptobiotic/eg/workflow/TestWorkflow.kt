@@ -1,16 +1,13 @@
 package org.cryptobiotic.eg.workflow
 
-import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
 import org.cryptobiotic.eg.cli.RunAccumulateTally.Companion.runAccumulateBallots
-import org.cryptobiotic.eg.cli.RunBatchEncryption.Companion.batchEncryption
 import org.cryptobiotic.eg.cli.RunTrustedBallotDecryption.Companion.runDecryptBallots
 import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption.Companion.runDecryptTally
 import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.encrypt.AddEncryptedBallot
-import org.cryptobiotic.eg.encrypt.compare
 import org.cryptobiotic.eg.input.BallotInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
@@ -19,7 +16,7 @@ import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.verifier.Verifier
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -41,10 +38,10 @@ class TestWorkflow {
 
     @Test
     fun runWorkflow() {
-        runWorkflow("src/test/data/startConfig", "$testOut/workflow/allAvailable", false)
-        runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/allAvailableEc", false)
-        runWorkflow("src/test/data/startConfig", "$testOut/workflow/someAvailable", true)
-        runWorkflow("src/test/data/startConfigEc", "$testOut/workflow/someAvailableEc", true)
+        runWorkflow("src/test/data/startConfig", "${Testing.testOut}/workflow/allAvailable", false)
+        runWorkflow("src/test/data/startConfigEc", "${Testing.testOut}/workflow/allAvailableEc", false)
+        runWorkflow("src/test/data/startConfig", "${Testing.testOut}/workflow/someAvailable", true)
+        runWorkflow("src/test/data/startConfigEc", "${Testing.testOut}/workflow/someAvailableEc", true)
     }
 
     fun runWorkflow(configDirJson: String, workingDir: String, onlySome: Boolean, chained: Boolean = false) {

@@ -1,6 +1,6 @@
 package org.cryptobiotic.eg.cli
 
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import kotlin.test.Test
 
 class RunCreateInputBallotsTest {
@@ -9,7 +9,7 @@ class RunCreateInputBallotsTest {
         RunCreateInputBallots.main(
             arrayOf(
                 "-manifest", "src/test/data/startConfigEc",
-                "-out", "$testOut/generateInputBallots",
+                "-out", "${Testing.testOut}/generateInputBallots",
                 "-n", "42"
             )
         )

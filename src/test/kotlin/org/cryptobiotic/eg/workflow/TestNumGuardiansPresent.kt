@@ -12,7 +12,7 @@ import org.cryptobiotic.eg.decrypt.DecryptingTrusteeIF
 import org.cryptobiotic.eg.publish.*
 import org.cryptobiotic.util.Stats
 import org.cryptobiotic.eg.verifier.Verifier
-import org.cryptobiotic.util.testOut
+import org.cryptobiotic.util.Testing
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.assertEquals
@@ -53,7 +53,7 @@ class TestNumGuardiansPresent {
     fun runWorkflow(name : String, nguardians: Int, quorum: Int, missing: List<Int>, nthreads: Int) {
         println("===========================================================")
         group.getAndClearOpCounts()
-        val workingDir =  "$testOut/workflow/$name"
+        val workingDir =  "${Testing.testOut}/workflow/$name"
         val privateDir =  "$workingDir/private_data"
         val trusteeDir =  "${privateDir}/trustees"
         val invalidDir =  "${privateDir}/invalid"
@@ -116,22 +116,22 @@ class TestNumGuardiansPresent {
     }
 
     fun checkTalliesAreEqual() {
-        val record1 =  readElectionRecord("$testOut/workflow/$name1")
-        val record2 =  readElectionRecord("$testOut/workflow/$name2")
+        val record1 =  readElectionRecord("${Testing.testOut}/workflow/$name1")
+        val record2 =  readElectionRecord("${Testing.testOut}/workflow/$name2")
         testEqualTallies(record1.decryptedTally()!!, record2.decryptedTally()!!)
 
-        val record3 =  readElectionRecord("$testOut/workflow/$name3")
+        val record3 =  readElectionRecord("${Testing.testOut}/workflow/$name3")
         testEqualTallies(record1.decryptedTally()!!, record3.decryptedTally()!!)
         testEqualTallies(record2.decryptedTally()!!, record3.decryptedTally()!!)
 
-        val record4 =  readElectionRecord("$testOut/workflow/$name4")
+        val record4 =  readElectionRecord("${Testing.testOut}/workflow/$name4")
         testEqualTallies(record1.decryptedTally()!!, record4.decryptedTally()!!)
         testEqualTallies(record2.decryptedTally()!!, record4.decryptedTally()!!)
     }
 
     fun checkBallotsAreEqual() {
-        val record1 =  readElectionRecord("$testOut/workflow/$name1")
-        val record2 =  readElectionRecord("$testOut/workflow/$name2")
+        val record1 =  readElectionRecord("${Testing.testOut}/workflow/$name1")
+        val record2 =  readElectionRecord("${Testing.testOut}/workflow/$name2")
         println("compare ${record1.topdir()} ${record2.topdir()}")
 
         val ballotsa = record1.challengedBallots().iterator()
