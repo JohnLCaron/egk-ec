@@ -1,7 +1,6 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.ElementModP
-import java.math.BigInteger
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,23 +10,25 @@ class TestAgainstNative {
 
     @Test
     fun testSqrt3() {
-        val group = EcGroupContext("P-256", false)
-        val vecGroup = group.vecGroup
-        val vecGroupN = EcGroupContext("P-256", true).vecGroup
-        assertTrue(vecGroupN is VecGroupNative)
+        if (VecGroups.hasNativeLibrary()) {
+            val group = EcGroupContext("P-256", false)
+            val vecGroup = group.vecGroup
+            val vecGroupN = EcGroupContext("P-256", true).vecGroup
+            assertTrue(vecGroupN is VecGroupNative)
 
-        // randomElementModP seems to always be the case when p = 3 mod 4
-        repeat(100) {
-            val elemP = group.randomElementModP(2).ec
-            val elemPy2 = vecGroupN.equationf(elemP.x)
+            // randomElementModP seems to always be the case when p = 3 mod 4
+            repeat(100) {
+                val elemP = group.randomElementModP(2).ec
+                val elemPy2 = vecGroupN.equationf(elemP.x)
 
-            val elemPy = vecGroup.sqrt(elemPy2)
-            assertEquals(elemP.y, elemPy)
+                val elemPy = vecGroup.sqrt(elemPy2)
+                assertEquals(elemP.y, elemPy)
 
-            val elemPyt = vecGroupN.sqrt(elemPy2)
-            assertEquals(elemP.y, elemPyt)
+                val elemPyt = vecGroupN.sqrt(elemPy2)
+                assertEquals(elemP.y, elemPyt)
 
-            assertEquals(elemPy, elemPyt)
+                assertEquals(elemPy, elemPyt)
+            }
         }
     }
 
@@ -55,16 +56,18 @@ class TestAgainstNative {
 
     @Test
     fun testProdPowers() {
-        val group = EcGroupContext("P-256", false)
-        val groupN = EcGroupContext("P-256", true)
-        assertTrue(groupN.vecGroup is VecGroupNative)
+        if (VecGroups.hasNativeLibrary()) {
+            val group = EcGroupContext("P-256", false)
+            val groupN = EcGroupContext("P-256", true)
+            assertTrue(groupN.vecGroup is VecGroupNative)
 
-        val n = 100
-        val bases = List(n) { group.randomElementModP() }
-        val nonces = List(n) { group.randomElementModQ() }
-        val prodpow: ElementModP = group.prodPowers(bases, nonces)
-        val prodpowN: ElementModP = groupN.prodPowers(bases, nonces)
-        assertEquals(prodpow, prodpowN)
+            val n = 100
+            val bases = List(n) { group.randomElementModP() }
+            val nonces = List(n) { group.randomElementModQ() }
+            val prodpow: ElementModP = group.prodPowers(bases, nonces)
+            val prodpowN: ElementModP = groupN.prodPowers(bases, nonces)
+            assertEquals(prodpow, prodpowN)
+        }
     }
 
 }

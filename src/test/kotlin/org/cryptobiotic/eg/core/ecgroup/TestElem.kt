@@ -114,19 +114,21 @@ class TestElem {
 
     @Test
     fun testSqrt() {
-        val group = productionGroup("P-256") as EcGroupContext
-        val vecGroupN = group.vecGroup as VecGroupNative
+        if (VecGroups.hasNativeLibrary()) {
+            val group = productionGroup("P-256") as EcGroupContext
+            val vecGroupN = group.vecGroup as VecGroupNative
 
-        repeat (100) {
-            val elemP = group.randomElementModP(2).ec
-            val elemPx = elemP.x
-            val elemPy2 = vecGroupN.equationf(elemPx)
+            repeat(100) {
+                val elemP = group.randomElementModP(2).ec
+                val elemPx = elemP.x
+                val elemPy2 = vecGroupN.equationf(elemPx)
 
-            val elemPy = vecGroupN.sqrt(elemPy2)
-            assertEquals(elemP.y, elemPy)
+                val elemPy = vecGroupN.sqrt(elemPy2)
+                assertEquals(elemP.y, elemPy)
 
-            val elemPyt = vecGroupN.sqrt(elemPy2)
-            assertEquals(elemP.y, elemPyt)
+                val elemPyt = vecGroupN.sqrt(elemPy2)
+                assertEquals(elemP.y, elemPyt)
+            }
         }
     }
 

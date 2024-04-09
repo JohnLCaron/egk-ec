@@ -74,6 +74,8 @@ You should find that the library jar file is placed into:
 
 ## Building the Verificatum library (optional)
 
+While the C libraries in VEC, VECJ and GMP are optional, they are needed for good performance.
+
 ### Installing or Building the GMP library
 
 1. You can check to see if there is a pre-built gmp library available for your machine.
@@ -83,10 +85,7 @@ version is probably fine.
 
 3. Install into one of the library paths, usually /usr/lib.
 
-
 ### Building the Verificatum Elliptic Curve library (VEC)
-
-While the C libraries in VEC, VECJ and GMP are optional, they are needed for good performance.
 
 ```
   cd devhome
