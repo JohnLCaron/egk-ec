@@ -1,4 +1,9 @@
+[![License](https://img.shields.io/github/license/JohnLCaron/egk-ec)](https://github.com/JohnLCaron/egk-ec/main/LICENSE.txt)
+![GitHub branch checks state](https://img.shields.io/github/actions/workflow/status/JohnLCaron/egk-ec/unit-tests.yml)
+![Coverage](https://img.shields.io/badge/Coverage-89.1%25%20(6819/7649)-blue)
+
 # ElectionGuard-Kotlin Elliptic Curve
+
 
 _last update 04/08/2024_
 
