@@ -81,7 +81,6 @@ class VecGroups(
 
         init {
             // NIST
-
             NAMED_PARAMS["prime192v3"] = VecGroups(
                 "fffffffffffffffffffffffffffffffeffffffffffffffff",
                 "fffffffffffffffffffffffffffffffefffffffffffffffc",
@@ -329,6 +328,13 @@ class VecGroups(
                 return res
             }
 
+        var hasNativeLibrary = true
+
+        fun hasNativeLibrary(): Boolean {
+            getEcGroup("P-256", true)
+            return hasNativeLibrary
+        }
+
         // BTW, setting LD_LIBRARY_PATH to /usr/local/lib doesnt work when debugging, add to /usr/lib directly.
         // Ok when running from CLI, though.
         fun getEcGroup(name: String, useNative: Boolean = true): VecGroup {
@@ -336,12 +342,13 @@ class VecGroups(
             if (params == null) {
                 throw RuntimeException("Unknown named curve! ($name)")
             } else {
-                return if (useNative) {
+                return if (hasNativeLibrary && useNative) {
                     val haveNative = try {
                         VEC.getCurve(name)
                         true
                     } catch (t: Throwable) {
                         logger.warn { "VECJ not installed, using non-native library" }
+                        hasNativeLibrary = false
                         false
                     }
                     if (haveNative)

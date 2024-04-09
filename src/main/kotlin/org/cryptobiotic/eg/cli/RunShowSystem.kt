@@ -59,14 +59,14 @@ class RunShowSystem {
             }
 
             if (showSet.has("hasVEC")) {
-                if (testVecDirectExp())
+                if (testVecNative())
                     println("VECJ, VEC and GMP are installed")
                 else
                     println("VECJ, VEC and GMP are not installed")
             }
         }
 
-        fun testVecDirectExp(): Boolean {
+        fun testVecNative(): Boolean {
             try {
                 val group = productionGroup("P-256") as EcGroupContext
                 if (!(group.vecGroup is VecGroupNative)) {

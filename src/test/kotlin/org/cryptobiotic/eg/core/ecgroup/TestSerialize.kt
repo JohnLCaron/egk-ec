@@ -19,9 +19,11 @@ class TestSerialize {
             checkAll(
                 elementsModP(group),
             ) { p ->
-                assertTrue (p is EcElementModP)
+                assertTrue(p is EcElementModP)
                 val ec = (p as EcElementModP).ec
-                assertTrue (ec is VecElementPnative)
+                if (VecGroups.hasNativeLibrary()) {
+                    assertTrue(ec is VecElementPnative)
+                }
             }
         }
     }
@@ -56,15 +58,15 @@ class TestSerialize {
             ) { p ->
                 val ec = (p as EcElementModP).ec
                 val vecGroup = ec.pGroup
-                val convert2 : VecElementP? = vecGroup.elementFromByteArray2(ec.toByteArray2())
+                val convert2: VecElementP? = vecGroup.elementFromByteArray2(ec.toByteArray2())
                 assertNotNull(convert2)
                 assertEquals(ec, convert2)
 
-                val convert12 : VecElementP? = vecGroup.elementFromByteArray1from2(ec.toByteArray2())
+                val convert12: VecElementP? = vecGroup.elementFromByteArray1from2(ec.toByteArray2())
                 assertNotNull(convert12)
                 assertEquals(ec, convert12)
 
-                val convert1 : VecElementP? = vecGroup.elementFromByteArray1(ec.toByteArray1())
+                val convert1: VecElementP? = vecGroup.elementFromByteArray1(ec.toByteArray1())
                 assertNotNull(convert1)
                 assertEquals(ec, convert1)
             }
