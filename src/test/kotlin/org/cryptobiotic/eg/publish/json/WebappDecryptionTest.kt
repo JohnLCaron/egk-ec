@@ -47,7 +47,33 @@ class WebappDecryptionTest {
     }
 
     @Test
-    fun testChallengeRequests() {
+    fun testDecryptRequest() {
+        groups.forEach { testDecryptRequest(it) }
+    }
+
+    fun testDecryptRequest(group: GroupContext) {
+        runTest {
+            checkAll(
+                propTestFastConfig,
+                Arb.string(minSize = 3),
+                Arb.int(min = 1, max = 11),
+            ) {  name, nrequests ->
+                val drequest =
+                    DecryptRequest(
+                        listOf( elementsModP(group, minimum = 2).single(),
+                        elementsModP(group, minimum = 2).single(),
+                        elementsModP(group, minimum = 2).single())
+                    )
+                val drequestj = drequest.publishJson()
+                val roundtrip = drequestj.import(group)
+                assert (roundtrip is Ok)
+                assertEquals(drequest.texts, roundtrip.unwrap())
+            }
+        }
+    }
+
+    @Test
+    fun testPartialDecryptions() {
         groups.forEach { testPartialDecryptions(it) }
     }
 
@@ -69,6 +95,28 @@ class WebappDecryptionTest {
                 val challenges = org.publishJson().import(group)
                 assertTrue(challenges is Ok)
                 assertEquals(org, challenges.unwrap())
+            }
+        }
+    }
+
+    @Test
+    fun testChallengeRequest() {
+        groups.forEach { testChallengeRequest(it) }
+    }
+
+    fun testChallengeRequest(group: GroupContext) {
+        runTest {
+            checkAll(
+                propTestFastConfig,
+                Arb.int(min = 1, max = 122221),
+                Arb.int(min = 1, max = 11),
+            ) {  batchId, nrequests ->
+                val crs = List(nrequests) { elementsModQ(group, minimum = 2).single() }
+                // ChallengeRequest(val batchId: Int, val texts: List<ElementModQ>)
+                val org = ChallengeRequest(batchId, crs)
+                val responses = org.publishJson().import(group)
+                assertTrue(responses is Ok)
+                assertEquals(org, responses.unwrap())
             }
         }
     }

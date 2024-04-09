@@ -31,7 +31,6 @@ interface Consumer {
     fun readTallyResult(): Result<TallyResult, ErrorMessages>
     fun readEncryptedTallyFromFile(filename: String): Result<EncryptedTally, ErrorMessages>
     fun readDecryptionResult(): Result<DecryptionResult, ErrorMessages>
-    fun readDecryptedTallyFromFile(filename: String): Result<DecryptedTallyOrBallot, ErrorMessages>
 
     /** Are there any encrypted ballots? */
     fun hasEncryptedBallots() : Boolean
@@ -53,9 +52,6 @@ interface Consumer {
     fun iterateDecryptedBallots(ballotOverrideDir: String? = null): Iterable<DecryptedTallyOrBallot>
 
     //// may be outside the election record
-    /** read encrypted ballots in given directory. */
-    @Deprecated("to be removed")
-    fun iterateEncryptedBallotsFromDir(ballotDir: String, filter : Predicate<EncryptedBallot>? ): Iterable<EncryptedBallot> // TODO remove?
     /** read plaintext ballots in given directory, private data. */
     fun iteratePlaintextBallots(ballotDir: String, filter : ((PlaintextBallot) -> Boolean)? ): Iterable<PlaintextBallot>
     /** read trustee in given directory for given guardianId, private data. */

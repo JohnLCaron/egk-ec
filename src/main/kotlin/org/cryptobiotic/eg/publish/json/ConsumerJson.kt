@@ -136,23 +136,6 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         )
     }
 
-    override fun readDecryptedTallyFromFile(filename: String): Result<DecryptedTallyOrBallot, ErrorMessages> {
-        val errs = ErrorMessages("DecryptedTallyFromFile '$filename'")
-        val decryptedTallyPath = Path.of(filename)
-        if (!Files.exists(decryptedTallyPath)) {
-            return errs.add("file does not exist ")
-        }
-        return try {
-            fileSystemProvider.newInputStream(decryptedTallyPath, StandardOpenOption.READ).use { inp ->
-                val json = jsonReader.decodeFromStream<DecryptedTallyOrBallotJson>(inp)
-                val tally = json.import(group, errs)
-                if (errs.hasErrors()) Err(errs) else Ok(tally!!)
-            }
-        } catch (t: Throwable) {
-            errs.add("Exception= ${t.message} ${t.stackTraceToString()}")
-        }
-    }
-
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
     override fun hasEncryptedBallots(): Boolean {
@@ -177,16 +160,6 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
     override fun iterateAllEncryptedBallots(filter : ((EncryptedBallot) -> Boolean)? ): Iterable<EncryptedBallot> {
         val devices = encryptingDevices()
         return Iterable { DeviceIterator(devices.iterator(), filter) }
-    }
-
-    // TODO
-
-    override fun iterateEncryptedBallotsFromDir(ballotDir: String, filter: Predicate<EncryptedBallot>? ): Iterable<EncryptedBallot> {
-        val path = fileSystem.getPath(ballotDir)
-        if (!Files.exists(path)) {
-            return emptyList()
-        }
-        return Iterable { EncryptedBallotFileIterator(path, filter) }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
