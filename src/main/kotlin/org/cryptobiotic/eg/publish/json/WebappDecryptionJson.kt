@@ -47,9 +47,9 @@ data class DecryptRequestJson(
     val texts: List<ElementModPJson>
 )
 
-fun  DecryptRequest.publishJson() = DecryptRequestJson( this.texts.map { it.publishJson() } )
+fun DecryptRequest.publishJson() = DecryptRequestJson( this.texts.map { it.publishJson() } )
 
-fun DecryptRequestJson.import(group: GroupContext): Result< List<ElementModP>, String> {
+fun DecryptRequestJson.import(group: GroupContext): Result<List<ElementModP>, String> {
     val responses = this.texts.map { it.import(group) }
     val allgood = responses.map { it != null }.reduce { a, b -> a && b }
 

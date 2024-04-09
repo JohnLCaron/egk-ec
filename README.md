@@ -1,11 +1,10 @@
-[![License](https://img.shields.io/github/license/JohnLCaron/egk-ec)](https://github.com/JohnLCaron/egk-ec/main/LICENSE.txt)
+[![License](https://img.shields.io/github/license/JohnLCaron/egk-ec)](https://github.com/JohnLCaron/egk-ec/blob/main/LICENSE.txt)
 ![GitHub branch checks state](https://img.shields.io/github/actions/workflow/status/JohnLCaron/egk-ec/unit-tests.yml)
-![Coverage](https://img.shields.io/badge/Coverage-89.1%25%20(6819/7649)-blue)
+[![Coverage](https://img.shields.io/badge/coverage-90.2%25%20LOC%20(6875/7623)-blue)](https://github.com/JohnLCaron/egk-ec/blob/main/htmlReport/index.html)
 
 # ElectionGuard-Kotlin Elliptic Curve
 
-
-_last update 04/08/2024_
+_last update 04/09/2024_
 
 EGK Elliptic Curve (egk-ec) is an experimental implementation of [ElectionGuard](https://github.com/microsoft/electionguard), 
 [version 2.0](https://github.com/microsoft/electionguard/releases/download/v2.0/EG_Spec_2_0.pdf), 
@@ -25,8 +24,6 @@ This library also can use the Electionguard Integer Group, and so can also be us
 See [EGK EC mixnet](https://github.com/JohnLCaron/egk-ec-mixnet) for an implementation of a mixnet using this library with Elliptic Curves.
 
 See [EGK webapps](https://github.com/JohnLCaron/egk-webapps) for HTTP client/server applications that use this library to allow remote workflows.
-
-Currently we have 89.1% (6819/7649) LOC test coverage.
 
 ## Documentation
 * [Getting Started](docs/GettingStarted.md)
