@@ -73,17 +73,14 @@ class RunEncryptBallotTiming {
                 val encryptedBallot = encryptor.encrypt(ballot, ByteArray(0), ErrorMessages("testEncryption"))
                 requireNotNull(encryptedBallot)
             }
-            val opCounts = group.getAndClearOpCounts()
+            group.getAndClearOpCounts()
 
             val nencryptions = ncontests + ncontests * nselections
             println("Encryption ${stopwatch.tookPer(nballots, "ballots")}")
             println("   ${stopwatch.tookPer(nencryptions, "encryptions")}")
             println()
             if (showOperations) {
-                println("operations:")
-                println(buildString {
-                    opCounts.forEach { key, value -> println("  $key = $value") }
-                })
+                println(group.showOpCountResults("operations"))
                 println("expect: ${6 * nencryptions * nballots + 2 * nballots}")
             }
         }

@@ -3,6 +3,7 @@ package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.*
 import java.math.BigInteger
+import java.util.concurrent.atomic.AtomicInteger
 
 class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext {
     val vecGroup: VecGroup = VecGroups.getEcGroup(name, useNative)
@@ -52,8 +53,12 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
         return EcElementModP(this, vecGroup.g.exp(exp.element))
     }
 
+    var opCounts: HashMap<String, AtomicInteger> = HashMap()
     override fun getAndClearOpCounts(): Map<String, Int> {
-        return emptyMap()
+        val result = HashMap<String, Int>()
+        opCounts.forEach { (key, value) -> result[key] = value.get() }
+        opCounts = HashMap()
+        return result.toSortedMap()
     }
 
     override fun isCompatible(ctx: GroupContext): Boolean {
