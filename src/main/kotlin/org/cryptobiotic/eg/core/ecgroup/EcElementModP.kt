@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.*
+import java.util.concurrent.atomic.AtomicInteger
 
 class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP {
     override val context: GroupContext = group
@@ -36,6 +37,7 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP
 
     override fun powP(exp: ElementModQ): ElementModP {
         require (exp is EcElementModQ)
+        group.opCounts.getOrPut("exp") { AtomicInteger(0) }.incrementAndGet()
         return EcElementModP(group, ec.exp(exp.element))
     }
 

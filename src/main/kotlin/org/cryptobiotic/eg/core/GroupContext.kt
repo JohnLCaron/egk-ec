@@ -275,5 +275,15 @@ fun GroupContext.addQ(vararg elements: ElementModQ) = elements.asIterable().addQ
  */
 fun GroupContext.multP(vararg elements: ElementModP) = elements.asIterable().multP()
 
+fun GroupContext.showOpCountResults(where: String): String {
+    val opCounts = this.getAndClearOpCounts()
+    return buildString {
+        appendLine("$where:")
+        opCounts.toSortedMap().forEach { (key, value) ->
+            appendLine("   $key : $value")
+        }
+    }
+}
+
 
 
