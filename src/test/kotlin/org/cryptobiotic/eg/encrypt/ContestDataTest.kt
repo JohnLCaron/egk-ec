@@ -10,7 +10,6 @@ import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Testing
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
