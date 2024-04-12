@@ -32,7 +32,7 @@ fun keyCeremonyExchange(trustees: List<KeyCeremonyTrusteeIF>, allowEncryptedFail
         return Err("keyCeremonyExchange trustees have different quorums = ${trustees.map{it.coefficientCommitments().size}}")
     }
 
-    // LOOK if the trustees are not trusted, we could do other verification tests here.
+    // TODO if the trustees are not trusted, we could do other verification tests here.
     //  are the public keys valid?
     //  are the encrypted shares valid?
     //  are the unencrypted shares valid?

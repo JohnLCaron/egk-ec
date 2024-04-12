@@ -1,6 +1,6 @@
 # Egk Election Record JSON version 2.1 serialization (proposed specification)
 
-draft 04/04/2024
+draft 04/12/2024
 
 <!-- TOC -->
 * [Egk Election Record JSON version 2.1 serialization (proposed specification)](#egk-election-record-json-version-21-serialization-proposed-specification)
@@ -425,7 +425,7 @@ data class SelectionVectorJson(
     val encryptions: List<ElGamalCiphertextJson>, // Ej, size = nselections, in order by sequence_order
 )
 
-Note EncryptedBallotJson.primary_nonce, election_id
+TODO PreEncryptionJson is not in any spec.
 
 ````
 

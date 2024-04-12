@@ -2,7 +2,7 @@ package org.cryptobiotic.util
 
 import kotlin.test.Test
 
-// LOOK can use println("SimpleBallot %.2f encryptions / sec".format(numBallots / encryptionTime)) instead of dfrac
+// Can use println("SimpleBallot %.2f encryptions / sec".format(numBallots / encryptionTime)) instead of dfrac
 
 class DfracTest {
 

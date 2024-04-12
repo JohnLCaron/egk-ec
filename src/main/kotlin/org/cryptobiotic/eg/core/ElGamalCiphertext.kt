@@ -89,20 +89,18 @@ fun List<ElGamalCiphertext>.add(other: List<ElGamalCiphertext>): List<ElGamalCip
     return result
 }
 
-// TODO what happens if nonce is small enough to take the log of?
 fun Int.encrypt(
     keypair: ElGamalKeypair,
     nonce: ElementModQ = keypair.context.randomElementModQ(minimum = 1)
 ) = this.encrypt(keypair.publicKey, nonce)
 
-/** Encrypt an Int. */
+/** Encrypt an Int. Value must be positive. */
 fun Int.encrypt(
     publicKey: ElGamalPublicKey,
     nonce: ElementModQ = publicKey.context.randomElementModQ(minimum = 1)
 ): ElGamalCiphertext {
     val context = compatibleContextOrFail(publicKey.key, nonce)
 
-    // LOOK: Exception
     if (nonce.isZero()) {
         throw ArithmeticException("Can't use a zero nonce for ElGamal encryption")
     }
@@ -118,18 +116,16 @@ fun Int.encrypt(
     return ElGamalCiphertext(pad, data)
 }
 
-/** Encrypt a Long. Used to encrypt serial number. */
+/** Encrypt a Long. Used to encrypt serial number. Value must be positive. */
 fun Long.encrypt(
     publicKey: ElGamalPublicKey,
     nonce: ElementModQ = publicKey.context.randomElementModQ(minimum = 1)
 ): ElGamalCiphertext {
     val context = compatibleContextOrFail(publicKey.key, nonce)
 
-    // LOOK: Exception
     if (nonce.isZero()) {
         throw ArithmeticException("Can't use a zero nonce for ElGamal encryption")
     }
-
     if (this < 0) {
         throw ArithmeticException("Can't encrypt a negative value")
     }

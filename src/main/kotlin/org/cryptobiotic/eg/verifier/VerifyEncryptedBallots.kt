@@ -62,8 +62,8 @@ class VerifyEncryptedBallots(
             joinAll(*verifierJobs.toTypedArray())
         }
 
-        // check duplicate confirmation codes (7.C): LOOK what if there are multiple records for the election?
-        // LOOK what about checking for duplicate ballot ids?
+        // check duplicate confirmation codes (7.C): TODO what if there are multiple records for the election?
+        // TODO what about checking for duplicate ballot ids?
         val checkDuplicates = mutableMapOf<UInt256, String>()
         confirmationCodes.forEach {
             if (checkDuplicates[it.code] != null) {

@@ -106,7 +106,7 @@ class BallotDecryptor(
 
                 DecryptedTallyOrBallot.Selection(
                     eselection.selectionId,
-                    tally?: 0, // TODO
+                    tally?: 0, // TODO error handling
                     T,
                     (decryption.cipher as Ciphertext).delegate,
                     proof

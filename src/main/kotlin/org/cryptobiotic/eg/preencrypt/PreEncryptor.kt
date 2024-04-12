@@ -64,7 +64,7 @@ class PreEncryptor(
         // In a contest with a selection limit of L, an additional L null vectors are added
         var nextSeqNo = sortedSelections.last().sequenceOrder + 1
         for (nullVectorIdx in (1..contestLimit)) {
-            // TODO null labels may be in manifest, see 4.2.1. wtf?
+            // TODO "null labels may be in manifest", see 4.2.1. wtf?
             preeSelections.add( preencryptSelection(primaryNonce, this.sequenceOrder, "null${nullVectorIdx}", nextSeqNo, sortedSelectionIndices))
             nextSeqNo++
         }

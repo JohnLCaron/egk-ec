@@ -187,7 +187,7 @@ fun PlaintextBallot.Contest.encryptContest(
 ): PendingEncryptedBallot.Contest {
 
     val ciphertexts: List<ElGamalCiphertext> = encryptedSelections.map { it.ciphertext }
-    val ciphertextAccumulation: ElGamalCiphertext = ciphertexts.encryptedSum()?: 0.encrypt(jointPublicKey) // LOOK deterministic?
+    val ciphertextAccumulation: ElGamalCiphertext = ciphertexts.encryptedSum()?: 0.encrypt(jointPublicKey)
     val nonces: Iterable<ElementModQ> = encryptedSelections.map { it.selectionNonce }
     val aggNonce: ElementModQ = with(group) { nonces.addQ() }
 
