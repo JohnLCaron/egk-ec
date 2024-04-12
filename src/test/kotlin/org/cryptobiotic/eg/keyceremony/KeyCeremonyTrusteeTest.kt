@@ -276,7 +276,7 @@ class KeyCeremonyTrusteeTest {
         println("result = $resultBadCoordinate")
         assertTrue(resultBadCoordinate.error.contains("Trustee 'id2' error validating KeyShare for missingGuardianId 'id1'"))
 
-        /* Give it a bad nonce LOOK this is disabled in KeyCeremonyTrustee.receiveKeyShare(), see notes there
+        /* Give it a bad nonce. This is disabled in KeyCeremonyTrustee.receiveKeyShare(), see notes there
         val keyShareBadNonce = keyShare12.copy(nonce = group.TWO_MOD_Q)
         val resultBadNonce = trustee2.receiveKeyShare(keyShareBadNonce)
         assertTrue(resultBadNonce is Err)

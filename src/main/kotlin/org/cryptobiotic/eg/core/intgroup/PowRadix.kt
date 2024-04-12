@@ -127,8 +127,6 @@ internal fun ByteArray.kBitsPerSlice(
     // otherwise we'd need to move up from UShortArray to UIntArray
     // and take a lot more intermediate space for the computation.
 
-    // TODO: support values other than the hard-coded 16, 12, and 8-bit slices?
-
     require (this.size <= 32 || (this.size == 33 && this[0].toInt() == 0)) {
         "invalid input size (${this.size}), not 32 bytes"
     }

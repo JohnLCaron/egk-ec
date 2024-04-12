@@ -62,7 +62,7 @@ fun EncryptedKeyShareJson.import(group: GroupContext): EncryptedKeyShare? {
         )
 }
 
-/** External representation of a KeyShare LOOK */
+/** External representation of a KeyShare */
 @Serializable
 data class KeyShareJson(
     val ownerXcoord : Int,

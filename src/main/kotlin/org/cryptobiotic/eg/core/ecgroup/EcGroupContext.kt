@@ -25,7 +25,7 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
     override val constants = vecGroup.constants
     val dlogg = DLogarithm(G_MOD_P)
 
-    // TODO diff of this and safe version?
+    // TODO whats diff of this and safe version?
     override fun binaryToElementModP(b: ByteArray): ElementModP? {
         val elem = vecGroup.elementFromByteArray(b)
         return if (elem != null) EcElementModP(this, elem) else null
@@ -87,7 +87,6 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
 
     override fun randomElementModP(minimum: Int) = EcElementModP(this, vecGroup.randomElement())
 
-    // TODO could these be done with just a mod at the end?
     fun addQQ(cues: Iterable<ElementModQ>): ElementModQ {
         val sum = cues.fold(BigInteger.ZERO) { a, b -> a.plus((b as EcElementModQ).element) }
         return EcElementModQ(this, sum.mod(vecGroup.order))
@@ -111,7 +110,6 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
         if (bases.isEmpty()) {
             return ONE_MOD_P
         }
-        // TODO seems a bit awkward....
         val ec = vecGroup.prodPowers(bases, exps)
         return EcElementModP(this, ec)
     }

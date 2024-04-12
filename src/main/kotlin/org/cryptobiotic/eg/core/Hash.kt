@@ -53,7 +53,7 @@ fun HmacSha256.addToHash(element : Any) {
             is ByteArray -> element
             is UInt256 -> element.bytes
             is Element -> element.byteArray()
-            is String -> element.encodeToByteArray() // LOOK not adding size
+            is String -> element.encodeToByteArray() // TODO not adding size, see Issue #48
             is ElGamalCiphertext -> element.pad.byteArray() + element.data.byteArray()
             is ElGamalPublicKey -> element.key.byteArray()
             is Int -> intToByteArray(element)
