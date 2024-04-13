@@ -16,18 +16,13 @@ import org.cryptobiotic.util.ErrorMessages
 // TODO error if ballotChain is already closed ??
 
 // Let Baux,0 = "Baux,0 must contain at least a unique voting device identifier and possibly other voting device
-// information as described above and as specified in the election manifest file.
+// information as described above and as specified in the election manifest file." p 36.
 //
 // Then:
-//
 //  H0 = H(HE ; 0x24, Baux,0) (59)
-//
 //  Baux,1 = H0 ∥ Baux,0
-//
 //  H(B1) = H(HE ; 0x24, χ1 , χ2 , . . . , χmB , Baux,1 ).
-//
 //  Baux,j = Hj−1 ∥ Baux,0     (60)
-//
 //  H(Bj) = H(HE ; 0x24, χ1 , χ2 , . . . , χmB , Baux,j ).
 
 data class EncryptedBallotChain(

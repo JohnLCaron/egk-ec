@@ -4,6 +4,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.cryptobiotic.eg.cli.RunVerifier
+import org.cryptobiotic.eg.core.createDirectories
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -19,6 +20,7 @@ import kotlin.test.assertNotNull
 
 import org.cryptobiotic.eg.publish.json.*
 import org.cryptobiotic.util.ErrorMessages
+import org.cryptobiotic.util.Testing
 
 
 // run verifier on zipped JSON record
@@ -27,11 +29,12 @@ class TestZippedJson {
     val jsonReader = Json { explicitNulls = false; ignoreUnknownKeys = true; prettyPrint = true }
 
     val inputDir = "src/test/data/workflow/allAvailableEc"
-    val zippedJson = "src/test/data/workflow/allAvailableEc.zip"
+    val zippedJson = "${Testing.testOut}/zip/allAvailableEc.zip"
     val fs: FileSystem
     val fsp: FileSystemProvider
 
     init {
+        createDirectories("${Testing.testOut}/zip/")
         zipFolder(File(inputDir), File(zippedJson))
         fs = FileSystems.newFileSystem(Path.of(zippedJson), mutableMapOf<String, String>())
         fsp = fs.provider()
@@ -60,6 +63,7 @@ class TestZippedJson {
     fun testVerifyEncryptedBallots() {
         RunVerifier.verifyEncryptedBallots(zippedJson, 11)
         RunVerifier.verifyChallengedBallots(zippedJson)
+        RunVerifier.runVerifier(zippedJson, 11)
     }
 }
 

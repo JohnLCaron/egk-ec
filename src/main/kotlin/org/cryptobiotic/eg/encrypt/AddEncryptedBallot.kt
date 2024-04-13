@@ -19,7 +19,7 @@ import java.io.Closeable
 private val logger = KotlinLogging.logger("AddEncryptedBallot")
 
 /**
- * Encrypt a ballot and add to election record. TODO Single threaded only?.
+ * Encrypt a ballot and add to election record. Single threaded or thread confined only.
  *  Note that chaining is controlled by config.chainConfirmationCodes, and handled here.
  *  Note that this allows for benolah challenge, ie voter submits a ballot, gets a confirmation code
  *  (with or without ballot chaining), then decide to challenge or cast.
@@ -132,7 +132,7 @@ class AddEncryptedBallot(
             sink.writeEncryptedBallot(eballot)
             Ok(eballot)
         } catch (t: Throwable) {
-            logger.throwing(t) // TODO
+            logger.throwing(t)
             Err("Tried to submit Ciphertext ballot state=$state ccode=$ccode error = ${t.message}")
         }
     }
@@ -164,7 +164,7 @@ class AddEncryptedBallot(
                 }
             }
         } catch (t: Throwable) {
-            logger.throwing(t) // TODO
+            logger.throwing(t)
             return Err("Tried to challenge Ciphertext ballot ccode=$ccode error = ${t.message}")
         }
     }
