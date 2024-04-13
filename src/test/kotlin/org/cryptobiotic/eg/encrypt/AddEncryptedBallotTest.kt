@@ -18,12 +18,12 @@ import org.cryptobiotic.util.Testing
 
 class AddEncryptedBallotTest {
     val input = "src/test/data/workflow/allAvailableEc"
-    val outputDir = "${Testing.testOut}/encrypt/addEncryptedBallot/Plain"
+    val testDir = "${Testing.testOut}/encrypt/addEncryptedBallot/Plain"
     val nballots = 4
 
     @Test
     fun testJustOne() {
-        val outputDir = "$outputDir/testJustOne"
+        val outputDir = "$testDir/testJustOne"
         val device = "device0"
 
         val electionRecord = readElectionRecord(input)
@@ -57,7 +57,7 @@ class AddEncryptedBallotTest {
 
     @Test
     fun testEncryptAndCast() {
-        val outputDir = "$outputDir/testEncryptAndCast"
+        val outputDir = "$testDir/testEncryptAndCast"
         val device = "device0"
 
         val electionRecord = readElectionRecord(input)
@@ -82,7 +82,10 @@ class AddEncryptedBallotTest {
             val ballot = ballotProvider.makeBallot()
             val result = encryptor.encryptAndCast(ballot, ErrorMessages("testEncryptAndCast"))
             assertNotNull(result)
-            assertTrue(encryptor.submit(result.confirmationCode, EncryptedBallot.BallotState.CAST) is Err)
+            // expect submitting again to fail
+            val submitAgain = encryptor.submit(result.confirmationCode, EncryptedBallot.BallotState.CAST)
+            assertTrue(submitAgain is Err)
+            assertTrue(submitAgain.error.contains("unknown ballot ccode"))
         }
         encryptor.close()
 
@@ -91,7 +94,7 @@ class AddEncryptedBallotTest {
 
     @Test
     fun testEncryptAndCastNoWrite() {
-        val outputDir = "$outputDir/testEncryptAndCastNoWrite"
+        val outputDir = "$testDir/testEncryptAndCastNoWrite"
         val device = "device0"
 
         val electionRecord = readElectionRecord(input)
@@ -116,16 +119,21 @@ class AddEncryptedBallotTest {
             val ballot = ballotProvider.makeBallot()
             val result = encryptor.encryptAndCast(ballot, ErrorMessages("testEncryptAndCastNoWrite"), false)
             assertNotNull(result)
-            assertTrue(encryptor.submit(result.confirmationCode, EncryptedBallot.BallotState.CAST) is Err)
+            // expect submitting again to fail
+            val submitAgain = encryptor.submit(result.confirmationCode, EncryptedBallot.BallotState.CAST)
+            assertTrue(submitAgain is Err)
+            assertTrue(submitAgain.error.contains("unknown ballot ccode"))
         }
         encryptor.close()
 
-        // TODO make sure no ballots were written
+        // make sure no ballots were written
+        val consumer = makeConsumer(outputDir)
+        assertFalse(consumer.hasEncryptedBallots())
     }
 
     @Test
     fun testCallMultipleTimes() {
-        val outputDir = "$outputDir/testCallMultipleTimes"
+        val outputDir = "$testDir/testCallMultipleTimes"
         val device = "device1"
 
         val electionRecord = readElectionRecord(input)
@@ -161,7 +169,7 @@ class AddEncryptedBallotTest {
 
     @Test
     fun testMultipleDevices() {
-        val outputDir = "$outputDir/testMultipleDevices"
+        val outputDir = "$testDir/testMultipleDevices"
 
         val electionRecord = readElectionRecord(input)
         val electionInit = electionRecord.electionInit()!!
@@ -196,7 +204,7 @@ class AddEncryptedBallotTest {
 
     @Test
     fun testOneWithChain() {
-        val outputDir = "$outputDir/testOneWithChain"
+        val outputDir = "$testDir/testOneWithChain"
         val device = "device0"
 
         val electionRecord = readElectionRecord(input)
@@ -232,7 +240,7 @@ class AddEncryptedBallotTest {
 
     @Test
     fun testCallMultipleTimesChaining() {
-        val outputDir = "$outputDir/testCallMultipleTimesChaining"
+        val outputDir = "$testDir/testCallMultipleTimesChaining"
         val device = "device1"
 
         val electionRecord = readElectionRecord(input)
@@ -270,7 +278,7 @@ class AddEncryptedBallotTest {
 
     @Test
     fun testMultipleDevicesChaining() {
-        val outputDir = "$outputDir/testMultipleDevicesChaining"
+        val outputDir = "$testDir/testMultipleDevicesChaining"
 
         val electionRecord = readElectionRecord( input)
         val configWithChaining = electionRecord.config().copy(chainConfirmationCodes = true)

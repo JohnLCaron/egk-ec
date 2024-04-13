@@ -1,6 +1,6 @@
 # EGK Election Record JSON directory and file layout, version 2.1
 
-draft 04/04/2024
+draft 04/13/2024
 
 ## Public Election Record files
 
@@ -27,7 +27,8 @@ topdir/
 ````   
 
 The encrypted_ballots directory may optionally be divided into "device" subdirectories.
-If using ballot chaining, each such subdirectory is a separate ballot chain.
+
+If using ballot chaining, each such subdirectory is a separate ballot chain, like this:
 
 ````
 topdir/
@@ -65,6 +66,8 @@ Files/directories may be absent, depending on the workflow stage:
 * The encrypted_ballots director(ies) contain all ballots, cast or challenged.
 * The challenged_ballots directory contain only challenged ballots that have been decrypted.
 * DecryptedTallyJson and DecryptedBallotJson use the same schema (DecryptedTallyOrBallotJson)
+
+The entire election record may be zipped; the library can read from the zip file, eg for verification.
 
 ## Private files
 

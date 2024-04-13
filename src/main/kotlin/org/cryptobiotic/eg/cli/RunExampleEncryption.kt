@@ -13,13 +13,13 @@ import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
 import kotlin.random.Random
-import kotlin.system.exitProcess
 
 /**
  * Simulates using RunEncryptBallot one ballot at a time.
  * Note that chaining is controlled by config.chainConfirmationCodes, and handled by RunEncryptBallot.
  * Note that this does not allow for benolah challenge, ie voter submits a ballot, gets a confirmation code
- * (with or without ballot chaining), then decide to challenge or cast. So all ballots are cast. */
+ * (with or without ballot chaining), then decide to challenge or cast. So all ballots are cast.
+ */
 class RunExampleEncryption {
 
     companion object {
@@ -112,7 +112,6 @@ class RunExampleEncryption {
                 logger.info { "success" }
             } else {
                 logger.error { "failure" }
-                exitProcess(10)
             }
         }
     }

@@ -212,7 +212,7 @@ open class KeyCeremonyTrustee(
         // (αi,ℓ , βi,ℓ ) = (g^ξi,ℓ mod p, K^ξi,ℓ mod p), ξi,ℓ = nonce
         // (α_i,ℓ , β_i,ℓ ) = (g^nonce mod p, Kℓ^nonce mod p) ;  spec 2.0.0, eq 14
         // by encrypting a zero, we achieve exactly this
-        val K_l = ElGamalPublicKey(other.publicKey) // TODO is it worth turning this into an accelerated elementP?
+        val K_l = ElGamalPublicKey(other.publicKey)
         val (alpha, beta) = 0.encrypt(K_l, nonce)
         // ki,ℓ = H(HP ; 0x11, i, ℓ, Kℓ , αi,ℓ , βi,ℓ ) ; eq 15 "secret key"
         val kil = hashFunction(hp, 0x11.toByte(), i, l, other.publicKey, alpha, beta).bytes

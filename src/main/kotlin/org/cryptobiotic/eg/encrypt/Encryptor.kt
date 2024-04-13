@@ -5,10 +5,10 @@ import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.util.ErrorMessages
 
 /**
- * Encrypt Plaintext Ballots into Ciphertext Ballots.
+ * Encrypt Plaintext Ballots into PendingEncryptedBallot.
  * The manifest is expected to have passed manifest validation (see ManifestInputValidation).
- * The input ballots are expected to have passed ballot validation [TODO missing contests added? overvotes checked?]
- * See RunBatchEncryption and BallotInputValidation to validate ballots before passing them to this class.
+ * The input ballots are expected to have passed ballot validation
+ * See RunExampleEncryption and BallotInputValidation to validate ballots before passing them to this class.
  */
 class Encryptor(
     val group: GroupContext,

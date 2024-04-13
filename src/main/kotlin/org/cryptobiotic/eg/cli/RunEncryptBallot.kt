@@ -74,13 +74,11 @@ class RunEncryptBallot {
                     )
                     if (retval != 0) {
                         logger.info { "encryptBallot retval=$retval" }
-                        // exitProcess(retval)
                     }
                 }
 
             } catch (t: Throwable) {
                 logger.error(t) { "failed ${t.message}" }
-                // exitProcess(10)
             }
         }
 
