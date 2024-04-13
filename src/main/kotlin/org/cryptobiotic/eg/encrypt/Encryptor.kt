@@ -39,8 +39,12 @@ class Encryptor(
 
         val encryptedContests = mutableListOf<PendingEncryptedBallot.Contest>()
         val manifestContests = manifest.contestsForBallotStyle(this.ballotStyle)
-        if (manifestContests == null || manifestContests.isEmpty()) {
-            errs.add("Manifest does not have ballotStyle ${this.ballotStyle} or it has no contests for that ballotStyle")
+        if (manifestContests == null) {
+            errs.add("Manifest does not have ballotStyle ${this.ballotStyle}")
+            return null
+        }
+        if (manifestContests.isEmpty()) {
+            errs.add("Manifest has no contests for ballotStyle ${this.ballotStyle}")
             return null
         }
         for (mcontest in manifestContests) {
@@ -58,7 +62,6 @@ class Encryptor(
         // H(B) = H(HE ; 0x24, χ1 , χ2 , . . . , χmB , Baux ) ;  spec 2.0.0 eq 58
         val contestHashes = sortedContests.map { it.contestHash }
         val confirmationCode = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), contestHashes, codeBaux)
-        val timestamp = timestampOverride ?: (System.currentTimeMillis() / 1000) // secs since epoch
 
         val encryptedSn: ElGamalCiphertext? = if (this.sn != null) {
             val snNonce = hashFunction(extendedBaseHashB, 0x110.toByte(), ballotNonce).toElementModQ(group)
@@ -69,7 +72,7 @@ class Encryptor(
             ballotId,
             ballotStyle,
             encryptingDevice,
-            timestamp,
+            timestampOverride ?: (System.currentTimeMillis() / 1000), // secs since epoch,
             codeBaux,
             confirmationCode,
             extendedBaseHash,
@@ -93,11 +96,11 @@ class Encryptor(
     ): PendingEncryptedBallot.Contest {
         val ballotSelections = this.selections.associateBy { it.selectionId }
 
+        // count the number of votes
         val votedFor = mutableListOf<Int>()
         var selectionOvervote = false
         for (mselection: ManifestIF.Selection in mcontest.selections) {
-            // Find the ballot selection matching the contest description.
-            val plaintextSelection = ballotSelections[mselection.selectionId]
+            val plaintextSelection = ballotSelections[mselection.selectionId] // Find the plaintext selection matching the manifest selectionId.
             if (plaintextSelection != null && plaintextSelection.vote > 0) {
                 votedFor.add(plaintextSelection.sequenceOrder)
                 if (plaintextSelection.vote > optionLimit) {
@@ -106,8 +109,7 @@ class Encryptor(
             }
         }
 
-        // TODO writeIns is adding an extra selection?? Messes with decryption. ability to turn feature off ??
-        // when theres a writein and a vote, the contest is overvoted and all votes are set to 0.
+        // Compute the contest status
         val totalVotedFor = votedFor.size + this.writeIns.size
         val status = if (totalVotedFor == 0) ContestDataStatus.null_vote
             else if (selectionOvervote || totalVotedFor > contestLimit)  ContestDataStatus.over_vote
@@ -118,7 +120,7 @@ class Encryptor(
         for (mselection: ManifestIF.Selection in mcontest.selections) {
             var plaintextSelection = ballotSelections[mselection.selectionId]
 
-            // Set vote to zero if not in manifest or this contest is overvoted
+            // Set vote to zero if not in manifest or this contest is overvoted. See 3.3.3 "Overvotes".
             if (plaintextSelection == null || (status == ContestDataStatus.over_vote)) {
                 plaintextSelection = makeZeroSelection(mselection.selectionId, mselection.sequenceOrder)
             }

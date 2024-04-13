@@ -3,11 +3,9 @@ package org.cryptobiotic.eg.encrypt
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.cryptobiotic.eg.core.Base64.fromBase64
 import org.cryptobiotic.eg.core.UInt256
 import org.cryptobiotic.eg.core.hashFunction
 import org.cryptobiotic.eg.core.plus
-import org.cryptobiotic.eg.core.toUInt256
 import org.cryptobiotic.eg.election.EncryptedBallot
 import org.cryptobiotic.eg.publish.Consumer
 import org.cryptobiotic.eg.publish.Publisher
@@ -46,7 +44,7 @@ data class EncryptedBallotChain(
             ballotChainOverrideDir: String?,
             configBaux0: ByteArray,
             extendedBaseHash: UInt256,
-        ): Pair<ByteArray?, EncryptedBallotChain> {
+        ): Pair<ByteArray, EncryptedBallotChain> {
             var chain: EncryptedBallotChain? = null
 
             // If chainCodes is true, and configBaux0 is empty, then the device name UTF-8 bytes will be used when creating the
@@ -70,8 +68,9 @@ data class EncryptedBallotChain(
 
             if (showChain) println( " makeCodeBaux ${codeBaux.contentToString()}")
 
-            if (chain == null)
+            if (chain == null) {
                 chain = EncryptedBallotChain(device, baux0, extendedBaseHash, emptyList(), UInt256.ZERO, null)
+            }
 
             return Pair(codeBaux, chain)
         }
@@ -99,7 +98,6 @@ data class EncryptedBallotChain(
         // append finalConfirmationCode and close the ballotChain
         fun terminateChain(
             publisher: Publisher,
-            device: String,
             ballotChainOverrideDir: String?,
             currentChain: EncryptedBallotChain,
         ): Int {
@@ -126,7 +124,6 @@ data class EncryptedBallotChain(
         fun assembleChain(
             consumer: Consumer,
             device: String,
-            ballotChainOverrideDir: String?,
             configBaux0: ByteArray,
             extendedBaseHash: UInt256,
             errs: ErrorMessages
@@ -137,7 +134,7 @@ data class EncryptedBallotChain(
             val H0 = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), baux0).bytes + baux0
             val start = BallotChainEntry("START", 0)
 
-            val encryptedBallots = consumer.iterateEncryptedBallots(device) { true } // TODO ballotChainOverrideDir ??
+            val encryptedBallots = consumer.iterateEncryptedBallots(device) { true }
             val bauxMap = mutableMapOf<Int, BallotChainEntry>()
             bauxMap[H0.contentHashCode()] = start
             encryptedBallots.map { eballot ->
@@ -205,7 +202,7 @@ data class EncryptedBallotChain(
         constructor(ballot: EncryptedBallot) : this(ballot.ballotId, ballot.confirmationCode, ballot.codeBaux)
 
         override fun toString(): String {
-            return "$ballotId"
+            return ballotId
         }
     }
 }

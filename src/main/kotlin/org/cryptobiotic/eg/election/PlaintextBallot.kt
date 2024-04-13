@@ -14,6 +14,7 @@ data class PlaintextBallot(
 ) {
     init {
         require(ballotId.isNotEmpty())
+        require((sn == null) || (sn > 0))
     }
 
     constructor(org: PlaintextBallot, errors: String):

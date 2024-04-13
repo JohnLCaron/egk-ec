@@ -358,8 +358,7 @@ class RunBatchEncryption {
             }
 
         // coroutines allow parallel encryption at the ballot level
-        // TODO not possible to do ballot chaining, since the order is indeterminate?
-        //    or do we just have to work harder??
+        // TODO not possible to do ballot chaining, since the order is indeterminate? or do we just have to work harder?
         private fun CoroutineScope.launchEncryptor(
             id: Int,
             input: ReceiveChannel<PlaintextBallot>,

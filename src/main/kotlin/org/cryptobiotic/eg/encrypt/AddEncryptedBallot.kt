@@ -25,7 +25,7 @@ private val logger = KotlinLogging.logger("AddEncryptedBallot")
  *  (with or without ballot chaining), then decide to challenge or cast.
  */
 class AddEncryptedBallot(
-    val manifest: ManifestIF, // should already be validated
+    val manifest: ManifestIF, // must already be validated
     val ballotValidator: BallotInputValidation,
     val chaining: Boolean,
     val configBaux0: ByteArray,
@@ -82,7 +82,7 @@ class AddEncryptedBallot(
                 extendedBaseHash,
             )
             currentChain = pair.second
-            pair.first!! // cant be null
+            pair.first // cant be null
         }
 
         val ciphertextBallot = encryptor.encrypt(ballot, bauxj, errs)
@@ -182,7 +182,6 @@ class AddEncryptedBallot(
         if (chaining) {
             EncryptedBallotChain.terminateChain(
                 publisher,
-                device,
                 null,
                 currentChain!!
             )

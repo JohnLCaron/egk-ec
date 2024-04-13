@@ -5,7 +5,6 @@ import com.github.michaelbull.result.*
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.intgroup.IntGroupConstants
 import org.cryptobiotic.eg.core.intgroup.Primes4096
-import org.cryptobiotic.eg.core.intgroup.Primes4096.nbytes
 import org.cryptobiotic.eg.core.intgroup.ProductionGroupContext
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.ElectionRecord
@@ -72,8 +71,7 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
 
         val chainOk = if (!config.chainConfirmationCodes) true else {
             val chainErrs = ErrorMessages("")
-            val ok = encryptionVerifier.verifyConfirmationChain(record, chainErrs)
-            // encryptionVerifier.verifyConfirmationChain2(record, chainErrs)
+            val ok = encryptionVerifier.verifyConfirmationChain(record.consumer(), chainErrs)
             println(" 7. verifyConfirmationChain $ok")
             if (!ok) {
                 println(chainErrs)
