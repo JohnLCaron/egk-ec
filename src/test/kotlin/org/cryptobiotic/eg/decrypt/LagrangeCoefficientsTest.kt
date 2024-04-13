@@ -1,13 +1,11 @@
-package org.cryptobiotic.eg.tally
+package org.cryptobiotic.eg.decrypt
 
 import org.cryptobiotic.eg.core.productionGroup
-import org.cryptobiotic.eg.decrypt.computeLagrangeCoefficient
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private val group = productionGroup()
-
 class LagrangeCoefficientsTest {
+    private val group = productionGroup()
 
     @Test
     fun testLagrangeCoefficientAreIntegral() {
@@ -32,7 +30,7 @@ class LagrangeCoefficientsTest {
             val coeff: Int = computeLagrangeCoefficientInt(coord, others)
             val numer: Int = computeLagrangeNumerator(others)
             val denom: Int = computeLagrangeDenominator(coord, others)
-            val coeffQ = group.computeLagrangeCoefficient(coord, others.map { it})
+            val coeffQ = group.computeLagrangeCoefficient(coord, others.map { it })
             println("($coord) $coeff == ${numer} / ${denom} rem ${numer % denom} == $coeffQ")
             if (exact) {
                 assertEquals(0, numer % denom)
@@ -40,31 +38,31 @@ class LagrangeCoefficientsTest {
         }
         println()
     }
-}
 
-fun computeLagrangeCoefficientInt(coordinate: Int, others: List<Int>): Int {
-    if (others.isEmpty()) {
-        return 1
+    fun computeLagrangeCoefficientInt(coordinate: Int, others: List<Int>): Int {
+        if (others.isEmpty()) {
+            return 1
+        }
+        val numerator: Int = others.reduce { a, b -> a * b }
+
+        val diff: List<Int> = others.map { degree: Int -> degree - coordinate }
+        val denominator = diff.reduce { a, b -> a * b }
+
+        return numerator / denominator
     }
-    val numerator: Int = others.reduce { a, b -> a * b }
 
-    val diff: List<Int> = others.map { degree: Int -> degree - coordinate }
-    val denominator = diff.reduce { a, b -> a * b }
-
-    return numerator / denominator
-}
-
-fun computeLagrangeNumerator(others: List<Int>): Int {
-    if (others.isEmpty()) {
-        return 1
+    fun computeLagrangeNumerator(others: List<Int>): Int {
+        if (others.isEmpty()) {
+            return 1
+        }
+        return others.reduce { a, b -> a * b }
     }
-    return others.reduce { a, b -> a * b }
-}
 
-fun computeLagrangeDenominator(coordinate: Int, others: List<Int>): Int {
-    if (others.isEmpty()) {
-        return 1
+    fun computeLagrangeDenominator(coordinate: Int, others: List<Int>): Int {
+        if (others.isEmpty()) {
+            return 1
+        }
+        val diff: List<Int> = others.map { degree: Int -> degree - coordinate }
+        return diff.reduce { a, b -> a * b }
     }
-    val diff: List<Int> = others.map { degree: Int -> degree - coordinate }
-    return diff.reduce { a, b -> a * b }
 }

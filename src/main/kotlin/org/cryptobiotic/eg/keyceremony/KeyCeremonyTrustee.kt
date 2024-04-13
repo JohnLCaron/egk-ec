@@ -277,7 +277,6 @@ open class KeyCeremonyTrustee(
         }
 
         //  If the MAC verifies, Gℓ decrypts b(Pi(ℓ), 32) = Ci,ℓ,1 ⊕ k1 .
-        // TODO prove always 32 bytes
         return ByteArray(32) { c1[it] xor k1[it] }
     }
 

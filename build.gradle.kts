@@ -18,7 +18,8 @@ dependencies {
     implementation(libs.bundles.eglib)
     implementation(libs.bundles.logging)
     testImplementation(libs.bundles.egtest)
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.mockk)
 }
 
 tasks.test {
