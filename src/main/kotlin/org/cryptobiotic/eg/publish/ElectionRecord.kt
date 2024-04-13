@@ -12,6 +12,7 @@ interface ElectionRecord {
 
     val group : GroupContext
     fun stage() : Stage
+    fun consumer() : Consumer
     fun topdir() : String
     fun isJson(): Boolean
 

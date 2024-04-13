@@ -8,11 +8,9 @@ import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.required
 import org.cryptobiotic.eg.core.GroupContext
+import org.cryptobiotic.eg.core.pathExists
 import org.cryptobiotic.eg.election.EncryptedBallot
 import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
-import org.cryptobiotic.eg.encrypt.EncryptedBallotChain.Companion.makeCodeBaux
-import org.cryptobiotic.eg.encrypt.EncryptedBallotChain.Companion.writeChain
-import org.cryptobiotic.eg.encrypt.EncryptedBallotChain.Companion.terminateChain
 import org.cryptobiotic.eg.encrypt.Encryptor
 import org.cryptobiotic.eg.encrypt.submit
 import org.cryptobiotic.eg.input.ManifestInputValidation
@@ -26,6 +24,7 @@ import org.cryptobiotic.util.ErrorMessages
  * Reads a plaintext ballot from disk and writes its encryption to disk.
  * Note that this does not allow for benolah challenge, ie voter submits a ballot, gets a confirmation code
  * (with or without ballot chaining), then decide to challenge or cast.
+ * It does allow ballot chaining; if chaining then close the chain by calling with ballotFilepath="CLOSE".
  */
 class RunEncryptBallot {
 
@@ -116,22 +115,24 @@ class RunEncryptBallot {
             }
             val ballot = result.unwrap()
 
+            if (!pathExists(encryptBallotDir)) {
+                logger.error { "output Directory '$encryptBallotDir' must already exist $result" }
+                return 4
+            }
+
             val chaining = electionInit.config.chainConfirmationCodes
             val configBaux0 = electionInit.config.configBaux0
 
             var currentChain: EncryptedBallotChain? = null
-            val codeBaux: ByteArray?
+            val codeBaux =
             if (!chaining) {
-                codeBaux = configBaux0
+                configBaux0
             } else {
                 val consumerChain = makeConsumer(encryptBallotDir, consumerIn.group)
-                // this will read in an existing chain, and so recover from machine going down.
-                val pair = makeCodeBaux(consumerChain, device, encryptBallotDir, configBaux0, electionInit.extendedBaseHash )
-                codeBaux = pair.first
+                // this reads in an existing chain, or starts one.
+                val pair = EncryptedBallotChain.makeCodeBaux(consumerChain, device, encryptBallotDir, configBaux0, electionInit.extendedBaseHash )
                 currentChain = pair.second
-            }
-            if (codeBaux == null) {
-                return 4
+                pair.first
             }
 
             val errs = ErrorMessages("Encrypt ${ballot.ballotId}")
@@ -142,7 +143,7 @@ class RunEncryptBallot {
             )
             if (errs.hasErrors()) {
                 logger.error { errs.toString() }
-                return 5
+                return 6
             }
 
             val eballot = cballot!!.submit(EncryptedBallot.BallotState.CAST)
@@ -154,7 +155,7 @@ class RunEncryptBallot {
                 logger.info { "success encrypted ballot written to '$fileout' " }
 
                 if (chaining) {
-                    writeChain(
+                    EncryptedBallotChain.writeChain(
                         publisher,
                         encryptBallotDir,
                         ballot.ballotId,
@@ -164,7 +165,7 @@ class RunEncryptBallot {
                 }
             } catch (t: Throwable) {
                 logger.error(t) { " error writing encrypted ballot ${t.message}" }
-                return 6
+                return 7
             }
             return 0
         }
@@ -178,8 +179,8 @@ class RunEncryptBallot {
             val chainResult = consumer.readEncryptedBallotChain(device, encryptBallotDir)
             val retval = if (chainResult is Ok) {
                 val chain = chainResult.unwrap()
-                val publisher = makePublisher(encryptBallotDir) // TODO not placing it into the device directory?
-                val termval = terminateChain(publisher, device, encryptBallotDir, chain)
+                val publisher = makePublisher(encryptBallotDir)
+                val termval = EncryptedBallotChain.terminateChain(publisher, encryptBallotDir, chain)
                 if (termval != 0) {
                     logger.info { "Cant terminateBallotChain retval=$termval" }
                 }

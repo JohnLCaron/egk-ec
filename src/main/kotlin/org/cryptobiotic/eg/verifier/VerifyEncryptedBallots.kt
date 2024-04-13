@@ -23,7 +23,6 @@ import kotlinx.coroutines.yield
 import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.encrypt.EncryptedBallotChain.Companion.assembleChain
 import org.cryptobiotic.eg.publish.Consumer
-import org.cryptobiotic.eg.publish.ElectionRecord
 import org.cryptobiotic.util.Stopwatch
 
 private const val debugBallots = false
@@ -172,7 +171,7 @@ class VerifyEncryptedBallots(
     //////////////////////////////////////////////////////////////////////////////
     // ballot chaining, section 7
 
-    fun verifyConfirmationChain(consumer: ElectionRecord, errs: ErrorMessages): Boolean {
+    fun verifyConfirmationChain(consumer: Consumer, errs: ErrorMessages): Boolean {
         var deviceCount = 0
         consumer.encryptingDevices().forEach { device ->
             // println("verifyConfirmationChain device=$device")
@@ -180,9 +179,6 @@ class VerifyEncryptedBallots(
             if (ballotChainResult is Err) {
                 errs.add(ballotChainResult.toString())
             } else {
-                val ballotChain: EncryptedBallotChain = ballotChainResult.unwrap()
-                val ballots = consumer.encryptedBallots(device) { true }
-
                 // If chainCodes is true, and configBaux0 is empty, then the device name UTF-8 bytes will be used when creating the
                 // confirmation codes during encryption. This allows the configuration file to be used across multiple devices,
                 // and still have the device name as part of the ballot chaining as required in the spec.
@@ -196,16 +192,22 @@ class VerifyEncryptedBallots(
                 //       Baux,j = H(Bj−1) ∥ Baux,0 .
                 var prevCC = H0
                 var ballotCount = 0
-                ballots.forEach { ballot ->
-                    val expectedBaux = prevCC + baux0  // eq 7.D and 7.E
-                    println("expectedBaux ${expectedBaux.contentToString()}")
-
-                    if (!expectedBaux.contentEquals(ballot.codeBaux)) {
-                        errs.add("    7.E. additional input byte array Baux != H(Bj−1 ) ∥ Baux,0 for ballot=${ballot.ballotId}")
+                val ballotChain: EncryptedBallotChain = ballotChainResult.unwrap()
+                ballotChain.ballotIds.forEach { ballotId ->
+                    val eballotResult = consumer.readEncryptedBallot(device, ballotId)
+                    if (eballotResult is Err) {
+                        errs.add("Cant find $ballotId")
+                    } else {
+                        val eballot = eballotResult.unwrap()
+                        val expectedBaux = prevCC + baux0  // eq 7.D and 7.E
+                        if (!expectedBaux.contentEquals(eballot.codeBaux)) {
+                            errs.add("    7.E. additional input byte array Baux != H(Bj−1 ) ∥ Baux,0 for ballot=${eballot.ballotId}")
+                        }
+                        prevCC = eballot.confirmationCode.bytes
                     }
-                    prevCC = ballot.confirmationCode.bytes
                     ballotCount++
                 }
+
                 // 7.F The final additional input byte array is equal to Baux = H(Bℓ ) ∥ Baux,0 ∥ b(“CLOSE”, 5) and
                 //      H(Bℓ ) is the final confirmation code on this device.
                 val bauxFinal = prevCC + baux0 + "CLOSE".encodeToByteArray()
@@ -242,7 +244,7 @@ class VerifyEncryptedBallots(
 
     fun assembleAndVerifyOneChain(consumer: Consumer, device: String, errs: ErrorMessages) {
         val ballotChain: EncryptedBallotChain? =
-            assembleChain(consumer, device, null, config.configBaux0, extendedBaseHash, errs)
+            assembleChain(consumer, device, config.configBaux0, extendedBaseHash, errs)
         if (ballotChain == null) {
             errs.add("Cant assembleChain")
             return
@@ -254,7 +256,7 @@ class VerifyEncryptedBallots(
         val baux0 = if (config.configBaux0.isEmpty()) device.encodeToByteArray() else config.configBaux0
 
         // 7.D The initial hash code H0 satisfies H0 = H(HE ; 0x24, Baux,0 )
-        // "and Baux,0 contains the unique voting device information". TODO ambiguous, change spec wording
+        // "and Baux,0 contains the unique voting device information".
         val H0 = hashFunction(extendedBaseHash.bytes, 0x24.toByte(), baux0).bytes
 
         // (7.E) For all 1 ≤ j ≤ ℓ, the additional input byte array used to compute Hj = H(Bj) is equal to

@@ -351,7 +351,7 @@ fun checkOutput(outputDir: String, expectedCount: Int, chained: Boolean) {
 
     if (chained) {
         val chainErrs = ErrorMessages("verifyConfirmationChain")
-        verifyEncryptions.verifyConfirmationChain(record, chainErrs)
+        verifyEncryptions.verifyConfirmationChain(consumer, chainErrs)
         println(chainErrs)
         assertFalse(chainErrs.hasErrors())
     }

@@ -104,6 +104,10 @@ private class ElectionRecordImpl(val consumer: Consumer,
         return stage
     }
 
+    override fun consumer(): Consumer {
+        return consumer
+    }
+
     override fun topdir(): String {
         return consumer.topdir()
     }
