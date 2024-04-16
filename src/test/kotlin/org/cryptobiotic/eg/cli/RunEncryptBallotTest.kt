@@ -150,7 +150,7 @@ class RunEncryptBallotTest {
         val manifest = record.manifest()
         val publisher = makePublisher(outputDeviceDir, true)
         val consumerOut = makeConsumer(outputDir, consumerIn.group)
-        createDirectories("$outputDeviceDir")
+        createDirectories(outputDeviceDir)
 
         val ballotProvider = RandomBallotProvider(manifest)
         repeat(nballots) {
