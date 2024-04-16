@@ -7,7 +7,6 @@ import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
 import kotlinx.cli.required
-import org.cryptobiotic.eg.core.createDirectories
 import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
@@ -17,7 +16,7 @@ import kotlin.random.Random
 /**
  * Simulates using RunEncryptBallot one ballot at a time.
  * Note that chaining is controlled by config.chainConfirmationCodes, and handled by RunEncryptBallot.
- * Note that this does not allow for benolah challenge, ie voter submits a ballot, gets a confirmation code
+ * Note that RunExampleEncryption does not allow for benolah challenge, ie voter submits a ballot, gets a confirmation code
  * (with or without ballot chaining), then decide to challenge or cast. So all ballots are cast.
  */
 class RunExampleEncryption {
@@ -48,22 +47,22 @@ class RunExampleEncryption {
                 shortName = "device",
                 description = "voting device name(s), comma delimited"
             ).required()
-            val encryptBallotDir by parser.option(
+            val outputDir by parser.option(
                 ArgType.String,
-                shortName = "eballotDir",
-                description = "Write encrypted ballots to this directory"
+                shortName = "out",
+                description = "Directory to write output election record"
             ).required()
-            val addDeviceNameToDir by parser.option(
+            val noDeviceNameInDir by parser.option(
                 ArgType.Boolean,
                 shortName = "deviceDir",
-                description = "Add device name to encrypted ballots directory"
-            ).default(true)
+                description = "Dont add device name to encrypted ballots directory"
+            ).default(false)
             parser.parse(args)
 
             val devices = deviceNames.split(",")
             logger.info {
                 "starting\n inputDir= $inputDir\n  nballots= $nballots\n  plaintextBallotDir = $plaintextBallotDir\n" +
-                        "  encryptBallotDir = $encryptBallotDir\n  devices = $devices\n  addDeviceNameToDir= $addDeviceNameToDir"
+                        "  outputDir = $outputDir\n  devices = $devices\n  noDeviceNameInDir= $noDeviceNameInDir"
             }
 
             val consumerIn = makeConsumer(inputDir)
@@ -90,21 +89,27 @@ class RunExampleEncryption {
                 val pballotFilename = "$plaintextBallotDir/pballot-${pballot.ballotId}.json"
                 val deviceIdx = if(devices.size == 1) 0 else Random.nextInt(devices.size)
                 val device = devices[deviceIdx]
-                val eballotDir = if (chaining || addDeviceNameToDir) "$encryptBallotDir/$device" else encryptBallotDir
-                createDirectories(eballotDir)
+                // val eballotDir = if (chaining || !noDeviceNameInDir) "$encryptBallotDir/$device" else encryptBallotDir
+                // createDirectories(eballotDir)
 
                 val retval = RunEncryptBallot.encryptBallot(
                     consumerIn,
                     pballotFilename,
-                    eballotDir,
+                    outputDir,
                     device,
+                    noDeviceNameInDir,
                 )
                 if (retval != 0) allOk = false
             }
             if (chaining) {
                 devices.forEach { device ->
-                    val eballotDir = "$encryptBallotDir/$device"
-                    if (RunEncryptBallot.close(consumerIn.group, device, eballotDir) != 0) allOk = false
+                    RunEncryptBallot.encryptBallot(
+                        consumerIn,
+                        "CLOSE",
+                        outputDir,
+                        device,
+                        noDeviceNameInDir,
+                    )
                 }
             }
 

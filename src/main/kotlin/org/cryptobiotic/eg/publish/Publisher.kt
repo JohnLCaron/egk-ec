@@ -17,8 +17,8 @@ interface Publisher {
     fun writeDecryptionResult(decryption: DecryptionResult)
     fun writeDecryptedTally(decryption: DecryptedTallyOrBallot)
 
-    fun encryptedBallotSink(device: String?, batched : Boolean = false): EncryptedBallotSinkIF
-    fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotOverrideDir: String? = null)
+    fun encryptedBallotSink(device: String?): EncryptedBallotSinkIF
+    fun writeEncryptedBallotChain(closing: EncryptedBallotChain)
     fun decryptedBallotSink(ballotOverrideDir: String? = null): DecryptedBallotSinkIF
 
     fun writePlaintextBallot(outputDir: String, plaintextBallots: List<PlaintextBallot>)

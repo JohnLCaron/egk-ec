@@ -16,13 +16,12 @@ import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.util.ErrorMessages
 import java.io.Closeable
 
-private val logger = KotlinLogging.logger("AddEncryptedBallot")
-
 /**
- * Encrypt a ballot and add to election record. Single threaded or thread confined only.
- *  Note that chaining is controlled by config.chainConfirmationCodes, and handled here.
+ * Encrypt a ballot and add to election record, optional chaining and/or challenging.
+ *  Single threaded or thread confined only.
+ *  Note that chaining is specified by config.chainConfirmationCodes, and implemented here.
  *  Note that this allows for benolah challenge, ie voter submits a ballot, gets a confirmation code
- *  (with or without ballot chaining), then decide to challenge or cast.
+ *  (with or without ballot chaining), then decides to challenge or cast.
  */
 class AddEncryptedBallot(
     val manifest: ManifestIF, // must already be validated
@@ -34,9 +33,10 @@ class AddEncryptedBallot(
     val device: String,
     val outputDir: String, // write ballots to outputDir/encrypted_ballots/deviceName, must not have multiple writers to same directory
     val invalidDir: String, // write plaintext ballots that fail validation
+    noDeviceNameInDir: Boolean = false, // if not chaining, dont add device into directory name
 ) : Closeable {
     val publisher = makePublisher(outputDir, false)
-    val consumerIn = makeConsumer(outputDir)
+    val consumerIn = makeConsumer(outputDir, jointPublicKey.context)
 
     // note that the encryptor doesnt know if its chained
     val encryptor = Encryptor(
@@ -52,7 +52,8 @@ class AddEncryptedBallot(
         extendedBaseHash
     )
 
-    private val sink: EncryptedBallotSinkIF = publisher.encryptedBallotSink(device)
+    private val sink: EncryptedBallotSinkIF = if (chaining || !noDeviceNameInDir) publisher.encryptedBallotSink(device)
+                                              else publisher.encryptedBallotSink(null)
     private var currentChain: EncryptedBallotChain? = null
     private val pending = mutableMapOf<UInt256, PendingEncryptedBallot>() // key = ccode.toHex()
     private var closed = false
@@ -77,7 +78,6 @@ class AddEncryptedBallot(
             val pair = EncryptedBallotChain.makeCodeBaux(
                 consumerIn,
                 device,
-                null,
                 configBaux0,
                 extendedBaseHash,
             )
@@ -93,7 +93,6 @@ class AddEncryptedBallot(
         if (chaining) {
             currentChain = EncryptedBallotChain.writeChain(
                 publisher,
-                null,
                 ciphertextBallot.ballotId,
                 ciphertextBallot.confirmationCode,
                 currentChain!!
@@ -182,7 +181,6 @@ class AddEncryptedBallot(
         if (chaining) {
             EncryptedBallotChain.terminateChain(
                 publisher,
-                null,
                 currentChain!!
             )
         }
@@ -193,4 +191,9 @@ class AddEncryptedBallot(
         sink.close()
         closed = true
     }
+
+    companion object {
+        private val logger = KotlinLogging.logger("AddEncryptedBallot")
+    }
+
 }

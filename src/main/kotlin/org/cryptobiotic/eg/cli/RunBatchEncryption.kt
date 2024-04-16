@@ -42,7 +42,7 @@ import org.cryptobiotic.util.Stopwatch
  * Read ElectionConfig from inputDir, write electionInit to outputDir.
  * Read plaintext ballots from ballotDir.
  * All ballots will be cast.
- * Ballot chaining cannot be used here.
+ * Ballot chaining cannot be used, since ordering is indeterminate.
  */
 class RunBatchEncryption {
 
@@ -233,9 +233,7 @@ class RunBatchEncryption {
 
             // encryptDir is the exact encrypted ballot directory, outputDir is the election record topdir
             val publisher = makePublisher(encryptDir ?: outputDir!!, cleanOutput)
-            val sink: EncryptedBallotSinkIF =
-                if (encryptDir != null) publisher.encryptedBallotSink(null, true)
-                else publisher.encryptedBallotSink(device, true)
+            val sink: EncryptedBallotSinkIF = publisher.encryptedBallotSink(device)
 
             try {
                 runBlocking {
@@ -358,7 +356,6 @@ class RunBatchEncryption {
             }
 
         // coroutines allow parallel encryption at the ballot level
-        // TODO not possible to do ballot chaining, since the order is indeterminate? or do we just have to work harder?
         private fun CoroutineScope.launchEncryptor(
             id: Int,
             input: ReceiveChannel<PlaintextBallot>,

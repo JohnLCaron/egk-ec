@@ -18,7 +18,7 @@ import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Testing
 import kotlin.test.assertTrue
 
-// check AddEncryptedBallot doesnt depend on the order that ballots are submitted
+// Test challenging ballots when using AddEncryptedBallot.
 class AddEncryptedChallengedTest {
     val input = "src/test/data/workflow/allAvailableEc"
     val outputDirTop = "${Testing.testOut}/encrypt/addEncryptedBallot/ChallengedTest"

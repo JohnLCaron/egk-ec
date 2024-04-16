@@ -2,6 +2,9 @@ package org.cryptobiotic.eg.encrypt
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.unwrap
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.cryptobiotic.eg.cli.RunEncryptBallot
+import org.cryptobiotic.eg.cli.RunEncryptBallot.Companion
 import kotlin.test.*
 
 import org.cryptobiotic.eg.core.*
@@ -20,10 +23,11 @@ class AddEncryptedBallotTest {
     val input = "src/test/data/workflow/allAvailableEc"
     val testDir = "${Testing.testOut}/encrypt/addEncryptedBallot/Plain"
     val nballots = 4
+    private val logger = KotlinLogging.logger("AddEncryptedBallotTest")
 
     @Test
-    fun testJustOne() {
-        val outputDir = "$testDir/testJustOne"
+    fun testOneDevice() {
+        val outputDir = "$testDir/testOneDevice"
         val device = "device0"
 
         val electionRecord = readElectionRecord(input)
@@ -46,7 +50,42 @@ class AddEncryptedBallotTest {
 
         repeat(nballots) {
             val ballot = ballotProvider.makeBallot()
-            val result = encryptor.encrypt(ballot, ErrorMessages("testJustOne"))
+            val result = encryptor.encrypt(ballot, ErrorMessages("testOneDevice"))
+            assertNotNull(result)
+            encryptor.submit(result.confirmationCode, EncryptedBallot.BallotState.CAST)
+        }
+        encryptor.close()
+
+        checkOutput(outputDir, nballots, electionInit.config.chainConfirmationCodes)
+    }
+
+    @Test
+    fun testOneDeviceNotInDir() {
+        val outputDir = "$testDir/testOneDeviceNotInDir"
+        val device = "device0"
+
+        val electionRecord = readElectionRecord(input)
+        val electionInit = electionRecord.electionInit()!!
+        val publisher = makePublisher(outputDir, true)
+        publisher.writeElectionInitialized(electionInit)
+
+        val encryptor = AddEncryptedBallot(
+            electionRecord.manifest(),
+            BallotInputValidation(electionRecord.manifest()),
+            electionInit.config.chainConfirmationCodes,
+            electionInit.config.configBaux0,
+            electionInit.jointPublicKey,
+            electionInit.extendedBaseHash,
+            device,
+            outputDir,
+            "${outputDir}/invalidDir",
+            noDeviceNameInDir = true
+        )
+        val ballotProvider = RandomBallotProvider(electionRecord.manifest())
+
+        repeat(nballots) {
+            val ballot = ballotProvider.makeBallot()
+            val result = encryptor.encrypt(ballot, ErrorMessages("testOneDeviceNotInDir"))
             assertNotNull(result)
             encryptor.submit(result.confirmationCode, EncryptedBallot.BallotState.CAST)
         }

@@ -1,6 +1,5 @@
 package org.cryptobiotic.eg.decrypt
 
-import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.unwrap
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.core.*
@@ -217,13 +216,13 @@ fun testEncryptDecryptCompare(
             return
         }
 
-        val result = decryptedBallot.compare(ballot)
-        if (result is Err) {
-            println("Error $result")
-        } else {
-            verifier.verify(decryptedBallot, true, errs.nested("verify"), Stats())
-            println(errs)
-            assertFalse(errs.hasErrors())
+        decryptedBallot.compare(ballot, errs)
+        if (errs.hasErrors()) {
+            println("decryptedBallot.compare failed errors = $errs")
+            return
         }
+
+        verifier.verify(decryptedBallot, true, errs.nested("verify"), Stats())
+        assertFalse(errs.hasErrors())
     }
 }

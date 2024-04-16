@@ -2,8 +2,6 @@ package org.cryptobiotic.eg.cli
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
-import org.cryptobiotic.eg.core.createDirectories
-import org.cryptobiotic.eg.core.removeAllFiles
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
@@ -23,11 +21,12 @@ class RunEncryptBallotTest {
         val inputDir = "src/test/data/encrypt/testBallotNoChain"
         val outputDir = "${Testing.testOut}/encrypt/testRunEncryptBadPlaintextBallot"
         val consumerIn = makeConsumer(inputDir)
+        val publisher = makePublisher(outputDir, true)
 
         val retval = RunEncryptBallot.encryptBallot(
             consumerIn,
             "$outputDir/pballot-bad.json",
-            "$outputDir/encrypted_ballots",
+            outputDir,
             "device42",
         )
         assertEquals(3, retval)
@@ -46,14 +45,13 @@ class RunEncryptBallotTest {
         val ballotProvider = RandomBallotProvider(manifest)
         val ballot = ballotProvider.getFakeBallot(manifest, null, ballotId)
 
-        removeAllFiles(Path.of(outputDir))
         val publisher = makePublisher(outputDir, true)
         publisher.writePlaintextBallot(outputDir, listOf(ballot))
 
         val retval = RunEncryptBallot.encryptBallot(
             consumerIn,
             "$outputDir/pballot-$ballotId.json",
-            "nosuchdir",
+            "$outputDir/nosuchdir",
             "device42",
         )
         assertEquals(4, retval)
@@ -72,21 +70,19 @@ class RunEncryptBallotTest {
         val ballotProvider = RandomBallotProvider(manifest)
         val ballot = ballotProvider.getFakeBallot(manifest, null, ballotId)
 
-        removeAllFiles(Path.of(outputDir))
         val publisher = makePublisher(outputDir, true)
         publisher.writePlaintextBallot(outputDir, listOf(ballot))
-        createDirectories("$outputDir/encrypted_ballots")
 
         RunEncryptBallot.main(
             arrayOf(
                 "--inputDir", inputDir,
                 "--ballotFilepath", "$outputDir/pballot-$ballotId.json",
-                "--encryptBallotDir", "$outputDir/encrypted_ballots",
+                "--encryptBallotDir", outputDir,
                 "-device", "device42",
             )
         )
 
-        assertTrue(Files.exists(Path.of("$outputDir/encrypted_ballots/eballot-$ballotId.json")))
+        assertTrue(Files.exists(Path.of("$outputDir/encrypted_ballots/device42/eballot-$ballotId.json")))
 
         val count = verifyOutput(inputDir, outputDir, false)
         assertEquals(1, count)
@@ -103,10 +99,8 @@ class RunEncryptBallotTest {
         val record = readElectionRecord(consumerIn)
         val manifest = record.manifest()
 
-        removeAllFiles(Path.of(outputDir))
         val publisher = makePublisher(outputDir, true)
         val consumerOut = makeConsumer(outputDir, consumerIn.group)
-        createDirectories("$outputDir/encrypted_ballots")
 
         val ballotProvider = RandomBallotProvider(manifest)
         repeat(nballots) {
@@ -120,8 +114,9 @@ class RunEncryptBallotTest {
                 arrayOf(
                     "--inputDir", inputDir,
                     "--ballotFilepath", ballotFilename,
-                    "--encryptBallotDir", "$outputDir/encrypted_ballots",
+                    "--encryptBallotDir", outputDir,
                     "-device", device,
+                    "--noDeviceNameInDir"
                 )
             )
 
@@ -142,29 +137,27 @@ class RunEncryptBallotTest {
         val inputDir = "src/test/data/encrypt/testBallotChain"
         val device = "device42"
         val outputDir = "${Testing.testOut}/encrypt/testRunEncryptBallotsChaining"
-        val outputDeviceDir = "$outputDir/encrypted_ballots/$device"
         val nballots = 10
 
         val consumerIn = makeConsumer(inputDir)
         val record = readElectionRecord(consumerIn)
         val manifest = record.manifest()
-        val publisher = makePublisher(outputDeviceDir, true)
+        val publisher = makePublisher(outputDir, true)
         val consumerOut = makeConsumer(outputDir, consumerIn.group)
-        createDirectories(outputDeviceDir)
 
         val ballotProvider = RandomBallotProvider(manifest)
         repeat(nballots) {
             val ballotId = Random.nextInt().toString()
             val ballot = ballotProvider.getFakeBallot(manifest, null, ballotId)
 
-            publisher.writePlaintextBallot(outputDeviceDir, listOf(ballot))
+            publisher.writePlaintextBallot(outputDir, listOf(ballot))
 
-            val ballotFilename = "$outputDeviceDir/pballot-$ballotId.json"
+            val ballotFilename = "$outputDir/pballot-$ballotId.json"
             RunEncryptBallot.main(
                 arrayOf(
                     "--inputDir", inputDir,
                     "--ballotFilepath", ballotFilename,
-                    "--encryptBallotDir", outputDeviceDir,
+                    "--encryptBallotDir", outputDir,
                     "-device", device,
                 )
             )
@@ -180,7 +173,7 @@ class RunEncryptBallotTest {
             arrayOf(
                 "--inputDir", inputDir,
                 "--ballotFilepath", "CLOSE",
-                "--encryptBallotDir", outputDeviceDir,
+                "--encryptBallotDir", outputDir,
                 "-device", device,
             )
         )
@@ -194,13 +187,12 @@ class RunEncryptBallotTest {
         val inputDir = "src/test/data/encrypt/testBallotChain"
         val device = "device42"
         val outputDir = "${Testing.testOut}/encrypt/testRunEncryptBallotsChainingNotClosed"
-        val outputDeviceDir = "$outputDir/encrypted_ballots/$device"
         val nballots = 10
 
         val consumerIn = makeConsumer(inputDir)
         val record = readElectionRecord(consumerIn)
         val manifest = record.manifest()
-        val publisher = makePublisher(outputDeviceDir, true)
+        val publisher = makePublisher(outputDir, true)
         val consumerOut = makeConsumer(outputDir, consumerIn.group)
 
         val ballotProvider = RandomBallotProvider(manifest)
@@ -208,14 +200,14 @@ class RunEncryptBallotTest {
             val ballotId = Random.nextInt().toString()
             val ballot = ballotProvider.getFakeBallot(manifest, null, ballotId)
 
-            publisher.writePlaintextBallot(outputDeviceDir, listOf(ballot))
+            publisher.writePlaintextBallot(outputDir, listOf(ballot))
 
-            val ballotFilename = "$outputDeviceDir/pballot-$ballotId.json"
+            val ballotFilename = "$outputDir/pballot-$ballotId.json"
             RunEncryptBallot.main(
                 arrayOf(
                     "--inputDir", inputDir,
                     "--ballotFilepath", ballotFilename,
-                    "--encryptBallotDir", outputDeviceDir,
+                    "--encryptBallotDir", outputDir,
                     "-device", device,
                 )
             )
@@ -262,7 +254,7 @@ fun verifyOutput(inputDir: String, outputDir: String, chained: Boolean = false):
     val ballots = consumerBallots.iterateAllEncryptedBallots( null )
     val errs = ErrorMessages("verifyBallots")
     val (ok, count) = verifier.verifyBallots(ballots, errs)
-    println("  verifyEncryptedBallots $outputDir: ok= $ok result= $errs")
+    println("  verifyEncryptedBallots $outputDir: ok= $ok count = $count result= $errs")
     assertFalse(errs.hasErrors())
 
     if (chained) {
@@ -278,7 +270,7 @@ fun verifyOutput(inputDir: String, outputDir: String, chained: Boolean = false):
         val chain2Errs = ErrorMessages("assembleAndVerifyChains")
         verifier.assembleAndVerifyChains(consumerBallots, chain2Errs)
         if (chain2Errs.hasErrors()) {
-            println(chain2Errs)
+            println(" $chain2Errs")
         }
         assertFalse(chain2Errs.hasErrors())
     }
