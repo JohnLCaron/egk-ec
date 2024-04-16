@@ -21,7 +21,7 @@ class RunEncryptBallotTest {
         val inputDir = "src/test/data/encrypt/testBallotNoChain"
         val outputDir = "${Testing.testOut}/encrypt/testRunEncryptBadPlaintextBallot"
         val consumerIn = makeConsumer(inputDir)
-        val publisher = makePublisher(outputDir, true)
+        makePublisher(outputDir, true)
 
         val retval = RunEncryptBallot.encryptBallot(
             consumerIn,
@@ -77,7 +77,7 @@ class RunEncryptBallotTest {
             arrayOf(
                 "--inputDir", inputDir,
                 "--ballotFilepath", "$outputDir/pballot-$ballotId.json",
-                "--encryptBallotDir", outputDir,
+                "--outputDir", outputDir,
                 "-device", "device42",
             )
         )
@@ -114,7 +114,7 @@ class RunEncryptBallotTest {
                 arrayOf(
                     "--inputDir", inputDir,
                     "--ballotFilepath", ballotFilename,
-                    "--encryptBallotDir", outputDir,
+                    "--outputDir", outputDir,
                     "-device", device,
                     "--noDeviceNameInDir"
                 )
@@ -157,7 +157,7 @@ class RunEncryptBallotTest {
                 arrayOf(
                     "--inputDir", inputDir,
                     "--ballotFilepath", ballotFilename,
-                    "--encryptBallotDir", outputDir,
+                    "--outputDir", outputDir,
                     "-device", device,
                 )
             )
@@ -173,7 +173,7 @@ class RunEncryptBallotTest {
             arrayOf(
                 "--inputDir", inputDir,
                 "--ballotFilepath", "CLOSE",
-                "--encryptBallotDir", outputDir,
+                "--outputDir", outputDir,
                 "-device", device,
             )
         )
@@ -207,7 +207,7 @@ class RunEncryptBallotTest {
                 arrayOf(
                     "--inputDir", inputDir,
                     "--ballotFilepath", ballotFilename,
-                    "--encryptBallotDir", outputDir,
+                    "--outputDir", outputDir,
                     "-device", device,
                 )
             )

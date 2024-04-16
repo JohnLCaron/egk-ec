@@ -237,7 +237,6 @@ Options:
     --device, -device -> voting device name (always required) { String }
     --ballotFilepath, -ballot -> Plaintext ballot filepath (or 'CLOSE') (always required) { String }
     --outputDir, -out -> Directory to write output election record (always required) { String }
-    --encryptBallotDir, -output -> Write encrypted ballot to this directory (always required) { String }
     --noDeviceNameInDir, -deviceDir [false] -> Dont add device name to encrypted ballots directory 
     --help, -h -> Usage info 
  
