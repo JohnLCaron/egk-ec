@@ -54,17 +54,17 @@ last update 04/16/2024
    2. Use existing fake ballots for testing in _src/test/data/fakeBallots_.
 
 5. **Encryption**.
-  1. The [_RunAddEncryptedBallots_ CLI](#run-addencryptedballots) reads plaintext ballots from a directory and 
-     writes their encryptions into the specified election record.
-  1. The [_RunEncryptBallot_ CLI](#run-encrypt-ballot) reads a plaintext ballot from disk and writes its encryption to disk.
-  1. The [_RunExampleEncryption_ CLI](#run-example-encryption) Is an example of running RunEncryptBallot to encrypt ballots. 
-     This can simulate more complex election records with multiple voting devices.
-  1. The [_RunBatchEncryption_ CLI](#run-batch-encryption) reads plaintext ballots from a directory and writes their encryptions to the 
-     specified election record. It is multithreaded.
-  1. _org.cryptobiotic.eg.encrypt.AddEncryptedBallot_ is a class that your program calls to encrypt plaintext ballots
-       and add them to the election record. (See _org.cryptobiotic.eg.cli.ExampleEncryption_ as an example of using AddEncryptedBallot). 
-  1. To run encryption with the Encryption server, see the webapps CLI. This allows you to run the encryption on a 
-      different machine than where ballots are generated, and/or to call from a non-JVM program.
+   1. The [_RunAddEncryptedBallots_ CLI](#run-addencryptedballots) reads plaintext ballots from a directory and 
+      writes their encryptions into the specified election record.
+   1. The [_RunEncryptBallot_ CLI](#run-encrypt-ballot) reads a plaintext ballot from disk and writes its encryption to disk.
+   1. The [_RunExampleEncryption_ CLI](#run-example-encryption) Is an example of running RunEncryptBallot to encrypt ballots. 
+      This can simulate more complex election records with multiple voting devices.
+   1. The [_RunBatchEncryption_ CLI](#run-batch-encryption) reads plaintext ballots from a directory and writes their encryptions to the 
+      specified election record. It is multithreaded.
+   1. _org.cryptobiotic.eg.encrypt.AddEncryptedBallot_ is a class that your program calls to encrypt plaintext ballots
+        and add them to the election record. (See _org.cryptobiotic.eg.cli.ExampleEncryption_ as an example of using AddEncryptedBallot). 
+   1. To run encryption with the Encryption server, see the webapps CLI. This allows you to run the encryption on a 
+       different machine than where ballots are generated, and/or to call from a non-JVM program.
 
 6. **Accumulate Tally**.
     1. [_RunAccumulateTally_ CLI](#run-accumulate_tally) reads an ElectionInitialized record and EncryptedBallot
@@ -85,7 +85,9 @@ last update 04/16/2024
 
 ## Make ekglib uberJar
 
-For classpath simplicity, the examples below use the [ekglib uberJar](https://github.com/JohnLCaron/egk-ec/blob/main/docs/GettingStarted.md#building-a-library-with-all-dependencies-uber-jar).
+For classpath simplicity, the examples below use the 
+[ekglib uberJar](https://github.com/JohnLCaron/egk-ec/blob/main/docs/GettingStarted.md#building-a-library-with-all-dependencies-uber-jar).
+                 https://github.com/JohnLCaron/egk-ec/blob/main/docs/GettingStarted.md#building-a-library-with-all-dependencies-uber-jar
 
 ## Election setup
 

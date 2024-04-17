@@ -12,15 +12,15 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-private val group = productionGroup()
 
 /** Test KeyCeremony Trustee generation and recovered decryption. */
 class LagrangeTest {
+    private val group = productionGroup()
 
     @Test
     fun testLagrangeInterpolation() {
-        val w1 = group.computeLagrangeCoefficient(1, listOf(1, 2))
-        val w2 = group.computeLagrangeCoefficient(2, listOf(1, 2))
+        val w1 = computeLagrangeCoefficient(group, 1, listOf(1, 2))
+        val w2 = computeLagrangeCoefficient(group, 2, listOf(1, 2))
 
         val polly = group.generatePolynomial("guardian1", 1, 2)
         val y1 = polly.valueAt(group, 1)
@@ -33,8 +33,8 @@ class LagrangeTest {
 
     @Test
     fun testLagrangePolySum() {
-        val w1 = group.computeLagrangeCoefficient(1, listOf(1, 2))
-        val w2 = group.computeLagrangeCoefficient(2, listOf(1, 2))
+        val w1 = computeLagrangeCoefficient(group, 1, listOf(1, 2))
+        val w2 = computeLagrangeCoefficient(group, 2, listOf(1, 2))
 
         val polly1 = group.generatePolynomial("guardian1", 1, 2)
         val y11 = polly1.valueAt(group, 1)
@@ -51,8 +51,8 @@ class LagrangeTest {
 
     @Test
     fun testTrusteePolySum() {
-        val w1 = group.computeLagrangeCoefficient(1, listOf(1, 2))
-        val w2 = group.computeLagrangeCoefficient(2, listOf(1, 2))
+        val w1 = computeLagrangeCoefficient(group, 1, listOf(1, 2))
+        val w2 = computeLagrangeCoefficient(group, 2, listOf(1, 2))
 
         val polly1 = KeyCeremonyTrustee(group, "guardian1", 1, 2, 2)
         val y11 = polly1.valueAt(group, 1)
@@ -69,8 +69,8 @@ class LagrangeTest {
 
     @Test
     fun testTrusteePolySum2() {
-        val w1 = group.computeLagrangeCoefficient(1, listOf(1, 2))
-        val w2 = group.computeLagrangeCoefficient(2, listOf(1, 2))
+        val w1 = computeLagrangeCoefficient(group, 1, listOf(1, 2))
+        val w2 = computeLagrangeCoefficient(group, 2, listOf(1, 2))
 
         val polly1 = KeyCeremonyTrustee(group, "guardian1", 1, 2, 2)
         val y11 = polly1.valueAt(group, 1)
@@ -109,7 +109,7 @@ class LagrangeTest {
                       trustees: List<KeyCeremonyTrustee>,
                       present: List<Int>) {
         val available = trustees.filter {present.contains(it.xCoordinate())}
-        val lagrangeCoefficients = available.associate { it.id to group.computeLagrangeCoefficient(it.xCoordinate, present) }
+        val lagrangeCoefficients = available.associate { it.id to computeLagrangeCoefficient(group, it.xCoordinate, present) }
         lagrangeCoefficients.values.forEach { assertTrue( it.inBounds()) }
 
         val weightedSum = with(group) {

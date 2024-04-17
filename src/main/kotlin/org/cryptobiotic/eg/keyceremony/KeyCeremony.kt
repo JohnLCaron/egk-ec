@@ -32,10 +32,7 @@ fun keyCeremonyExchange(trustees: List<KeyCeremonyTrusteeIF>, allowEncryptedFail
         return Err("keyCeremonyExchange trustees have different quorums = ${trustees.map{it.coefficientCommitments().size}}")
     }
 
-    // TODO if the trustees are not trusted, we could do other verification tests here.
-    //  are the public keys valid?
-    //  are the encrypted shares valid?
-    //  are the unencrypted shares valid?
+    // if the trustees are not trusted, we could do other verification tests here.
 
     // exchange PublicKeys
     val publicKeys: MutableList<PublicKeys> = mutableListOf()
@@ -96,7 +93,6 @@ fun keyCeremonyExchange(trustees: List<KeyCeremonyTrusteeIF>, allowEncryptedFail
     // footnote 28 It is also permissible to dismiss any guardian that makes a false claim of malfeasance. However, this is not
     // required as the sensitive information that is released as a result of the claim could have been released by the claimant
     // in any case.
-    // TODO KeyShare should include ξi,ℓ
 
     // Phase Two: if any secretKeyShares fail to validate, send and validate KeyShares
     val keyResults: MutableList<Result<Boolean, String>> = mutableListOf()

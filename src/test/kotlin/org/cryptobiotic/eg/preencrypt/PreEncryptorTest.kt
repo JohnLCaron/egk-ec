@@ -295,7 +295,7 @@ internal fun runComplete(
     assertFalse(errs.hasErrors())
 }
 
-fun sigma(hash: UInt256): String = hash.toHex().substring(0, 5)
+fun sigma(code: UInt256) : String = PreEncryptor.sigma(code)
 
 internal class ChosenBallot(val selectedIdx: Int) {
 

@@ -69,7 +69,7 @@ fun encryptDecrypt(
     val evote = vote.encrypt(publicKey, group.randomElementModQ(minimum = 1))
 
     val available = trustees.filter {present.contains(it.xCoordinate())}
-    val lagrangeCoefficients = available.associate { it.id() to group.computeLagrangeCoefficient(it.xCoordinate(), present) }
+    val lagrangeCoefficients = available.associate { it.id() to computeLagrangeCoefficient(group, it.xCoordinate(), present) }
 
     val shares: List<PartialDecryption> = available.map {
         val pd = it.decrypt(listOf(evote.pad))

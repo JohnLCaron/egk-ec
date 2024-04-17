@@ -79,7 +79,7 @@ data class EncryptedBallot(
         val contestHash: UInt256, // eq 58
         override val selections: List<Selection>,
         val proof: ChaumPedersenRangeProofKnownNonce,
-        override val contestData: HashedElGamalCiphertext, // TODO make optional?
+        override val contestData: HashedElGamalCiphertext,
         val preEncryption: PreEncryption? = null, // pre-encrypted ballots only
     ) : EncryptedBallotIF.Contest  {
 

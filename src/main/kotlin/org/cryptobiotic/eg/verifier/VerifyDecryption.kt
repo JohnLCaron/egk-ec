@@ -126,16 +126,6 @@ class VerifyDecryption(
 
     }
 
-    // TODO check
-    // Verification 11 (Correctness of decryptions of contest data)
-    // An election verifier must confirm the correct decryption of the contest data field for each contest by
-    // verifying the conditions analogous to Verification 9 for the corresponding NIZK proof with (A, B)
-    // replaced by (C0 , C1 , C2 ) and Mi by mi as follows. An election verifier must compute the following values.
-    // (11.1) a = g v · K c mod p,
-    // (11.2) b = C0v · β c mod p.
-    // An election verifier must then confirm the following.
-    // (11.A) The given value v is in the set Zq .
-    // (11.B) The challenge value c satisfies c = H(HE ; 0x31, K, C0 , C1 , C2 , a, b, β).
     private fun verifyContestData(decryptedContestData: DecryptedTallyOrBallot.DecryptedContestData, errs: ErrorMessages){
         // (11.A,14.A) The given value v is in the set Zq.
         if (!decryptedContestData.proof.r.inBounds()) {
