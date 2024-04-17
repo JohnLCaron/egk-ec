@@ -1,6 +1,6 @@
 # EGK Workflow and Command Line Programs
 
-last update 04/01/2024
+last update 04/16/2024
 
 <!-- TOC -->
 * [EGK Workflow and Command Line Programs](#egk-workflow-and-command-line-programs)
@@ -12,6 +12,7 @@ last update 04/01/2024
     * [Run trusted KeyCeremony](#run-trusted-keyceremony)
     * [Create fake input ballots](#create-fake-input-ballots)
   * [Encryption](#encryption)
+    * [Run AddEncryptedBallots](#run-addencryptedballots)
     * [Run Encrypt Ballot](#run-encrypt-ballot)
     * [Run Example Encryption](#run-example-encryption)
     * [Run Batch Encryption](#run-batch-encryption)
@@ -53,16 +54,16 @@ last update 04/01/2024
    2. Use existing fake ballots for testing in _src/test/data/fakeBallots_.
 
 5. **Encryption**.
-   1. The [_RunEncryptBallot_ CLI](#run-encrypt-ballot) reads a plaintext ballot from disk and writes its encryption to disk.
-   2. The [_RunExampleEncryption_ CLI](#run-example-encryption) reads an ElectionInitialized record, generates fake plaintext
-       ballots, then calls RunEncryptBallot to encrypt the ballots. This can simulate more complex election
-       records with multiple voting devices.
-   3. The [_RunBatchEncryption_ CLI](#run-batch-encryption) reads an ElectionInitialized record and input plaintext
-       ballots, encrypts the ballots and writes out EncryptedBallot records. If any input plaintext ballot fails validation,
-       it is annotated and written to a separate directory, and not encrypted.
-   4. _org.cryptobiotic.eg.encrypt.AddEncryptedBallot_ is a class that your program calls to encrypt plaintext ballots
+  1. The [_RunAddEncryptedBallots_ CLI](#run-addencryptedballots) reads plaintext ballots from a directory and 
+     writes their encryptions into the specified election record.
+  1. The [_RunEncryptBallot_ CLI](#run-encrypt-ballot) reads a plaintext ballot from disk and writes its encryption to disk.
+  1. The [_RunExampleEncryption_ CLI](#run-example-encryption) Is an example of running RunEncryptBallot to encrypt ballots. 
+     This can simulate more complex election records with multiple voting devices.
+  1. The [_RunBatchEncryption_ CLI](#run-batch-encryption) reads plaintext ballots from a directory and writes their encryptions to the 
+     specified election record. It is multithreaded.
+  1. _org.cryptobiotic.eg.encrypt.AddEncryptedBallot_ is a class that your program calls to encrypt plaintext ballots
        and add them to the election record. (See _org.cryptobiotic.eg.cli.ExampleEncryption_ as an example of using AddEncryptedBallot). 
-   5. To run encryption with the Encryption server, see the webapps CLI. This allows you to run the encryption on a 
+  1. To run encryption with the Encryption server, see the webapps CLI. This allows you to run the encryption on a 
       different machine than where ballots are generated, and/or to call from a non-JVM program.
 
 6. **Accumulate Tally**.
@@ -192,9 +193,40 @@ java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
 
 ## Encryption
 
-Encryption is generally done on the voting device; running your own program linked into the egk-ec library gives you 
-maximum flexibility for voter challenges and ballot handling. The Encryption server (part of the webapps CLIs 
-also allows voter challenges. These CLIs have less flexibility but may be easier to use.
+Encryption is usually done on the voting device; running your own program linked into the egk-ec library gives you 
+maximum flexibility for voter challenges and ballot handling. The Encryption server (part of the webapps CLIs) 
+also allows voter challenges. The CLIs documented here have less flexibility but are easier to use.
+
+### Run AddEncryptedBallots
+
+````
+Usage: RunExampleEncryption options_list
+Options: 
+    --inputDir, -in -> Directory containing input election record (always required) { String }
+    --ballotDir, -ballots -> Directory to read Plaintext ballots from (always required) { String }
+    --device, -device -> voting device name (always required) { String }
+    --outputDir, -out -> Directory to write output election record (always required) { String }
+    --challengePct, -challenge [0] -> Challenge percent of ballots { Int }
+    --help, -h -> Usage info  
+````
+
+This reads plaintext ballots from ballotDir and writes their encryptions into the specified election record.
+
+If the config file has chainConfirmationCodes = true, then the ballots will be chained.
+
+Pass in "--challengePct percent" to simulate challenging this percent of ballots, randomly chosen.
+
+Example:
+
+````
+java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
+  org.cryptobiotic.eg.cli.RunAddEncryptedBallots \
+    -in src/test/data/encrypt/testBallotChain \
+    -ballot src/test/data/fakeBallots \
+    -device device42 \
+    -out testOut \
+    -challenge 10
+````
 
 ### Run Encrypt Ballot
 
@@ -204,17 +236,21 @@ Options:
     --inputDir, -in -> Directory containing input election record (always required) { String }
     --device, -device -> voting device name (always required) { String }
     --ballotFilepath, -ballot -> Plaintext ballot filepath (or 'CLOSE') (always required) { String }
-    --encryptBallotDir, -output -> Write encrypted ballot to this directory (always required) { String }
-    --help, -h -> Usage info     
+    --outputDir, -out -> Directory to write output election record (always required) { String }
+    --noDeviceNameInDir, -deviceDir [false] -> Dont add device name to encrypted ballots directory 
+    --help, -h -> Usage info 
+ 
 ````
-This reads one plaintext ballot from disk and writes its encryption into the specified directory, which must already exist.
+This reads one plaintext ballot from disk and writes its encryption into the specified election record, which must already exist.
 
-The standard place to write encrypted ballots is to _workingDir/encrypted_ballots/device/_. The encrypted file is always
-named _eballot-ballotId.json_, where _ballotId_ is taken from the plaintext ballot.
+The standard place to write encrypted ballots is _encryptBallotDir_ = _outputDir/encrypted_ballots/device/_. If not chaining, you may
+specify --noDeviceNameInDir, then the encryptions are written to _outputDir/encrypted_ballots/_.
+
+The encrypted file is always named _eballot-ballotId.json_, where _ballotId_ is taken from the plaintext ballot.
 
 If the config file has chainConfirmationCodes = true, then RunEncryptBallot will expect to be able to read
 and write _ballot_chain.json_ in the _encryptBallotDir_ directory. The ballot chaining should be closed by sending 
-ballotFilename = "Close" when the chain is complete.
+ballotFilename = "CLOSE" when the chain is complete.
 
 Example:
 
@@ -222,9 +258,9 @@ Example:
 java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunEncryptBallot \
     -in src/test/data/encrypt/testBallotNoChain \
-    -device device42 \
     -ballot src/test/data/fakeBallots/pballot-id153737325.json \
-    -output testOut/encrypted_ballots/device42/ 
+    -device device42 \
+    -out testOut
 ````
 
 ### Run Example Encryption
@@ -236,18 +272,19 @@ Options:
     --nballots, -nballots -> Number of test ballots to generate (always required) { Int }
     --plaintextBallotDir, -pballotDir -> Write plaintext ballots to this directory (always required) { String }
     --deviceNames, -device -> voting device name(s), comma delimited (always required) { String }
-    --encryptBallotDir, -eballotDir -> Write encrypted ballots to this directory (always required) { String }
-    --addDeviceNameToDir, -deviceDir -> Add device name to encrypted ballots directory [true] 
+    --outputDir, -out -> Directory to write output election record (always required) { String }
+    --noDeviceNameInDir, -deviceDir [false] -> Dont add device name to encrypted ballots directory 
     --help, -h -> Usage info 
 ````
 This is an example program that calls RunEncryptBallot to encrypt one ballot at a time, by generating fake ballots.
-All ballots are cast (no challenges).
+All ballots are cast (no challenges). It is meant as an example, not something used in production.
 
 There must be at least one device name. You can generate multiple chains by having multiple device names. 
 In that case the ballots are randomly assigned to a device in the list. 
 
 Chaining is controlled by the config file flag chainConfirmationCodes = true. If true, then RunExampleEncryption will
-close the chain when done, and will always add the device name to the direcory.
+close the chain when done, and will add the device name to the encryption directory. If not chaining, then the device name
+will not be added to the encryption directory.
 
 Example:
 
@@ -257,8 +294,8 @@ java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
     -in src/test/data/encrypt/testBallotChain \
     -nballots 33 \
     -pballotDir testOut/encrypt/RunExampleEncryptionTest/plaintext_ballots \
-    -eballotDir testOut/encrypt/RunExampleEncryptionTest/encrypted_ballots \
     -device device42,device11,yrnameHere
+    --outputDir testOut/encrypt/RunExampleEncryptionTest \
 ````
 
 ### Run Batch Encryption
@@ -268,18 +305,20 @@ Usage: RunBatchEncryption options_list
 Options: 
     --inputDir, -in -> Directory containing input election record (always required) { String }
     --ballotDir, -ballots -> Directory to read Plaintext ballots from (always required) { String }
-    --outputDir, -out -> Directory to write output election record { String }
-    --encryptDir, -eballots -> Write encrypted ballots here { String }
     --invalidDir, -invalid -> Directory to write invalid input ballots to { String }
     --check, -check [None] -> Check encryption { Value should be one of [none, verify, encrypttwice, decryptnonce] }
     --nthreads, -nthreads [11] -> Number of parallel threads to use { Int }
     --createdBy, -createdBy -> who created { String }
     --device, -device -> voting device name (always required) { String }
-    --cleanOutput, -clean [false] -> clean output dir 
+    --outputDir, -out -> Directory to write output election record { String }
+    --noDeviceNameInDir, -deviceDir -> Dont add device name to encrypted ballots directory
     --anonymize, -anon [false] -> anonymize ballot 
     --help, -h -> Usage info 
 ````
-You must specify outputDir or encryptDir. The former copies ElectionInit and writes encrypted ballots to standard election record.
+
+This reads all plaintext ballot from ballotDir and writes their encryptions into outputDir or encryptDir.
+
+You must specify either outputDir or encryptDir. The former copies ElectionInit and writes encrypted ballots to standard election record.
 The latter writes just the encrypted ballots to the specified directory.
 
 This runs multithreaded, and you cannot use it to do ballot chaining or challenges.
@@ -291,9 +330,8 @@ java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
   org.cryptobiotic.eg.cli.RunBatchEncryption \
     -in src/test/data/keyceremony/runFakeKeyCeremonyAllEc \
     -ballots src/test/data/fakeBallots \
-    -out testOut/cliWorkflow/electionRecordEc \
     -device device42 \
-    --cleanOutput
+    -out testOut/testBatchEncryption
 ````
 
 ## Tally
@@ -327,6 +365,7 @@ output:
 
 Note that at this point in the cliWorkflow example, we are both reading from and writing to the electionRecord. A
 production workflow may be significantly different.
+
 
 ## Decryption
 

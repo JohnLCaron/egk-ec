@@ -10,7 +10,9 @@ import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.publish.DecryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.EncryptedBallotSinkIF
 import org.cryptobiotic.eg.publish.Publisher
+import org.cryptobiotic.util.ErrorMessages
 import java.io.FileOutputStream
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
@@ -26,7 +28,9 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
         if (createNew) {
             removeAllFiles(electionRecordDir)
         }
-        validateOutputDir(electionRecordDir, Formatter())
+        val errs = ErrorMessages("PublisherJson  dir=$electionRecordDir")
+        if (!validateOutputDir(electionRecordDir, errs))
+            throw IOException("$errs")
     }
 
     override fun isJson() : Boolean = true
@@ -116,9 +120,9 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
 
     ////////////////////////////////////////////////
 
-    override fun writeEncryptedBallotChain(closing: EncryptedBallotChain, ballotOverrideDir: String?) {
+    override fun writeEncryptedBallotChain(closing: EncryptedBallotChain) {
         val jsonChain = closing.publishJson()
-        val filename = jsonPaths.encryptedBallotChain(closing.encryptingDevice, ballotOverrideDir)
+        val filename = jsonPaths.encryptedBallotChain(closing.encryptingDevice)
 
         FileOutputStream(filename).use { out ->
             jsonReader.encodeToStream(jsonChain, out)
@@ -126,15 +130,16 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
         }
     }
 
-    // batched is only used by proto, so is ignored here
-    override fun encryptedBallotSink(device: String?, batched: Boolean): EncryptedBallotSinkIF {
-        val ballotDir = if (device != null) jsonPaths.encryptedBallotDir(device) else jsonPaths.topDir
-        validateOutputDir(Path.of(ballotDir), Formatter()) // TODO
-        return EncryptedBallotDeviceSink(device)
+    override fun encryptedBallotSink(device: String?): EncryptedBallotSinkIF {
+        val ballotDir = jsonPaths.encryptedBallotDir(device)
+        val errs = ErrorMessages("encryptedBallotSink  dir=$ballotDir")
+        if (!validateOutputDir(Path.of(ballotDir), errs))
+            throw IOException("$errs")
+        return EncryptedBallotDeviceSink(ballotDir, device)
     }
 
-    inner class EncryptedBallotDeviceSink(val device: String?) : EncryptedBallotSinkIF {
-
+    inner class EncryptedBallotDeviceSink(val ballotDir: String, val device: String?) : EncryptedBallotSinkIF {
+        fun ballotDir() = ballotDir
         override fun writeEncryptedBallot(eballot: EncryptedBallot): String {
             val ballotFile = jsonPaths.encryptedBallotDevicePath(device, eballot.ballotId)
             val json = eballot.publishJson()
@@ -151,7 +156,10 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
     /////////////////////////////////////////////////////////////
 
     override fun decryptedBallotSink(ballotOverrideDir: String?): DecryptedBallotSinkIF {
-        validateOutputDir(Path.of(jsonPaths.decryptedBallotDir(ballotOverrideDir)), Formatter())
+        val path = Path.of(jsonPaths.decryptedBallotDir(ballotOverrideDir))
+        val errs = ErrorMessages("encryptedBallotSink  dir=$path")
+        if (!validateOutputDir(path, errs))
+            throw IOException("$errs")
         return DecryptedTallyOrBallotSink(ballotOverrideDir)
     }
 
@@ -170,21 +178,18 @@ class PublisherJson(topDir: String, createNew: Boolean) : Publisher {
 }
 
 /** Make sure output directories exists and are writeable.  */
-fun validateOutputDir(path: Path, error: Formatter): Boolean {
+fun validateOutputDir(path: Path, errs: ErrorMessages): Boolean {
     if (!Files.exists(path)) {
         Files.createDirectories(path)
     }
     if (!Files.isDirectory(path)) {
-        error.format(" Output directory '%s' is not a directory%n", path)
-        return false
+        errs.add(" Output directory '$path' is not a directory")
     }
     if (!Files.isWritable(path)) {
-        error.format(" Output directory '%s' is not writeable%n", path)
-        return false
+        errs.add(" Output directory '$path' is not writeable")
     }
     if (!Files.isExecutable(path)) {
-        error.format(" Output directory '%s' is not executable%n", path)
-        return false
+        errs.add(" Output directory '$path' is not executable")
     }
-    return true
+    return !errs.hasErrors()
 }

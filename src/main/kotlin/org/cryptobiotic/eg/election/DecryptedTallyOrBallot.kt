@@ -1,9 +1,7 @@
 package org.cryptobiotic.eg.election
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
 import org.cryptobiotic.eg.core.*
+import org.cryptobiotic.util.ErrorMessages
 
 /**
  * The decryption of one encrypted ballot or encrypted tally.
@@ -16,7 +14,7 @@ import org.cryptobiotic.eg.core.*
 data class DecryptedTallyOrBallot(
     val id: String,
     val contests: List<Contest>,
-    val electionId : UInt256, // threw this in to prevent accidental mixups
+    val electionId : UInt256, // prevent accidental mixups
 ) {
 
     data class Contest(
@@ -33,7 +31,7 @@ data class DecryptedTallyOrBallot(
 
     data class DecryptedContestData(
         val contestData: ContestData,
-        val encryptedContestData : HashedElGamalCiphertext, // same as EncryptedTally.Contest.contestData
+        val encryptedContestData: HashedElGamalCiphertext, // same as EncryptedTally.Contest.contestData
         val proof: ChaumPedersenProof,
         var beta: ElementModP, // needed to verify 10.2
     )
@@ -82,33 +80,35 @@ data class DecryptedTallyOrBallot(
         }
     }
 
-    fun compare(pballot: PlaintextBallot): Result<Boolean, String> {
-        val errs = mutableListOf<String>()
-        if (pballot.contests.size != contests.size) {
-            errs.add("Number of contests differ ${pballot.contests.size} != ${contests.size}")
-        }
+    fun compare(pballot: PlaintextBallot, errs: ErrorMessages): Boolean {
         val pcontests = pballot.contests.associateBy { it.contestId }
-        contests.forEach { contest ->
-            val pcontest = pcontests[contest.contestId]
+        contests.forEach { dcontest ->
+            val pcontest = pcontests[dcontest.contestId]
             if (pcontest == null) {
-                errs.add("Cant find ${contest.contestId}")
+                checkAllZeroes(dcontest, errs.nested("PBallot missing contest=${dcontest.contestId}"))
             } else {
-                if (pcontest.selections.size != contest.selections.size) {
-                    errs.add("Number of selections for ${contest.contestId} differ ${pcontest.selections.size} != ${contest.selections}")
-                }
-
                 val pselections = pcontest.selections.associateBy { it.selectionId }
-                contest.selections.forEach { selection ->
-                    val pselection = pselections[selection.selectionId]
+                dcontest.selections.forEach { dselection ->
+                    val pselection = pselections[dselection.selectionId]
                     if (pselection == null) {
-                        errs.add("Cant find ${contest.contestId}/${selection.selectionId}")
+                        if (dselection.tally != 0) {
+                            errs.add("${dcontest.contestId}.${dselection.selectionId} is not zero")
+                        }
                     } else {
-                        if (pselection.vote != selection.tally)
-                            errs.add(" Error ${contest.contestId}/${selection.selectionId} ${pselection.vote} != ${selection.tally}")
+                        if (pselection.vote != dselection.tally) {
+                            errs.add("${dcontest.contestId}/${dselection.selectionId} ${pselection.vote} != ${dselection.tally}")
+                        }
                     }
                 }
             }
         }
-        return if (errs.isEmpty()) Ok(true) else Err(errs.joinToString(","))
+        return !errs.hasErrors()
     }
+
+    private fun checkAllZeroes(dcontest: DecryptedTallyOrBallot.Contest, errs: ErrorMessages) {
+        dcontest.selections.forEach { dselection ->
+            if (dselection.tally != 0) errs.add("${dcontest.contestId}.${dselection.selectionId} is not zero")
+        }
+    }
+
 }

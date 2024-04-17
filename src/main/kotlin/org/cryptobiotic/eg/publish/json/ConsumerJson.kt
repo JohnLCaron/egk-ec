@@ -188,9 +188,9 @@ class ConsumerJson(val topDir: String, usegroup: GroupContext? = null) : Consume
         return Iterable { EncryptedBallotFileIterator(deviceDirPath, filter) }
     }
 
-    override fun readEncryptedBallotChain(device: String, ballotOverrideDir: String?) : Result<EncryptedBallotChain, ErrorMessages> {
+    override fun readEncryptedBallotChain(device: String) : Result<EncryptedBallotChain, ErrorMessages> {
         val errs = ErrorMessages("readEncryptedBallotChain device '$device'")
-        val ballotChainPath = Path.of(jsonPaths.encryptedBallotChain(device, ballotOverrideDir))
+        val ballotChainPath = Path.of(jsonPaths.encryptedBallotChain(device))
         if (!Files.exists(ballotChainPath)) {
             return errs.add("'$ballotChainPath' file does not exist")
         }

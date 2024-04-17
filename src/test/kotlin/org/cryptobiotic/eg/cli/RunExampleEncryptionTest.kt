@@ -13,16 +13,15 @@ class RunExampleEncryptionTest {
         val outputDir = "${Testing.testOut}/encrypt/testExampleEncryptionWithChaining"
         val nballots = 33
 
-        removeAllFiles(Path.of("$outputDir/encrypted_ballots"))
+        // removeAllFiles(Path.of("$outputDir/encrypted_ballots"))
 
         RunExampleEncryption.main(
                 arrayOf(
                     "--inputDir", inputDir,
                     "--nballots", nballots.toString(),
                     "--plaintextBallotDir", "$outputDir/plaintext",
-                    "--encryptBallotDir", "$outputDir/encrypted_ballots",
+                    "--outputDir", outputDir,
                     "-device", "device42,device11",
-                    "--addDeviceNameToDir",
                 )
             )
 
@@ -44,8 +43,8 @@ class RunExampleEncryptionTest {
                 "--nballots", nballots.toString(),
                 "--plaintextBallotDir", "$outputDir/plaintext",
                 "-device", "device42,device11",
-                "--encryptBallotDir", "$outputDir/encrypted_ballots",
-                "--addDeviceNameToDir",
+                "--outputDir", "$outputDir",
+                "--noDeviceNameInDir",
             )
         )
 

@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.input
 
 import org.cryptobiotic.eg.election.*
+import kotlin.math.abs
 import kotlin.random.Random
 
 /** Create nballots randomly generated fake Ballots, used for testing.  */
@@ -51,8 +52,8 @@ class RandomBallotProvider(val manifest: Manifest, val nballots: Int = 11) {
         for (contestp in manifest.contestsForBallotStyle(useStyle)!!) {
             contests.add(makeContestFrom(contestp as Manifest.ContestDescription))
         }
-        val sn = Random.nextInt(1,1000)
-        return PlaintextBallot(ballotId, useStyle, contests, sn.toLong())
+        val sn = abs(Random.nextLong())
+        return PlaintextBallot(ballotId, useStyle, contests, sn)
     }
 
     fun makeContestFrom(contest: Manifest.ContestDescription): PlaintextBallot.Contest {

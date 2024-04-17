@@ -11,8 +11,6 @@ import org.cryptobiotic.eg.publish.Consumer
 import org.cryptobiotic.eg.publish.Publisher
 import org.cryptobiotic.util.ErrorMessages
 
-// TODO error if ballotChain is already closed ??
-
 // Let Baux,0 = "Baux,0 must contain at least a unique voting device identifier and possibly other voting device
 // information as described above and as specified in the election manifest file." p 36.
 //
@@ -41,7 +39,6 @@ data class EncryptedBallotChain(
         fun makeCodeBaux(
             consumer: Consumer,
             device: String,
-            ballotChainOverrideDir: String?,
             configBaux0: ByteArray,
             extendedBaseHash: UInt256,
         ): Pair<ByteArray, EncryptedBallotChain> {
@@ -52,7 +49,7 @@ data class EncryptedBallotChain(
             // and still have the device name as part of the ballot chaining as required in the spec.
             val baux0 = if (configBaux0.isEmpty()) device.encodeToByteArray() else configBaux0
 
-            val chainResult = consumer.readEncryptedBallotChain(device, ballotChainOverrideDir)
+            val chainResult = consumer.readEncryptedBallotChain(device)
             val codeBaux = if (chainResult is Ok) {
                 if (showChain) print(" next ")
                 chain = chainResult.unwrap()
@@ -78,7 +75,6 @@ data class EncryptedBallotChain(
         // append ballotId, confirmationCode to the ballotChain
         fun writeChain(
             publisher: Publisher,
-            ballotChainOverrideDir: String?,
             ballotId: String,
             confirmationCode: UInt256,
             currentChain: EncryptedBallotChain
@@ -87,7 +83,9 @@ data class EncryptedBallotChain(
             val newChain = currentChain.copy(ballotIds = ids, lastConfirmationCode = confirmationCode)
 
             try {
-                publisher.writeEncryptedBallotChain(newChain, ballotChainOverrideDir)
+                publisher.writeEncryptedBallotChain(newChain)
+                logger.info { "write $ballotId into chain " }
+
             } catch (t: Throwable) {
                 logger.error(t) { "error writing chain ${t.message}" }
                 return null
@@ -98,7 +96,6 @@ data class EncryptedBallotChain(
         // append finalConfirmationCode and close the ballotChain
         fun terminateChain(
             publisher: Publisher,
-            ballotChainOverrideDir: String?,
             currentChain: EncryptedBallotChain,
         ): Int {
             // The chain should be closed at the end of an election by forming and publishing
@@ -112,7 +109,7 @@ data class EncryptedBallotChain(
             val ballotChain =  currentChain.copy(closingHash = hashFinal)
 
             try {
-                publisher.writeEncryptedBallotChain(ballotChain, ballotChainOverrideDir)
+                publisher.writeEncryptedBallotChain(ballotChain)
             } catch (t: Throwable) {
                 logger.error(t) { "error writing chain ${t.message}" }
                 return 6

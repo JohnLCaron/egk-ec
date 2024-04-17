@@ -11,7 +11,6 @@ import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.publish.json.ConsumerJson
 import org.cryptobiotic.eg.publish.json.ElectionRecordJsonPaths
 import org.cryptobiotic.util.ErrorMessages
-import java.nio.file.Path
 import java.util.function.Predicate
 
 private val logger = KotlinLogging.logger("Consumer")
@@ -45,8 +44,8 @@ interface Consumer {
     fun encryptingDevices(): List<String>
     /** Read encrypted ballots for specified device. */
     fun iterateEncryptedBallots(device: String, filter : Predicate<EncryptedBallot>?): Iterable<EncryptedBallot>
-    /** Read  encrypted ballot chain for the specified device. If the ballotDir is not overridden, then 'encrypted_ballots/device' will be used. */
-    fun readEncryptedBallotChain(device: String, ballotOverrideDir: String? = null) : Result<EncryptedBallotChain, ErrorMessages>
+    /** Read encrypted ballot chain for the specified device. */
+    fun readEncryptedBallotChain(device: String) : Result<EncryptedBallotChain, ErrorMessages>
 
     /** Read all decrypted ballots in the given directory, or the default if null. */
     fun iterateDecryptedBallots(ballotOverrideDir: String? = null): Iterable<DecryptedTallyOrBallot>
