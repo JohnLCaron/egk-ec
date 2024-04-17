@@ -1,10 +1,10 @@
 [![License](https://img.shields.io/github/license/JohnLCaron/egk-ec)](https://github.com/JohnLCaron/egk-ec/blob/main/LICENSE.txt)
 ![GitHub branch checks state](https://img.shields.io/github/actions/workflow/status/JohnLCaron/egk-ec/unit-tests.yml)
-![Coverage](https://img.shields.io/badge/coverage-90.5%25%20LOC%20(7001/7733)-blue)
+![Coverage](https://img.shields.io/badge/coverage-90.6%25%20LOC%20(6958/7679)-blue)
 
 # ElectionGuard-Kotlin Elliptic Curve
 
-_last update 04/13/2024_
+_last update 04/17/2024_
 
 EGK Elliptic Curve (egk-ec) is an experimental implementation of [ElectionGuard](https://github.com/microsoft/electionguard), 
 [version 2.0](https://github.com/microsoft/electionguard/releases/download/v2.0/EG_Spec_2_0.pdf), 

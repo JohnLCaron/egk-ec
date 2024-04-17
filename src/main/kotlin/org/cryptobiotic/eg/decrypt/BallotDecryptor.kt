@@ -19,40 +19,8 @@ class BallotDecryptor(
     val guardians: Guardians, // all guardians
     decryptingTrustees: List<DecryptingTrusteeIF>, // the trustees available to decrypt
 ) {
-    val lagrangeCoordinates: Map<String, LagrangeCoordinate>
-    val stats = Stats()
-    val nguardians = guardians.guardians.size // number of guardinas
-    val quorum = guardians.guardians[0].coefficientCommitments().size
     val decryptor = CipherDecryptor(group, extendedBaseHash, publicKey, guardians, decryptingTrustees)
-
-    init {
-        // check that the DecryptingTrustee's match their public key
-        val badTrustees = mutableListOf<String>()
-        for (trustee in decryptingTrustees) {
-            val guardian = guardians.guardianMap[trustee.id()]
-            if (guardian == null) {
-                badTrustees.add(trustee.id())
-            } else {
-                if (trustee.guardianPublicKey().key != guardian.publicKey()) {
-                    badTrustees.add(trustee.id())
-                    logger.error { "trustee public key = ${trustee.guardianPublicKey()} not equal guardian = ${guardian.publicKey()}" }
-                }
-            }
-        }
-        if (badTrustees.isNotEmpty()) {
-            throw RuntimeException("DecryptingTrustee(s) ${badTrustees.joinToString(",")} do not match the public record")
-        }
-
-        // build the lagrangeCoordinates once and for all
-        val dguardians = mutableListOf<LagrangeCoordinate>()
-        for (trustee in decryptingTrustees) {
-            val present: List<Int> = // available trustees minus me
-                decryptingTrustees.filter { it.id() != trustee.id() }.map { it.xCoordinate() }
-            val coeff: ElementModQ = group.computeLagrangeCoefficient(trustee.xCoordinate(), present)
-            dguardians.add(LagrangeCoordinate(trustee.id(), trustee.xCoordinate(), coeff))
-        }
-        this.lagrangeCoordinates = dguardians.associateBy { it.guardianId }
-    }
+    val stats = Stats()
 
     fun decrypt(eballot: EncryptedBallotIF, errs : ErrorMessages): DecryptedTallyOrBallot? {
         if (eballot.electionId != extendedBaseHash) {
@@ -87,7 +55,7 @@ class BallotDecryptor(
         val result = makeBallot(eballot, decryptionAndProofs, contestDecryptionAndProofs, errs.nested("BallotDecryptor.decrypt"))
         if (!errs.hasErrors()) {
             val ndecrypt = decryptionAndProofs.size + contestDecryptionAndProofs.size
-            stats.of("decryptTally").accum(stopwatch.stop(), ndecrypt)
+            stats.of("decryptBallot").accum(stopwatch.stop(), ndecrypt)
         }
         return if (errs.hasErrors()) null else result!!
     }
@@ -103,10 +71,13 @@ class BallotDecryptor(
             val selections = econtest.selections.map { eselection ->
                 val (decryption, proof) = decryptions[selectionCount++]
                 val (T, tally) = decryption.decryptCiphertext(publicKey)
+                if (tally == null) {
+                    errs.add("Cant decrypt tally for ${econtest.contestId}.${eselection.selectionId}")
+                }
 
                 DecryptedTallyOrBallot.Selection(
                     eselection.selectionId,
-                    tally?: 0, // TODO error handling
+                    tally?: 0,
                     T,
                     (decryption.cipher as Ciphertext).delegate,
                     proof
