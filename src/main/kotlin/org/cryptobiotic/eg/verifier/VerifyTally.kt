@@ -40,12 +40,7 @@ class VerifyTally(
                     if (selection.encryptedVote.data != accum.data) {
                         errs.add("  8.B  Ballot Aggregation does not match: $key")
                     }
-                } /* else {
-                    // TODO what is it? is it needed? left over from placeholders ??
-                    if (selection.encryptedVote.pad != group.ZERO_MOD_P || selection.encryptedVote.data != group.ZERO_MOD_P) {
-                        errs.add("    Ballot Aggregation empty does not match $key")
-                    }
-                } */
+                }
             }
         }
 

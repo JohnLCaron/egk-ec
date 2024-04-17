@@ -8,9 +8,6 @@ import org.cryptobiotic.util.ErrorMessages
 //////////////////////////////////////////////////////////////////////////////
 // pre-encryption
 
-// TODO specify sigma in manifest
-private fun sigma(hash: UInt256): String = hash.toHex().substring(0, 5)
-
 /*
 Every step of verification that applies to traditional ElectionGuard ballots also applies to pre-
 encrypted ballots – with the exception of the process for computing confirmation codes. However,
@@ -53,6 +50,7 @@ record as uncast.
 fun VerifyEncryptedBallots.verifyPreencryptionShortCodes(
     contest: EncryptedBallot.Contest,
     errs: ErrorMessages,
+    sigma : (UInt256) -> String, // "hash trimming function Ω must be completely specified in the election manifest"
 ) {
     if (contest.preEncryption == null) {
         errs.add("    18. Contest has no preEncryption")

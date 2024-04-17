@@ -295,7 +295,7 @@ data class HashedElGamalCiphertextJson(
     val c0: ElementModPJson, // ElementModP,
     val c1: String, // ByteArray,
     val c2: UInt256Json, // UInt256,
-    val numBytes: Int // TODO needed?
+    val numBytes: Int
 )
 
 @Serializable

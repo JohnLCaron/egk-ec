@@ -3,7 +3,6 @@ package org.cryptobiotic.eg.preencrypt
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.election.ManifestIF
 
-
 /**
  * The crypto part of the "The Ballot Encrypting Tool"
  * The encrypting/decrypting of the primaryNonce is done external to this.
@@ -64,7 +63,7 @@ class PreEncryptor(
         // In a contest with a selection limit of L, an additional L null vectors are added
         var nextSeqNo = sortedSelections.last().sequenceOrder + 1
         for (nullVectorIdx in (1..contestLimit)) {
-            // TODO "null labels may be in manifest", see 4.2.1. wtf?
+            // TODO "null labels may be in manifest", see Issue #56
             preeSelections.add( preencryptSelection(primaryNonce, this.sequenceOrder, "null${nullVectorIdx}", nextSeqNo, sortedSelectionIndices))
             nextSeqNo++
         }
@@ -113,5 +112,10 @@ class PreEncryptor(
             encryptionVector,
             encryptionNonces,
         )
+    }
+
+    companion object {
+        // TODO "hash trimming function Ω must be completely specified in the election manifest" see Issue #56
+        fun sigma(hash: UInt256): String = hash.toHex().substring(0, 5)
     }
 }

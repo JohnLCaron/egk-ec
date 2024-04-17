@@ -32,7 +32,7 @@ internal data class PreContest(
     val votedFor: List<Boolean> // nselections, in order by sequence_order
 ) {
     init {
-        require(votedFor.size == allSelectionHashes.size - selectedVectors.size) // TODO
+        require(votedFor.size == allSelectionHashes.size - selectedVectors.size)
     }
     fun selectedCodes() : List<String> = selectedVectors.map { it.shortCode }
     fun nselections() = votedFor.size

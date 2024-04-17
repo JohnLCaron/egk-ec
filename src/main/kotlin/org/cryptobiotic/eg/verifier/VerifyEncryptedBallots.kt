@@ -22,6 +22,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.yield
 import org.cryptobiotic.eg.encrypt.EncryptedBallotChain
 import org.cryptobiotic.eg.encrypt.EncryptedBallotChain.Companion.assembleChain
+import org.cryptobiotic.eg.preencrypt.PreEncryptor
 import org.cryptobiotic.eg.publish.Consumer
 import org.cryptobiotic.util.Stopwatch
 
@@ -61,8 +62,7 @@ class VerifyEncryptedBallots(
             joinAll(*verifierJobs.toTypedArray())
         }
 
-        // check duplicate confirmation codes (7.C): TODO what if there are multiple records for the election?
-        // TODO what about checking for duplicate ballot ids?
+        // check duplicate confirmation codes (7.C):
         val checkDuplicates = mutableMapOf<UInt256, String>()
         confirmationCodes.forEach {
             if (checkDuplicates[it.code] != null) {
@@ -147,7 +147,7 @@ class VerifyEncryptedBallots(
         }
 
         if (isPreencrypt) {
-            verifyPreencryptionShortCodes(contest, errs)
+            verifyPreencryptionShortCodes(contest, errs, PreEncryptor::sigma)
         }
     }
 

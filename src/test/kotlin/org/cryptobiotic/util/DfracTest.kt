@@ -79,7 +79,7 @@ class DfracTest {
                 fraction.append("0")
             }
         } else if (fixedDecimals < fracFigs) {
-            val chop = fracFigs - fixedDecimals // TODO should round !!
+            val chop = fracFigs - fixedDecimals // LOOK should round !!
             fraction.setLength(fraction.length - chop)
         }
 

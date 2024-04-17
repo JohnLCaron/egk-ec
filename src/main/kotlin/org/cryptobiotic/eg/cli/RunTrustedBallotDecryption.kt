@@ -109,7 +109,6 @@ class RunTrustedBallotDecryption {
                 decryptingTrustees,
             )
 
-            // TODO you may want to put the decryption results in the same directory, but sinks now are append-only.
             val publisher = makePublisher(outputDir, false)
             val sink: DecryptedBallotSinkIF = publisher.decryptedBallotSink()
 
