@@ -8,6 +8,7 @@ import java.math.BigInteger
 /**
  * Generalization of ElectionGuard 2.0 section 3.1 "Parameter requirements"
  * to also describe elliptic curve groups, as well as the ElectionGuard integer group.
+ * Note that this class is just a container for named BigInteger parameters.
  */
 enum class GroupType { IntegerGroup, EllipticCurve }
 

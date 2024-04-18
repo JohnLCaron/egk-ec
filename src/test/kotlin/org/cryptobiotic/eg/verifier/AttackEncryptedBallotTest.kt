@@ -27,6 +27,7 @@ import kotlin.test.assertNotEquals
  The attacker might switch votes in precincts where they know the likely vote ratio
 */
 
+// TODO
 class AttackEncryptedBallotTest {
     private val inputDir   = "src/test/data/workflow/allAvailableEc"
     private val trusteeDir = "$inputDir/private_data/trustees"
@@ -144,7 +145,7 @@ class AttackEncryptedBallotTest {
     // this fails in EncryptedBallot.Selection.is_valid_encryption() because the crypto_hash includes the
     // selection_id and the ciphertext.
 
-    // switch the vote for the two selections TODO
+    // switch the vote for the two selections
     private fun switchVote(s1: EncryptedBallot.Selection, s2: EncryptedBallot.Selection): EncryptedBallot.Selection {
         return EncryptedBallot.Selection(
             s1.selectionId,

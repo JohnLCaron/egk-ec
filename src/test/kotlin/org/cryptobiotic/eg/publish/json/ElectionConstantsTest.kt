@@ -18,11 +18,11 @@ class ElectionConstantsTest {
     }
 
     @Test
-    fun missingFieldsTest() { // TODO no failure
-        val errs = ErrorMessages("badFieldsTest")
+    fun anyFieldsTest() {
+        val errs = ErrorMessages("anyFieldsTest")
         var json = ElectionConstantsJson(
             "any", "IntegerGroup", "any",
-            mapOf("largePrime" to "123809afe")
+            mapOf("largePrime" to "123809afe", "wtf" to "42")
         )
         val good = json.import(errs)
         assertFalse(errs.hasErrors())

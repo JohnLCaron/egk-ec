@@ -103,7 +103,7 @@ class Recorder(
         val contestDataEncrypted = contestData.encrypt(publicKey, extendedBaseHash, preeContest.contestId,
             preeContest.sequenceOrder, ballotNonce, manifest.contestLimit(contestId))
 
-        // we are going to substitute preencryptionHash (eq 94) instead of eq 57 when we validate TODO WTF?
+        // we are going to substitute preencryptionHash (eq 94) instead of eq 57 when we validate. ??
         // χl = H(HE ; 0x23, indc (Λl ), K, α1 , β1 , α2 , β2 . . . , αm , βm ) ; spec 2.0.0 eq 57
 
         val ciphers = mutableListOf<ElementModP>()

@@ -135,8 +135,6 @@ class ProductionGroupContext(
             null
         }
 
-    // TODO, for an election where limit > 1, might want to cache all encryption up to limit.
-
     override fun uIntToElementModQ(i: UInt) : ElementModQ = when (i) {
         0U -> ZERO_MOD_Q
         1U -> ONE_MOD_Q

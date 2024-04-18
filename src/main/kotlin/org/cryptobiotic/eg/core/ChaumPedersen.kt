@@ -75,7 +75,6 @@ internal fun ElGamalCiphertext.makeChaumPedersenWithNonces(
     randomCj: List<ElementModQ>, // size == R + 1
 ): ChaumPedersenRangeProofKnownNonce {
     require(randomUj.size == randomCj.size)
-    // require(vote >= 0 && vote <= randomUj.size ) // TODO return Result
 
     val (alpha, beta) = this
     val group = compatibleContextOrFail(pad, nonce, publicKey.key, alpha, beta)
@@ -223,7 +222,7 @@ fun ChaumPedersenProof.verifyDecryption(
     val b = (encryptedVote.pad powP this.r) * (M powP this.c) // 9.3
 
     // 9.A The given value v is in the set Z_q.
-    if (!this.r.inBounds()) { // TODO why wait until now to check this?
+    if (!this.r.inBounds()) {
         return false
     }
     // The challenge value c = H(HE ; 0x30, K, A, B, a, b, M ). eq 71, 9.B.

@@ -23,7 +23,7 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP
         return EcElementModP(group, ec.mul(inv))
     }
 
-    // what does it mean to be in bounds ??
+    // TODO what does it mean to be in bounds ??
     override fun inBounds(): Boolean = true // TODO("Not yet implemented")
 
     // TODO check this
