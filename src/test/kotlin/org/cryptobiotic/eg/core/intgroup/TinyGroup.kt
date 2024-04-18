@@ -164,12 +164,12 @@ internal class TinyGroupContext(
         else
             TinyElementModP(i, this)
 
-    override fun Iterable<ElementModQ>.addQ(): ElementModQ =
-        uIntToElementModQ(fold(0U) { a, b -> (a + b.getCompat(this@TinyGroupContext)) % q })
+    override fun addQ(cues: Iterable<ElementModQ>): ElementModQ =
+        uIntToElementModQ(cues.fold(0U) { a, b -> (a + b.getCompat(this@TinyGroupContext)) % q })
 
-    override fun Iterable<ElementModP>.multP(): ElementModP =
+    override fun multP(pees: Iterable<ElementModP>): ElementModP =
         uIntToElementModP(
-            fold(1UL) { a, b -> (a * b.getCompat(this@TinyGroupContext).toULong()) % p }.toUInt()
+            pees.fold(1UL) { a, b -> (a * b.getCompat(this@TinyGroupContext).toULong()) % p }.toUInt()
         )
 
     override fun gPowP(exp: ElementModQ): ElementModP = gModP powP exp

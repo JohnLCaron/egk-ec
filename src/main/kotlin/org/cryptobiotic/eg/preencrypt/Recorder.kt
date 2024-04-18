@@ -83,7 +83,7 @@ class Recorder(
         val texts: List<ElGamalCiphertext> = selections.map { it.ciphertext }
         val ciphertextAccumulation: ElGamalCiphertext = texts.encryptedSum()?: 0.encrypt(publicKey)
         val nonces: Iterable<ElementModQ> = selections.map { it.selectionNonce }
-        val aggNonce: ElementModQ = with(group) { nonces.addQ() }
+        val aggNonce: ElementModQ = group.addQ(nonces)
         val totalVotes = votedFor.map{ if (it) 1 else 0 }.sum()
 
         val proof = ciphertextAccumulation.makeChaumPedersen(
@@ -135,7 +135,7 @@ class Recorder(
         val combinedNonces = mutableListOf<ElementModQ>()
         repeat(nselections) { idx ->
             val componentNonces : List<ElementModQ> = this.selectedVectors.map { it.nonces[idx] }
-            val aggNonce: ElementModQ = with(group) { componentNonces.addQ() }
+            val aggNonce: ElementModQ = group.addQ(componentNonces)
             combinedNonces.add( aggNonce )
         }
 

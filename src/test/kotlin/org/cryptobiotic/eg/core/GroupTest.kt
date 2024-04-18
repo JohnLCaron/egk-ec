@@ -291,14 +291,12 @@ class GroupTest {
     fun iterableAddition(context: GroupContext) {
         runTest {
             checkAll(
-                propTestFastConfig,
                 elementsModQ(context),
                 elementsModQ(context),
                 elementsModQ(context)
             ) { a, b, c ->
                 val expected = a + b + c
-                assertEquals(expected, context.addQ(a, b, c))
-                assertEquals(expected, with(context) { listOf(a, b, c).addQ() })
+                assertEquals(expected, context.addQ(listOf(a, b, c)))
             }
         }
     }
@@ -311,14 +309,12 @@ class GroupTest {
     fun iterableMultiplication(context: GroupContext) {
         runTest {
             checkAll(
-                propTestFastConfig,
                 validResiduesOfP(context),
                 validResiduesOfP(context),
                 validResiduesOfP(context)
             ) { a, b, c ->
                 val expected = a * b * c
-                assertEquals(expected, context.multP(a, b, c))
-                assertEquals(expected, with(context) { listOf(a, b, c).multP() })
+                assertEquals(expected, context.multP(listOf(a, b, c)))
             }
         }
     }

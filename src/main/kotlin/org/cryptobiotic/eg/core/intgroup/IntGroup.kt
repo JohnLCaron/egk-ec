@@ -65,7 +65,7 @@ class ProductionGroupContext(
     override fun isProductionStrength() = true
     override fun toString() : String = name
 
-    override val ONE_MOD_P
+    override val ONE_MOD_P : ElementModP
         get() = oneModP
 
     override val G_MOD_P
@@ -149,12 +149,17 @@ class ProductionGroupContext(
         else -> ProductionElementModQ(i.toBigInteger(), this)
     }
 
+    override fun addQ(cues: Iterable<ElementModQ>): ElementModQ {
+        val sum = cues.fold(BigInteger.ZERO) { a, b -> a.plus((b as ProductionElementModQ).element) }
+        return ProductionElementModQ(sum.mod(q), this)
+    }
+
+    /*
     override fun Iterable<ElementModQ>.addQ(): ElementModQ {
         val input = iterator().asSequence().toList()
 
-        // TODO why not return 0 ?
         if (input.isEmpty()) {
-            throw ArithmeticException("addQ not defined on empty lists")
+            return ZERO_MOD_Q
         }
 
         if (input.count() == 1) {
@@ -170,12 +175,18 @@ class ProductionGroupContext(
         return ProductionElementModQ(result, this@ProductionGroupContext)
     }
 
+     */
+
+    override fun multP(pees: Iterable<ElementModP>): ElementModP {
+        return pees.fold(ONE_MOD_P) { a, b -> a * b }
+    }
+
+    /*
     override fun Iterable<ElementModP>.multP(): ElementModP {
         val input = iterator().asSequence().toList()
 
-        // TODO why not return 1 ?
         if (input.isEmpty()) {
-            throw ArithmeticException("multP not defined on empty lists")
+            return ONE_MOD_P
         }
 
         if (input.count() == 1) {
@@ -190,6 +201,8 @@ class ProductionGroupContext(
 
         return ProductionElementModP(result, this@ProductionGroupContext)
     }
+
+     */
 
     override fun gPowP(exp: ElementModQ) = gModP powP exp
 
@@ -278,7 +291,7 @@ open class ProductionElementModP(internal val element: BigInteger, val groupCont
 
     override fun isValidResidue(): Boolean {
         groupContext.opCounts.getOrPut("exp") { AtomicInteger(0) }.incrementAndGet()
-        val residue = this.element.modPow(groupContext.q, groupContext.p) == groupContext.ONE_MOD_P.element
+        val residue = this.element.modPow(groupContext.q, groupContext.p) == groupContext.oneModP.element
         return inBounds() && residue
     }
 

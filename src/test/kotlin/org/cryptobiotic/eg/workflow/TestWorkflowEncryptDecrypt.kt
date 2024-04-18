@@ -99,7 +99,7 @@ class TestWorkflowEncryptDecrypt {
                 elGamalKeyPairFromRandom(group),
             )
             val pkeys: Iterable<ElementModP> = trustees.map { it.publicKey.key}
-            val publicKey = ElGamalPublicKey(with (group) { pkeys.multP()} )
+            val publicKey = ElGamalPublicKey( group.multP(pkeys) )
 
             val vote = 1
             val evote1 = vote.encrypt(publicKey, group.randomElementModQ(minimum = 1))
@@ -112,7 +112,7 @@ class TestWorkflowEncryptDecrypt {
 
             //decrypt
             val shares = trustees.map { eAccum.pad powP it.secretKey.key }
-            val allSharesProductM: ElementModP = with (group) { shares.multP() }
+            val allSharesProductM: ElementModP = group.multP(shares)
             val decryptedValue: ElementModP = eAccum.data / allSharesProductM
             val dlogM: Int = publicKey.dLog(decryptedValue)?: throw RuntimeException("dlog error")
             assertEquals(3, dlogM)

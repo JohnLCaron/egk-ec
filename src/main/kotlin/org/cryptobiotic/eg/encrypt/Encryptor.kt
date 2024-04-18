@@ -191,7 +191,7 @@ fun PlaintextBallot.Contest.encryptContest(
     val ciphertexts: List<ElGamalCiphertext> = encryptedSelections.map { it.ciphertext }
     val ciphertextAccumulation: ElGamalCiphertext = ciphertexts.encryptedSum()?: 0.encrypt(jointPublicKey)
     val nonces: Iterable<ElementModQ> = encryptedSelections.map { it.selectionNonce }
-    val aggNonce: ElementModQ = with(group) { nonces.addQ() }
+    val aggNonce: ElementModQ = group.addQ(nonces)
 
     val proof = ciphertextAccumulation.makeChaumPedersen(
         totalVotedFor, // (ℓ in the spec)
