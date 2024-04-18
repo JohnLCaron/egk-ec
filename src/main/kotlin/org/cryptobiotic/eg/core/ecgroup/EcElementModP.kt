@@ -24,7 +24,7 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP
     }
 
     // TODO what does it mean to be in bounds ??
-    override fun inBounds(): Boolean = true // TODO("Not yet implemented")
+    override fun inBounds(): Boolean = true
 
     // TODO check this
     override fun isValidResidue(): Boolean {

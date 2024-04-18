@@ -94,34 +94,16 @@ class Encryptor(
         optionLimit: Int,
         ballotNonce: UInt256,
     ): PendingEncryptedBallot.Contest {
+
+        val (contestData, votes) = makeContestData(contestLimit, optionLimit, this.selections, this.writeIns)
+
         val ballotSelections = this.selections.associateBy { it.selectionId }
-
-        // count the number of votes
-        val votedFor = mutableListOf<Int>()
-        var selectionOvervote = false
-        for (mselection: ManifestIF.Selection in mcontest.selections) {
-            val plaintextSelection = ballotSelections[mselection.selectionId] // Find the plaintext selection matching the manifest selectionId.
-            if (plaintextSelection != null && plaintextSelection.vote > 0) {
-                votedFor.add(plaintextSelection.sequenceOrder)
-                if (plaintextSelection.vote > optionLimit) {
-                    selectionOvervote = true
-                }
-            }
-        }
-
-        // Compute the contest status
-        val totalVotedFor = votedFor.size + this.writeIns.size
-        val status = if (totalVotedFor == 0) ContestDataStatus.null_vote
-            else if (selectionOvervote || totalVotedFor > contestLimit)  ContestDataStatus.over_vote
-            else if (totalVotedFor < contestLimit)  ContestDataStatus.under_vote
-            else ContestDataStatus.normal
-
         val encryptedSelections = mutableListOf<PendingEncryptedBallot.Selection>()
         for (mselection: ManifestIF.Selection in mcontest.selections) {
             var plaintextSelection = ballotSelections[mselection.selectionId]
 
             // Set vote to zero if not in manifest or this contest is overvoted. See 3.3.3 "Overvotes".
-            if (plaintextSelection == null || (status == ContestDataStatus.over_vote)) {
+            if (plaintextSelection == null || (contestData.status == ContestDataStatus.over_vote)) {
                 plaintextSelection = makeZeroSelection(mselection.selectionId, mselection.sequenceOrder)
             }
             encryptedSelections.add( plaintextSelection.encryptSelection(
@@ -131,21 +113,20 @@ class Encryptor(
             ))
         }
 
-        val contestData = ContestData(
-            if (status == ContestDataStatus.over_vote) votedFor else emptyList(),
-            this.writeIns,
-            status
-        )
-
-        val contestDataEncrypted = contestData.encrypt(jointPublicKey, extendedBaseHash, mcontest.contestId,
-            mcontest.sequenceOrder, ballotNonce, contestLimit)
+        val contestDataEncrypted = contestData.encrypt(
+            jointPublicKey,
+            extendedBaseHash,
+            mcontest.contestId,
+            mcontest.sequenceOrder,
+            ballotNonce,
+            contestLimit)
 
         return this.encryptContest(
             group,
             jointPublicKey,
             extendedBaseHash,
             contestLimit,
-            if (status == ContestDataStatus.over_vote) 0 else totalVotedFor,
+            votes,
             encryptedSelections.sortedBy { it.sequenceOrder },
             contestDataEncrypted,
         )

@@ -60,7 +60,7 @@ class ElGamalPublicKey(inputKey: ElementModP) {
 class ElGamalSecretKey(val key: ElementModQ) {
     init {
         if (key < key.context.TWO_MOD_Q)
-            throw ArithmeticException("secret key must be in [2, Q)")
+            throw ArithmeticException("secret key must be in [2, Q) group=${key.context.javaClass.name}")
     }
     val negativeKey: ElementModQ = -key
     val context: GroupContext
