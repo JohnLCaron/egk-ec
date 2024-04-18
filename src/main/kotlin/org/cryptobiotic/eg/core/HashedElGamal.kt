@@ -114,13 +114,13 @@ fun ByteArray.encryptToHashedElGamal(
     // k = H(HE ; 0x22, K, C0 , β) eq 51: secret key since beta is secret since nonce is secret.
     val kdfKey = hashFunction(extendedBaseHash.bytes, separator, publicKey, alpha, beta)
 
-    // ki = HMAC(k, b(i, 4) ∥ Label ∥ 0x00 ∥ Context ∥ b((bD + 1) · 256, 4)) // TODO implementation correct?
+    // ki = HMAC(k, b(i, 4) ∥ Label ∥ 0x00 ∥ Context ∥ b((bD + 1) · 256, 4)) // LOOK implementation correct?
     val kdf = KDF(kdfKey, label, context, this.size * 8)
     val k0 = kdf[0]
     val c0 = alpha.byteArray() //                                                                   (eq 53)
     val encryptedBlocks = messageBlocks.mapIndexed { i, p -> (p xor kdf[i + 1]).bytes }.toTypedArray()
     val c1 = concatByteArrays(*encryptedBlocks) //                                                  (eq 54)
-    val c2 = (c0 + c1).hmacSha256(k0) // TODO can we use hmacFunction() ??                          (eq 55)
+    val c2 = (c0 + c1).hmacSha256(k0) //                                                            (eq 55)
 
     return HashedElGamalCiphertext(alpha, c1, c2, this.size)
 }

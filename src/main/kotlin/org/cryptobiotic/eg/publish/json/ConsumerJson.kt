@@ -539,8 +539,6 @@ private class PathFilter(val prefix: String): Predicate<Path> {
 }
 
 fun Path.pathListNoDirs(filter: Predicate<Path>?): List<Path> {
-    // TODO does this sort?
-    // TODO "API Note: This method must be used within a try-with-resources statement"
     return Files.walk(this, 1).use { fileStream ->
         fileStream.filter { it != this && !it.isDirectory() &&  (filter == null || filter.test(it)) }.toList()
     }
