@@ -37,7 +37,7 @@ data class ElGamalCiphertext(val pad: ElementModP, val data: ElementModP) {
     fun decryptWithShares(publicKey: ElGamalPublicKey, shares: Iterable<ElementModP>): Int? {
         val sharesList = shares.toList()
         val context = compatibleContextOrFail(pad, data, publicKey.key, *(sharesList.toTypedArray()))
-        val allSharesProductM: ElementModP = with(context) { sharesList.multP() }
+        val allSharesProductM: ElementModP = context.multP(sharesList)
         val decryptedValue: ElementModP = this.data / allSharesProductM
         return publicKey.dLog(decryptedValue)
     }

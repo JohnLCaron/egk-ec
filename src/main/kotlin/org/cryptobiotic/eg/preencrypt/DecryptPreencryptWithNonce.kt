@@ -98,7 +98,7 @@ class DecryptPreencryptWithNonce(
                 val pv: PreEncryptedSelection = preeContest.selections.find { it.shortCode == selected.shortCode }!!
                 pv.selectionNonces[idx]
             }
-            val aggNonce: ElementModQ = with(group) { componentNonces.addQ() }
+            val aggNonce: ElementModQ = group.addQ(componentNonces)
             combinedNonces.add( aggNonce )
         }
 

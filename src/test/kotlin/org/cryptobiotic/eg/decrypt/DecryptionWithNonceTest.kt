@@ -90,7 +90,7 @@ class DecryptionWithNonceTest {
             // contestData matches
             ballot.contests.forEach { orgContest ->
                 val mcontest = electionRecord.manifest().contests.find { it.contestId == orgContest.contestId }!!
-                val orgContestData = makeContestData(mcontest.contestSelectionLimit, orgContest.selections, orgContest.writeIns)
+                val (orgContestData, _) = makeContestData(mcontest.contestSelectionLimit, mcontest.optionSelectionLimit, orgContest.selections, orgContest.writeIns)
 
                 val dcontest = decryptedBallot.contests.find { it.contestId == orgContest.contestId }!!
                 assertEquals(dcontest.writeIns, orgContestData.writeIns)

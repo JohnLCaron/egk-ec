@@ -91,13 +91,13 @@ interface GroupContext {
      * Computes the sum of the given elements, mod q; this can be faster than using the addition
      * operation for large numbers of inputs.
      */
-    fun Iterable<ElementModQ>.addQ(): ElementModQ
+    fun addQ(cues: Iterable<ElementModQ>): ElementModQ
 
     /**
      * Computes the product of the given elements, mod p; this can be faster than using the
      * multiplication operation for large numbers of inputs.
      */
-    fun Iterable<ElementModP>.multP(): ElementModP
+    fun multP(pees: Iterable<ElementModP>): ElementModP
 
     /** Computes G^e mod p, where G is our generator */
     fun gPowP(exp: ElementModQ): ElementModP
@@ -262,18 +262,6 @@ fun compatibleContextOrFail(vararg elements: Element): GroupContext {
 
     return headContext
 }
-
-/**
- * Computes the sum of the given elements, mod q; this can be faster than using the addition
- * operation for large enough numbers of inputs.
- */
-fun GroupContext.addQ(vararg elements: ElementModQ) = elements.asIterable().addQ()
-
-/**
- * Computes the product of the given elements, mod p; this can be faster than using the
- * multiplication operation for large enough numbers of inputs.
- */
-fun GroupContext.multP(vararg elements: ElementModP) = elements.asIterable().multP()
 
 fun GroupContext.showOpCountResults(where: String): String {
     val opCounts = this.getAndClearOpCounts()

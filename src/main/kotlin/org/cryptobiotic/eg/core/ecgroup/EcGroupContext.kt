@@ -1,6 +1,5 @@
 package org.cryptobiotic.eg.core.ecgroup
 
-
 import org.cryptobiotic.eg.core.*
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicInteger
@@ -77,22 +76,16 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
         return EcElementModQ(this, BigInteger.valueOf(i.toLong()))
     }
 
-    override fun Iterable<ElementModQ>.addQ(): ElementModQ {
-        return addQQ(this)
-    }
-
-    override fun Iterable<ElementModP>.multP(): ElementModP {
-        // TODO what if this.isEmpty() ?
-        return this.reduce { a, b -> a * b }
-    }
-
-    override fun randomElementModP(minimum: Int) = EcElementModP(this, vecGroup.randomElement())
-
-    fun addQQ(cues: Iterable<ElementModQ>): ElementModQ {
-        // TODO what if cues.isEmpty() ?
+    override fun addQ(cues: Iterable<ElementModQ>): ElementModQ {
         val sum = cues.fold(BigInteger.ZERO) { a, b -> a.plus((b as EcElementModQ).element) }
         return EcElementModQ(this, sum.mod(vecGroup.order))
     }
+
+    override fun multP(pees: Iterable<ElementModP>): ElementModP {
+       return pees.fold(ONE_MOD_P) { a, b -> a * b }
+    }
+
+    override fun randomElementModP(minimum: Int) = EcElementModP(this, vecGroup.randomElement())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

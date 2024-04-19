@@ -76,13 +76,13 @@ fun encryptDecrypt(
         pd.partial[0]
     }
 
-    val weightedProduct = with(group) {
+    val weightedProduct = group.multP(
         shares.mapIndexed { idx, it ->
             val trustee = available[idx]
             val coeff = lagrangeCoefficients[trustee.id()] ?: throw IllegalArgumentException()
             it.Mi powP coeff
-        }.multP() // eq 7
-    }
+        } // eq 7
+    )
     val bm = evote.data / weightedProduct
     val expected = publicKey powP vote.toElementModQ(group)
     assertEquals(expected, bm)

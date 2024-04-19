@@ -86,97 +86,89 @@ data class ContestData(
             trialSize = trialContestDataBA.size
             trialSizes.add(trialSize)
         }
-        logger.debug{ "encodedData = $trialContestData trialSizes = $trialSizes" }
+        logger.debug { "encodedData = $trialContestData trialSizes = $trialSizes" }
 
         return trialContestDataBA.encryptContestData(publicKey, extendedBaseHash, contestId, contestIndex, ballotNonce)
     }
 
     companion object {
         val logger = KotlinLogging.logger("ContestData")
-        private const val BLOCK_SIZE : Int = 32
-        private const val CHOP_WRITE_INS : Int = 30
+        private const val BLOCK_SIZE: Int = 32
+        private const val CHOP_WRITE_INS: Int = 30
 
         const val label = "share_enc_keys"
         const val contestDataLabel = "contest_data"
     }
 }
 
-// TODO can be replaced by ByteArray.encryptToHashedElGamal()
 fun ByteArray.encryptContestData(
     publicKey: ElGamalPublicKey, // aka K
     extendedBaseHash: UInt256, // aka He
     contestId: String, // aka Λ
     contestIndex: Int, // ind_c(Λ)
-    ballotNonce: UInt256): HashedElGamalCiphertext {
-
-    // D = D_1 ∥ D_2 ∥ · · · ∥ D_bD  ; (spec 2.0, eq 49)
-    val messageBlocks: List<UInt256> =
-        this.toList()
-            .chunked(32) { block ->
-                // pad each block of the message to 32 bytes
-                val result = ByteArray(32) { 0 }
-                block.forEachIndexed { index, byte -> result[index] = byte }
-                UInt256(result)
-            }
+    ballotNonce: UInt256
+): HashedElGamalCiphertext {
 
     val group = compatibleContextOrFail(publicKey.key)
+    val contestDataNonce =
+        hashFunction(extendedBaseHash.bytes, 0x20.toByte(), ballotNonce, contestIndex, ContestData.contestDataLabel)
 
-    // ξ = H(HE ; 0x20, ξB , indc (Λ), “contest data”) (spec 2.0, eq 50)
-    val contestDataNonce = hashFunction(extendedBaseHash.bytes, 0x20.toByte(), ballotNonce, contestIndex, ContestData.contestDataLabel)
-
-    // ElectionGuard spec: (α, β) = (g^ξ mod p, K^ξ mod p); by encrypting a zero, we achieve exactly this
-    val (alpha, beta) = 0.encrypt(publicKey, contestDataNonce.toElementModQ(group))
-    // k = H(HE ; 0x22, K, α, β) ; (spec 2.0, eq 51)
-    val kdfKey = hashFunction(extendedBaseHash.bytes, 0x22.toByte(), publicKey, alpha, beta)
-
-    // TODO check
-    // context = b(”contest_data”) ∥ b(Λ).
-    val context = "${ContestData.contestDataLabel}$contestId"
-    val kdf = KDF(kdfKey, ContestData.label, context, this.size * 8) // TODO is this eq(52) ??
-
-    val k0 = kdf[0]
-    val c0 = alpha.byteArray() // (53)
-    val encryptedBlocks = messageBlocks.mapIndexed { i, p -> (p xor kdf[i + 1]).bytes }.toTypedArray()
-    val c1 = concatByteArrays(*encryptedBlocks) // (54)
-    val c2 = (c0 + c1).hmacSha256(k0) // ; eq (55) TODO can we use hmacFunction() ??
-
-    return HashedElGamalCiphertext(alpha, c1, c2, this.size)
+    return this.encryptToHashedElGamal(
+        group,
+        publicKey,
+        extendedBaseHash,
+        0x22.toByte(),
+        ContestData.label,
+        "${ContestData.contestDataLabel}$contestId",
+        contestDataNonce.toElementModQ(group),
+    )
 }
 
-// TODO could be used in Encryptor ??
 fun makeContestData(
-    votesAllowed: Int,
+    contestLimit: Int,
+    optionLimit: Int,
     selections: List<PlaintextBallot.Selection>,
     writeIns: List<String>
-): ContestData {
+): Pair<ContestData, Int> {
+    // count the number of votes
     val votedFor = mutableListOf<Int>()
-    for (selection in selections) {
+    var selectionOvervote = false
+    selections.forEach { selection ->
         if (selection.vote > 0) {
             votedFor.add(selection.sequenceOrder)
+            if (selection.vote > optionLimit) {
+                selectionOvervote = true
+            }
         }
     }
 
+    // Compute the contest status
     val totalVotedFor = votedFor.size + writeIns.size
     val status = if (totalVotedFor == 0) ContestDataStatus.null_vote
-    else if (totalVotedFor < votesAllowed)  ContestDataStatus.under_vote
-    else if (totalVotedFor > votesAllowed)  ContestDataStatus.over_vote
-    else ContestDataStatus.normal
+        else if (selectionOvervote || totalVotedFor > contestLimit)  ContestDataStatus.over_vote
+        else if (totalVotedFor < contestLimit)  ContestDataStatus.under_vote
+        else ContestDataStatus.normal
 
-    return ContestData(
+    val votes = if (status == ContestDataStatus.over_vote) 0 else totalVotedFor
+
+    val contestData = ContestData(
         if (status == ContestDataStatus.over_vote) votedFor else emptyList(),
         writeIns,
         status
     )
+
+    return Pair(contestData, votes)
 }
 
 fun HashedElGamalCiphertext.decryptWithBetaToContestData(
     publicKey: ElGamalPublicKey, // aka K
     extendedBaseHash: UInt256, // aka He
     contestId: String, // aka Λ
-    beta : ElementModP) : Result<ContestData, String> {
+    beta: ElementModP
+): Result<ContestData, String> {
 
-    val ba: ByteArray = this.decryptContestData(publicKey, extendedBaseHash, contestId, c0, beta) ?:
-        return Err( "decryptWithBetaToContestData did not succeed")
+    val ba: ByteArray = this.decryptContestData(publicKey, extendedBaseHash, contestId, c0, beta)
+        ?: return Err("decryptWithBetaToContestData did not succeed")
     return ba.decodeToContestData()
 }
 
@@ -185,13 +177,15 @@ fun HashedElGamalCiphertext.decryptWithNonceToContestData(
     extendedBaseHash: UInt256, // aka He
     contestId: String, // aka Λ
     contestIndex: Int,
-    ballotNonce: UInt256) : Result<ContestData, String> {
+    ballotNonce: UInt256
+): Result<ContestData, String> {
 
     val group = compatibleContextOrFail(publicKey.key)
-    val contestDataNonce = hashFunction(extendedBaseHash.bytes, 0x20.toByte(), ballotNonce, contestIndex, ContestData.contestDataLabel)
+    val contestDataNonce =
+        hashFunction(extendedBaseHash.bytes, 0x20.toByte(), ballotNonce, contestIndex, ContestData.contestDataLabel)
     val (alpha, beta) = 0.encrypt(publicKey, contestDataNonce.toElementModQ(group))
-    val ba: ByteArray = this.decryptContestData(publicKey, extendedBaseHash, contestId, alpha, beta) ?:
-        return Err( "decryptWithNonceToContestData did not succeed")
+    val ba: ByteArray = this.decryptContestData(publicKey, extendedBaseHash, contestId, alpha, beta)
+        ?: return Err("decryptWithNonceToContestData did not succeed")
     return ba.decodeToContestData()
 }
 
@@ -199,42 +193,24 @@ fun HashedElGamalCiphertext.decryptWithSecretKey(
     publicKey: ElGamalPublicKey, // aka K
     extendedBaseHash: UInt256, // aka He
     contestId: String, // aka Λ
-    secretKey: ElGamalSecretKey): ByteArray? = decryptContestData(publicKey, extendedBaseHash, contestId, c0, c0 powP secretKey.key)
+    secretKey: ElGamalSecretKey
+): ByteArray? = decryptContestData(publicKey, extendedBaseHash, contestId, c0, c0 powP secretKey.key)
 
-// TODO can be replaced by HashedElGamalCiphertext.decryptToByteArray()
 fun HashedElGamalCiphertext.decryptContestData(
     publicKey: ElGamalPublicKey, // aka K
     extendedBaseHash: UInt256, // aka He
     contestId: String, // aka Λ
     alpha: ElementModP,
-    beta: ElementModP): ByteArray? {
+    beta: ElementModP
+): ByteArray? {
 
-    // k = H(HE ; 22, K, α, β). (51)
-    val kdfKey = hashFunction(extendedBaseHash.bytes, 0x22.toByte(), publicKey, alpha, beta)
-
-    // context = b(”contest_data”) ∥ b(Λ).
-    val context = "${ContestData.contestDataLabel}$contestId"
-    val kdf = KDF(kdfKey, ContestData.label, context, numBytes * 8) // TODO check this (86, 87) ??
-    val k0 = kdf[0]
-
-    val expectedHmac = (c0.byteArray() + c1).hmacSha256(k0) // TODO use hmacFunction() ?
-
-    if (expectedHmac != c2) {
-        ContestData.logger.error { "HashedElGamalCiphertext decryptContestData failure: HMAC doesn't match" }
-        return null
-    }
-
-    val ciphertextBlocks = c1.toList().chunked(32) { it.toByteArray().toUInt256safe() } // eq 88
-    val plaintextBlocks = ciphertextBlocks.mapIndexed { i, c -> (c xor kdf[i + 1]).bytes }.toTypedArray()
-    val plaintext = concatByteArrays(*plaintextBlocks) // eq 89
-
-    return if (plaintext.size == numBytes) {
-        plaintext
-    } else {
-        // Truncate trailing values, which should be zeros.
-        // No need to check, because we've already validated the HMAC on the data.
-        plaintext.copyOfRange(0, numBytes)
-    }
+    return this.decryptToByteArray(
+        publicKey,
+        extendedBaseHash,
+        0x22.toByte(),
+        ContestData.label,
+        "${ContestData.contestDataLabel}$contestId",
+        alpha,
+        beta,
+    )
 }
-
-

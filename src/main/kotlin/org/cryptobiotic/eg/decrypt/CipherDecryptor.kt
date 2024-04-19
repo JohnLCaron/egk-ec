@@ -33,19 +33,19 @@ class CipherDecryptor(
         val decryptions = texts.mapIndexed { idx, text ->
 
             // lagrange weighted product of the shares, M = Prod(M_i^w_i) mod p; spec 2.0.0, eq 68
-            val weightedProduct = with (group) {
+            val weightedProduct = group.multP(
                 // for this idx, run over all the trustees
                 partialDecryptions.mapIndexed { tidx, pds ->
                     val trustee = decryptingTrustees[tidx]
                     val lagrange = lagrangeCoordinates[trustee.id()]!! // buildLagrangeCoordinates() guarentees exists
                     pds.partial[idx].Mi powP lagrange.lagrangeCoefficient
-                }.multP()
-            }
+                }
+            )
 
             // compute the collective challenge, needed for the collective proof; spec 2.0.0 eq 70
             val shares: List<PartialDecryption> = partialDecryptions.map { it.partial[idx] } // for this text, one from each trustee
-            val a: ElementModP = with(group) { shares.map { it.a }.multP() } // Prod(ai)
-            val b: ElementModP = with(group) { shares.map { it.b }.multP() } // Prod(bi)
+            val a: ElementModP = group.multP(shares.map { it.a }) // Prod(ai)
+            val b: ElementModP = group.multP(shares.map { it.b }) // Prod(bi)
 
             val collectiveChallenge = text.collectiveChallenge(extendedBaseHash, publicKey, a, b, weightedProduct)
 
@@ -115,7 +115,7 @@ class CipherDecryptor(
         challengeResponses: List<ElementModQ>, // across trustees for this decryption
     ): CipherDecryptionAndProof {
         // v = Sum(v_i mod q); spec 2.0.0 eq 76
-        val response: ElementModQ = with(group) { challengeResponses.map { it }.addQ() }
+        val response: ElementModQ = group.addQ(challengeResponses)
         val proof = ChaumPedersenProof(decryption.collectiveChallenge.toElementModQ(group), response)
         return CipherDecryptionAndProof(decryption, proof)
     }
