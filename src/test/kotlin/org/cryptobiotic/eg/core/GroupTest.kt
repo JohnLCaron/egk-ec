@@ -6,7 +6,6 @@ import io.kotest.property.checkAll
 import io.kotest.property.forAll
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
 import org.cryptobiotic.eg.core.intgroup.tinyGroup
-import org.cryptobiotic.util.Stopwatch
 import kotlin.test.*
 
 class GroupTest {
@@ -53,14 +52,21 @@ class GroupTest {
     }
 
     @Test
-    fun generatorsWork() {
-        groups.forEach { generatorsWork(it) }
+    fun qInBounds() {
+        groups.forEach { qInBounds(it) }
     }
 
-    fun generatorsWork(context: GroupContext) {
+    fun qInBounds(context: GroupContext) {
         runTest {
-            forAll(propTestFastConfig, elementsModP(context)) { it.inBounds() }
             forAll(propTestFastConfig, elementsModQ(context)) { it.inBounds() }
+        }
+    }
+
+    @Test
+    fun pIsResidue() {
+        val group = EcGroupContext("P-256")
+        runTest {
+            forAll(propTestFastConfig, elementsModP(group)) { it.isValidElement() }
         }
     }
 
@@ -71,7 +77,7 @@ class GroupTest {
 
     fun validResiduesForGPowP(context: GroupContext) {
         runTest {
-            forAll(propTestFastConfig, validResiduesOfP(context)) { it.isValidResidue() }
+            forAll(propTestFastConfig, validResiduesOfP(context)) { it.isValidElement() }
         }
     }
 
@@ -137,9 +143,9 @@ class GroupTest {
         runTest {
             checkAll(
                 propTestFastConfig,
-                elementsModPNoZero(context),
-                elementsModPNoZero(context),
-                elementsModPNoZero(context)
+                elementsModP(context),
+                elementsModP(context),
+                elementsModP(context)
             ) { a, b, c ->
                 assertEquals(a, a * context.ONE_MOD_P) // identity
                 assertEquals(a * b, b * a) // commutative

@@ -60,9 +60,9 @@ class WebappDecryptionTest {
             ) {  name, nrequests ->
                 val drequest =
                     DecryptRequest(
-                        listOf( elementsModP(group, minimum = 2).single(),
-                        elementsModP(group, minimum = 2).single(),
-                        elementsModP(group, minimum = 2).single())
+                        listOf( elementsModP(group).single(),
+                        elementsModP(group).single(),
+                        elementsModP(group).single())
                     )
                 val drequestj = drequest.publishJson()
                 val roundtrip = drequestj.import(group)
@@ -86,9 +86,9 @@ class WebappDecryptionTest {
             ) {  name, nrequests ->
                 val crs = List(nrequests) {
                     PartialDecryption(
-                        elementsModP(group, minimum = 2).single(),
-                        elementsModP(group, minimum = 2).single(),
-                        elementsModP(group, minimum = 2).single(),
+                        elementsModP(group).single(),
+                        elementsModP(group).single(),
+                        elementsModP(group).single(),
                     )
                 }
                 val org = PartialDecryptions(null, 42, crs)

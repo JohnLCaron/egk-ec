@@ -180,15 +180,15 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
     }
 
     // Verification 3 (Election public-key validation)
-    //An election verifier must verify the correct computation of the joint election public key.
-    //(3.A) The value Ki is in Zpr and Ki  ̸= 1 mod p
+    // An election verifier must verify the correct computation of the joint election public key.
+    // (3.A) The value Ki is in Z_p^r and K_i  != 1 mod p
     private fun verifyElectionPublicKey(): Result<Boolean, String> {
         val errors = mutableListOf<Result<Boolean, String>>()
 
         val guardiansSorted = this.record.guardians().sortedBy { it.xCoordinate }
         guardiansSorted.forEach {
             val Ki = it.publicKey()
-            if (!Ki.isValidResidue()) {
+            if (!Ki.isValidElement()) {
                 errors.add(Err("  3.A publicKey Ki (${it.guardianId} is not in Zp^r"))
             }
             if (Ki == group.ONE_MOD_P) {

@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.*
+import org.cryptobiotic.eg.core.intgroup.toBigInteger
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -19,28 +20,28 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
     override val ZERO_MOD_Q: ElementModQ = EcElementModQ(this, BigInteger.ZERO)
     override val ONE_MOD_Q: ElementModQ = EcElementModQ(this, BigInteger.ONE)
     override val TWO_MOD_Q: ElementModQ = EcElementModQ(this, BigInteger.TWO)
-    val NUM_Q_BITS: Int = vecGroup.qbitLength
 
     override val constants = vecGroup.constants
     val dlogg = DLogarithm(G_MOD_P)
 
-    // TODO whats difference with safe version?
     override fun binaryToElementModP(b: ByteArray): ElementModP? {
         val elem = vecGroup.elementFromByteArray(b)
         return if (elem != null) EcElementModP(this, elem) else null
     }
 
-    override fun binaryToElementModPsafe(b: ByteArray, minimum: Int): ElementModP {
-        return binaryToElementModP(b) ?: throw RuntimeException("invalid input")
-    }
-
-    override fun binaryToElementModQ(b: ByteArray): ElementModQ? {
+    override fun binaryToElementModQ(b: ByteArray): ElementModQ {
         return EcElementModQ(this, BigInteger(1, b))
     }
 
-    override fun binaryToElementModQsafe(b: ByteArray, minimum: Int): ElementModQ {
-        return EcElementModQ(this, BigInteger(1, b))
+    override fun randomElementModQ(minimum: Int) : ElementModQ {
+        val b = randomBytes(MAX_BYTES_Q)
+        val bigMinimum = if (minimum <= 0) BigInteger.ZERO else minimum.toBigInteger()
+        val tmp = b.toBigInteger().mod(vecGroup.order)
+        val big = if (tmp < bigMinimum) tmp + bigMinimum else tmp
+        return EcElementModQ(this, big)
     }
+
+    override fun randomElementModP() = EcElementModP(this, vecGroup.randomElement())
 
     override fun dLogG(p: ElementModP, maxResult: Int): Int? {
         require(p is EcElementModP)
@@ -64,10 +65,6 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
         return (ctx is EcGroupContext) && name == ctx.name
     }
 
-    override fun isProductionStrength(): Boolean {
-        return true
-    }
-
     override fun uIntToElementModQ(i: UInt): ElementModQ {
         return EcElementModQ(this, BigInteger.valueOf(i.toLong()))
     }
@@ -84,8 +81,6 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
     override fun multP(pees: Iterable<ElementModP>): ElementModP {
        return pees.fold(ONE_MOD_P) { a, b -> a * b }
     }
-
-    override fun randomElementModP(minimum: Int) = EcElementModP(this, vecGroup.randomElement())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
