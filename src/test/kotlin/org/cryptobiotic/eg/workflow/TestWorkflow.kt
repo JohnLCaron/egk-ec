@@ -102,13 +102,14 @@ class TestWorkflow {
         )
 
         // decrypt challenged ballots
-        val ndecrypted = runDecryptBallots(
+        val (retval, ndecrypted) = runDecryptBallots(
             inputDir = workingDir,
             outputDir = workingDir,
             trustees,
             "challenged",
             11
         )
+        assertEquals(0, retval)
         assertEquals(nchallenged, ndecrypted)
 
         // verify

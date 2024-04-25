@@ -30,6 +30,7 @@ class RunTallyAccumulationTest {
                 "src/test/data/workflow/someAvailableEc",
                 "-out",
                 "${Testing.testOut}/tally/testRunBatchEncryptionJson",
+                "--noexit"
             )
         )
     }

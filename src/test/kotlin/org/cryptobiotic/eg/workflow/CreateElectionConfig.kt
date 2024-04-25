@@ -17,6 +17,7 @@ class CreateElectionConfig {
                 "-quorum", "3",
                 "-out", "${Testing.testOut}/config/startConfig",
                 "-device", "device information",
+                "-noexit"
             )
         )
     }
@@ -30,6 +31,7 @@ class CreateElectionConfig {
                 "-nguardians", "3",
                 "-quorum", "3",
                 "-out", "${Testing.testOut}/config/startConfigEc",
+                "-noexit"
             )
         )
     }

@@ -98,6 +98,18 @@ class ProductionGroupContext(
         return (ctx is ProductionGroupContext) && productionMode == ctx.productionMode
     }
 
+    /**
+     * Returns a random number in [2, P). Promises to use a
+     * "secure" random number generator, such that the results are suitable for use as cryptographic keys.
+     * @throws IllegalArgumentException if the minimum is negative
+     */
+    override fun randomElementModP(): ElementModP {
+        val b = randomBytes(MAX_BYTES_P)
+        val tmp = b.toBigInteger().mod(p)
+        val tmp2 = if (tmp < BigInteger.TWO) tmp + BigInteger.TWO else tmp
+        return ProductionElementModP(tmp2, this)
+    }
+
     override fun binaryToElementModP(b: ByteArray): ElementModP? =
         try {
             val tmp = b.toBigInteger()
@@ -145,24 +157,6 @@ class ProductionGroupContext(
     override fun gPowP(exp: ElementModQ) = gModP powP exp
 
     override fun dLogG(p: ElementModP, maxResult: Int): Int? = dlogger.dLog(p, maxResult)
-
-    /**
-     * Returns a random number in [2, P). Promises to use a
-     * "secure" random number generator, such that the results are suitable for use as cryptographic keys.
-     * @throws IllegalArgumentException if the minimum is negative
-     */
-    override fun randomElementModP() = binaryToElementModPsafe(randomBytes(MAX_BYTES_P), 2)
-
-
-    fun binaryToElementModPsafe(b: ByteArray, minimum: Int): ElementModP {
-        if (minimum < 0) {
-            throw IllegalArgumentException("minimum $minimum may not be negative")
-        }
-        val tmp = b.toBigInteger().mod(p)
-        val mv = minimum.toBigInteger()
-        val tmp2 = if (tmp < mv) tmp + mv else tmp
-        return ProductionElementModP(tmp2, this)
-    }
 
     var opCounts: HashMap<String, AtomicInteger> = HashMap()
     override fun getAndClearOpCounts(): Map<String, Int> {

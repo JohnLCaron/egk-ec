@@ -34,6 +34,7 @@ class RunCreateConfigTest {
                 "${Testing.testOut}/config/startConfigJson",
                 "-device",
                 "device information",
+                "-noexit"
             )
         )
     }
@@ -51,6 +52,7 @@ class RunCreateConfigTest {
                 "${Testing.testOut}/config/testCreateConfigDirectoryJson",
                 "-device",
                 "device information",
+                "-noexit"
             )
         )
     }

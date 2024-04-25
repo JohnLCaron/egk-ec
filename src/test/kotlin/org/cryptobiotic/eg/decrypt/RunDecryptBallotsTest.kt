@@ -25,13 +25,14 @@ class RunDecryptBallotsTest {
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "${Testing.testOut}/decrypt/testDecryptBallotsAll"
         println("\ntestDecryptBallotsAll")
-        val n = runDecryptBallots(
+        val (retval, n) = runDecryptBallots(
             inputDir,
             outputDir,
             readDecryptingTrustees(inputDir, trusteeDir),
             "ALL",
             nthreads,
         )
+        assertEquals(0, retval)
         assertEquals(42, n)
     }
 
@@ -41,13 +42,14 @@ class RunDecryptBallotsTest {
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "${Testing.testOut}/decrypt/testDecryptBallotsSomeFromList"
         println("\ntestDecryptBallotsSomeFromList")
-        val n = runDecryptBallots(
+        val (retval, n) = runDecryptBallots(
             inputDir, outputDir, readDecryptingTrustees(inputDir, trusteeDir, "5"),
             "id-1," +
                     "id-3," +
                     "id-2",
             3,
         )
+        assertEquals(0, retval)
         assertEquals(3, n)
     }
 
@@ -58,11 +60,12 @@ class RunDecryptBallotsTest {
         val wantBallots = "$inputDir/private_data/wantedBallots.txt"
         val outputDir = "${Testing.testOut}/decrypt/testDecryptBallotsSomeFromFile"
         println("\ntestDecryptBallotsSomeFromFile")
-        val n = runDecryptBallots(
+        val (retval, n) = runDecryptBallots(
             inputDir, outputDir, readDecryptingTrustees(inputDir, trusteeDir, "4,5"),
             wantBallots,
             2,
         )
+        assertEquals(0, retval)
         assertEquals(2, n)
     }
 
@@ -72,16 +75,12 @@ class RunDecryptBallotsTest {
         println("\ntestDecryptBallotsMainMultiThreaded")
         RunTrustedBallotDecryption.main(
             arrayOf(
-                "-in",
-                "src/test/data/workflow/someAvailableEc",
-                "-trustees",
-                "src/test/data/workflow/someAvailableEc/private_data/trustees",
-                "-out",
-                "${Testing.testOut}/decrypt/testDecryptBallotsMainMultiThreaded",
-                "-challenged",
-                "all",
-                "-nthreads",
-                "$nthreads"
+                "-in", "src/test/data/workflow/someAvailableEc",
+                "-trustees", "src/test/data/workflow/someAvailableEc/private_data/trustees",
+                "-out", "${Testing.testOut}/decrypt/testDecryptBallotsMainMultiThreaded",
+                "-challenged", "all",
+                "-nthreads", "$nthreads",
+                "--noexit",
             )
         )
     }
@@ -92,14 +91,11 @@ class RunDecryptBallotsTest {
         println("\ntestDecryptBallotsMarkedChallenged")
         RunTrustedBallotDecryption.main(
             arrayOf(
-                "-in",
-                "src/test/data/workflow/someAvailableEc",
-                "-trustees",
-                "src/test/data/workflow/someAvailableEc/private_data/trustees",
-                "-out",
-                "${Testing.testOut}/decrypt/testDecryptBallotsMarkedChallenged",
-                "-nthreads",
-                "1"
+                "-in", "src/test/data/workflow/someAvailableEc",
+                "-trustees", "src/test/data/workflow/someAvailableEc/private_data/trustees",
+                "-out", "${Testing.testOut}/decrypt/testDecryptBallotsMarkedChallenged",
+                "-nthreads", "1",
+                "--noexit"
             )
         )
     }

@@ -10,6 +10,7 @@ import org.cryptobiotic.eg.core.productionGroup
 import org.cryptobiotic.eg.election.makeElectionConfig
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readAndCheckManifest
+import kotlin.system.exitProcess
 
 /** Run Create Election Configuration CLI. */
 class RunCreateElectionConfig {
@@ -60,6 +61,11 @@ class RunCreateElectionConfig {
                 shortName = "chainCodes",
                 description = "chain confirmation codes"
             ).default(false)
+            val noexit by parser.option(
+                ArgType.Boolean,
+                shortName = "noexit",
+                description = "Dont call System.exit"
+            ).default(false)
             parser.parse(args)
 
             val startupInfo = "starting" +
@@ -73,30 +79,34 @@ class RunCreateElectionConfig {
                         "\n   chainCodes = $chainCodes"
             logger.info { startupInfo }
 
-            val group = productionGroup(groupName)
+            try {
+                val group = productionGroup(groupName)
 
-            val (_, _, manifestBytes) = readAndCheckManifest(electionManifest)
+                val (_, _, manifestBytes) = readAndCheckManifest(electionManifest)
 
-            // As input, either specify the election record directory,
-            // OR the election manifest, nguardians and quorum.
-            val config =
-                makeElectionConfig(
-                    group.constants,
-                    nguardians,
-                    quorum,
-                    manifestBytes,
-                    chainCodes,
-                    baux0?.encodeToByteArray() ?: ByteArray(0), // use empty ByteArray if not specified
-                    mapOf(
-                        Pair("CreatedBy", createdBy),
-                        Pair("CreatedOn", getSystemDate()),
-                    ),
-                )
+                // As input, either specify the election record directory,
+                // OR the election manifest, nguardians and quorum.
+                val config =
+                    makeElectionConfig(
+                        group.constants,
+                        nguardians,
+                        quorum,
+                        manifestBytes,
+                        chainCodes,
+                        baux0?.encodeToByteArray() ?: ByteArray(0), // use empty ByteArray if not specified
+                        mapOf(
+                            Pair("CreatedBy", createdBy),
+                            Pair("CreatedOn", getSystemDate()),
+                        ),
+                    )
 
-            val publisher = makePublisher(outputDir, true)
-            publisher.writeElectionConfig(config)
+                val publisher = makePublisher(outputDir, true)
+                publisher.writeElectionConfig(config)
 
-            logger.info { "success" }
+                logger.info { "success" }
+            } catch (t: Throwable) {
+                if (!noexit) exitProcess(-1)
+            }
         }
     }
 }

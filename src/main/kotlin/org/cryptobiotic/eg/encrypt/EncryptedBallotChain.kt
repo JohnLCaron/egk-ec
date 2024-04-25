@@ -112,7 +112,7 @@ data class EncryptedBallotChain(
                 publisher.writeEncryptedBallotChain(ballotChain)
             } catch (t: Throwable) {
                 logger.error(t) { "error writing chain ${t.message}" }
-                return 6
+                return 10
             }
             return 0
         }

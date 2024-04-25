@@ -79,6 +79,7 @@ class RunEncryptBallotTest {
                 "--ballotFilepath", "$outputDir/pballot-$ballotId.json",
                 "--outputDir", outputDir,
                 "-device", "device42",
+                "--noexit",
             )
         )
 
@@ -116,7 +117,8 @@ class RunEncryptBallotTest {
                     "--ballotFilepath", ballotFilename,
                     "--outputDir", outputDir,
                     "-device", device,
-                    "--noDeviceNameInDir"
+                    "--noDeviceNameInDir",
+                    "--noexit",
                 )
             )
 
@@ -159,6 +161,7 @@ class RunEncryptBallotTest {
                     "--ballotFilepath", ballotFilename,
                     "--outputDir", outputDir,
                     "-device", device,
+                    "--noexit",
                 )
             )
 
@@ -175,6 +178,7 @@ class RunEncryptBallotTest {
                 "--ballotFilepath", "CLOSE",
                 "--outputDir", outputDir,
                 "-device", device,
+                "--noexit",
             )
         )
 
@@ -209,6 +213,7 @@ class RunEncryptBallotTest {
                     "--ballotFilepath", ballotFilename,
                     "--outputDir", outputDir,
                     "-device", device,
+                    "--noexit",
                 )
             )
 

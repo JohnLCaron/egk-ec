@@ -16,6 +16,7 @@ import org.cryptobiotic.eg.encrypt.submit
 import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.publish.*
 import org.cryptobiotic.util.ErrorMessages
+import kotlin.system.exitProcess
 
 /**
  * Reads a plaintext ballot from disk and writes its encryption to disk.
@@ -56,6 +57,11 @@ class RunEncryptBallot {
                 shortName = "deviceDir",
                 description = "Dont add device name to encrypted ballots directory"
             ).default(false)
+            val noexit by parser.option(
+                ArgType.Boolean,
+                shortName = "noexit",
+                description = "Dont call System.exit"
+            ).default(false)
             parser.parse(args)
 
             logger.info {
@@ -73,10 +79,12 @@ class RunEncryptBallot {
                 )
                 if (retval != 0) {
                     logger.error { "failed retval=$retval" }
+                    if (!noexit) exitProcess(retval)
                 }
 
             } catch (t: Throwable) {
                 logger.error(t) { "failed ${t.message}" }
+                if (!noexit) exitProcess(-1)
             }
         }
 
@@ -104,8 +112,7 @@ class RunEncryptBallot {
             val sink: EncryptedBallotSinkIF = publisher.encryptedBallotSink( if (noDeviceNameInDir) null else device)
 
             if (ballotFilepath == "CLOSE") {
-                close(makeConsumer(encryptBallotDir, consumerIn.group), device, publisher)
-                return 0
+                return close(makeConsumer(encryptBallotDir, consumerIn.group), device, publisher)
             }
 
             val configBaux0 = electionInit.config.configBaux0
