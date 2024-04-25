@@ -105,18 +105,18 @@ class RunTrustedBallotDecryption {
             val stopwatch = Stopwatch() // start timing here
 
             val consumerIn = makeConsumer(inputDir)
-            val result: Result<TallyResult, ErrorMessages> = consumerIn.readTallyResult()
+            val result: Result<ElectionInitialized, ErrorMessages> = consumerIn.readElectionInitialized()
             if (result is Err) {
                 logger.error { result.error.toString() }
                 return Pair(1,0)
             }
-            val tallyResult = result.unwrap()
-            val guardians = Guardians(consumerIn.group, tallyResult.electionInitialized.guardians)
+            val electionInitialized = result.unwrap()
+            val guardians = Guardians(consumerIn.group, electionInitialized.guardians)
 
             val decryptor = BallotDecryptor(
                 consumerIn.group,
-                tallyResult.electionInitialized.extendedBaseHash,
-                tallyResult.electionInitialized.jointPublicKey,
+                electionInitialized.extendedBaseHash,
+                electionInitialized.jointPublicKey,
                 guardians,
                 decryptingTrustees,
             )
