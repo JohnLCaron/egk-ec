@@ -62,7 +62,6 @@ class ProductionGroupContext(
     val groupConstants = IntGroupConstants(name, p, q, r, g)
     override val constants = groupConstants.constants
 
-    override fun isProductionStrength() = true
     override fun toString() : String = name
 
     override val ONE_MOD_P : ElementModP
@@ -96,27 +95,7 @@ class ProductionGroupContext(
         get() = numPBits
 
     override fun isCompatible(ctx: GroupContext): Boolean {
-        return ctx.isProductionStrength() && productionMode == (ctx as ProductionGroupContext).productionMode
-    }
-
-    override fun binaryToElementModPsafe(b: ByteArray, minimum: Int): ElementModP {
-        if (minimum < 0) {
-            throw IllegalArgumentException("minimum $minimum may not be negative")
-        }
-        val tmp = b.toBigInteger().mod(p)
-        val mv = minimum.toBigInteger()
-        val tmp2 = if (tmp < mv) tmp + mv else tmp
-        return ProductionElementModP(tmp2, this)
-    }
-
-    override fun binaryToElementModQsafe(b: ByteArray, minimum: Int): ElementModQ {
-        if (minimum < 0) {
-            throw IllegalArgumentException("minimum $minimum may not be negative")
-        }
-        val tmp = b.toBigInteger().mod(q)
-        val mv = minimum.toBigInteger()
-        val tmp2 = if (tmp < mv) tmp + mv else tmp
-        return ProductionElementModQ(tmp2, this)
+        return (ctx is ProductionGroupContext) && productionMode == ctx.productionMode
     }
 
     override fun binaryToElementModP(b: ByteArray): ElementModP? =
@@ -127,13 +106,18 @@ class ProductionGroupContext(
             null
         }
 
-    override fun binaryToElementModQ(b: ByteArray): ElementModQ? =
-        try {
-            val tmp = b.toBigInteger()
-            if (tmp >= q || tmp < BigInteger.ZERO) null else ProductionElementModQ(tmp, this)
-        } catch (t : Throwable) {
-            null
-        }
+    override fun randomElementModQ(minimum: Int) : ElementModQ  {
+        val b = randomBytes(MAX_BYTES_Q)
+        val bigMinimum = if (minimum <= 0) BigInteger.ZERO else minimum.toBigInteger()
+        val tmp = b.toBigInteger().mod(q)
+        val tmp2 = if (tmp < bigMinimum) tmp + bigMinimum else tmp
+        return ProductionElementModQ(tmp2, this)
+    }
+
+    override fun binaryToElementModQ(b: ByteArray): ElementModQ {
+        val big = b.toBigInteger().mod(q)
+        return ProductionElementModQ(big, this)
+    }
 
     override fun uIntToElementModQ(i: UInt) : ElementModQ = when (i) {
         0U -> ZERO_MOD_Q
@@ -154,59 +138,31 @@ class ProductionGroupContext(
         return ProductionElementModQ(sum.mod(q), this)
     }
 
-    /*
-    override fun Iterable<ElementModQ>.addQ(): ElementModQ {
-        val input = iterator().asSequence().toList()
-
-        if (input.isEmpty()) {
-            return ZERO_MOD_Q
-        }
-
-        if (input.count() == 1) {
-            return input[0]
-        }
-
-        val result = input.map {
-            it.getCompat(this@ProductionGroupContext)
-        }.reduce { a, b ->
-            (a + b).mod(this@ProductionGroupContext.q)
-        }
-
-        return ProductionElementModQ(result, this@ProductionGroupContext)
-    }
-
-     */
-
     override fun multP(pees: Iterable<ElementModP>): ElementModP {
         return pees.fold(ONE_MOD_P) { a, b -> a * b }
     }
 
-    /*
-    override fun Iterable<ElementModP>.multP(): ElementModP {
-        val input = iterator().asSequence().toList()
-
-        if (input.isEmpty()) {
-            return ONE_MOD_P
-        }
-
-        if (input.count() == 1) {
-            return input[0]
-        }
-
-        val result = input.map {
-            it.getCompat(this@ProductionGroupContext)
-        }.reduce { a, b ->
-            (a * b).mod(this@ProductionGroupContext.p)
-        }
-
-        return ProductionElementModP(result, this@ProductionGroupContext)
-    }
-
-     */
-
     override fun gPowP(exp: ElementModQ) = gModP powP exp
 
     override fun dLogG(p: ElementModP, maxResult: Int): Int? = dlogger.dLog(p, maxResult)
+
+    /**
+     * Returns a random number in [2, P). Promises to use a
+     * "secure" random number generator, such that the results are suitable for use as cryptographic keys.
+     * @throws IllegalArgumentException if the minimum is negative
+     */
+    override fun randomElementModP() = binaryToElementModPsafe(randomBytes(MAX_BYTES_P), 2)
+
+
+    fun binaryToElementModPsafe(b: ByteArray, minimum: Int): ElementModP {
+        if (minimum < 0) {
+            throw IllegalArgumentException("minimum $minimum may not be negative")
+        }
+        val tmp = b.toBigInteger().mod(p)
+        val mv = minimum.toBigInteger()
+        val tmp2 = if (tmp < mv) tmp + mv else tmp
+        return ProductionElementModP(tmp2, this)
+    }
 
     var opCounts: HashMap<String, AtomicInteger> = HashMap()
     override fun getAndClearOpCounts(): Map<String, Int> {
@@ -285,14 +241,17 @@ open class ProductionElementModP(internal val element: BigInteger, val groupCont
     override val context: GroupContext
         get() = groupContext
 
-    override fun inBounds() = element >= BigInteger.ZERO && element < groupContext.p
-
     override operator fun compareTo(other: ElementModP): Int = element.compareTo(other.getCompat(groupContext))
 
-    override fun isValidResidue(): Boolean {
+    /**
+     * Validates that this element is a member of the Integer Group, ie in Z_p^r.
+     * "Z_p^r is the set of r-th-residues in Z∗p", see spec 2.0 p.9
+     */
+    override fun isValidElement(): Boolean {
         groupContext.opCounts.getOrPut("exp") { AtomicInteger(0) }.incrementAndGet()
+        val inBounds = this.element >= BigInteger.ZERO && this.element < groupContext.p
         val residue = this.element.modPow(groupContext.q, groupContext.p) == groupContext.oneModP.element
-        return inBounds() && residue
+        return inBounds && residue
     }
 
     override infix fun powP(exp: ElementModQ) : ElementModP {

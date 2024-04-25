@@ -84,7 +84,7 @@ fun ByteArray.normalize(nbytes: Int): ByteArray {
  * beginning by computing "mod q".
  */
 fun UInt256.toElementModQ(context: GroupContext): ElementModQ =
-    context.binaryToElementModQsafe(bytes)
+    context.binaryToElementModQ(bytes)
 
 fun ElementModQ.toUInt256safe(): UInt256 = this.byteArray().toUInt256safe()
 fun ULong.toUInt256(): UInt256 = this.toByteArray().toUInt256safe()

@@ -142,8 +142,8 @@ fun ChaumPedersenRangeProofKnownNonce.verify(
 
     val (alpha, beta) = ciphertext
     results.add(
-        if (alpha.isValidResidue() && beta.isValidResidue()) Ok(true) else
-            Err("    5.A,6.A values not in Zp^r: alpha = ${alpha.inBounds()} beta = ${beta.inBounds()}")
+        if (alpha.isValidElement() && beta.isValidElement()) Ok(true) else
+            Err("    5.A,6.A values not in Zp^r: alpha = ${alpha.isValidElement()} beta = ${beta.isValidElement()}")
     )
 
     val expandedProofs = proofs.mapIndexed { j, proof ->

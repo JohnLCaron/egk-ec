@@ -1,8 +1,6 @@
 package org.cryptobiotic.eg.core
 
 import org.cryptobiotic.eg.core.Base16.toHex
-import org.cryptobiotic.eg.core.intgroup.PowRadixOption
-import org.cryptobiotic.eg.core.intgroup.ProductionMode
 import org.cryptobiotic.eg.election.ElectionConstants
 
 fun productionGroup(groupName: String = "P-256", useNative: Boolean = true): GroupContext {
@@ -16,11 +14,6 @@ fun productionGroup(groupName: String = "P-256", useNative: Boolean = true): Gro
  * encapsulate acceleration data structures that we'll use to support various operations.
  */
 interface GroupContext {
-    /**
-     * Returns whether we're using "production primes" (bigger, slower, secure) versus "test primes"
-     * (smaller, faster, but insecure).
-     */
-    fun isProductionStrength(): Boolean
 
     /** Useful constant: one mod p */
     val ONE_MOD_P: ElementModP
@@ -63,12 +56,6 @@ interface GroupContext {
      */
     fun isCompatible(ctx: GroupContext): Boolean
 
-    /** Converts a [ByteArray] to an [ElementModP]. Guarantees the result is in [minimum, P), by computing the result mod P. */
-    fun binaryToElementModPsafe(b: ByteArray, minimum: Int = 0): ElementModP
-
-    /** Converts a [ByteArray] to an [ElementModQ]. Guarantees the result is in [minimum, Q), by computing the result mod Q. */
-    fun binaryToElementModQsafe(b: ByteArray, minimum: Int = 0): ElementModQ
-
     /**
      * Converts a [ByteArray] to an [ElementModP], inverse of ElementModP.byteArray().
      * Returns null if the number is out of bounds or malformed.
@@ -77,9 +64,22 @@ interface GroupContext {
 
     /**
      * Converts a [ByteArray] to an [ElementModQ], inverse of ElementModQ.byteArray().
+     * Guarantees the result is in [0, Q), by computing the result mod Q.
      * Returns null if the number is out of bounds or malformed.
      */
-    fun binaryToElementModQ(b: ByteArray): ElementModQ?
+    fun binaryToElementModQ(b: ByteArray): ElementModQ
+
+    /**
+     * Returns a random number in [minimum, Q), where minimum defaults to zero. Promises to use a
+     * "secure" random number generator, such that the results are suitable for use as cryptographic keys.
+     */
+    fun randomElementModQ(minimum: Int = 0) : ElementModQ // = binaryToElementModQ(randomBytes(MAX_BYTES_Q), minimum)
+
+    /**
+     * Returns a random ElementModP. Promises to use a "secure" random number generator, such that
+     * the results are suitable for use as cryptographic keys.
+     */
+    fun randomElementModP() : ElementModP
 
     /** Converts an integer to an ElementModQ, with optimizations when possible for small integers */
     fun uIntToElementModQ(i: UInt): ElementModQ
@@ -115,28 +115,12 @@ interface GroupContext {
     /**
      * Given an element x for which there exists an e, such that g^e = x, this will find e,
      * so long as e is less than [maxResult], which if unspecified defaults to a platform-specific
-     * value designed not to consume too much memory (perhaps 10 million). This will consume O(e)
+     * value designed not to consume too much memory. This will consume O(e)
      * time, the first time, after which the results are memoized for all values between 0 and e,
      * for better future performance.
      * If the result is not found, null is returned.
      */
     fun dLogG(p: ElementModP, maxResult: Int = - 1): Int?
-
-    /**
-     * Returns a random number in [minimum, Q), where minimum defaults to zero. Promises to use a
-     * "secure" random number generator, such that the results are suitable for use as cryptographic keys.
-     * @throws IllegalArgumentException if the minimum is negative
-     */
-    fun randomElementModQ(minimum: Int = 0) =
-        binaryToElementModQsafe(randomBytes(MAX_BYTES_Q), minimum)
-
-    /**
-     * Returns a random number in [minimum, P), where minimum defaults to zero. Promises to use a
-     * "secure" random number generator, such that the results are suitable for use as cryptographic keys.
-     * @throws IllegalArgumentException if the minimum is negative
-     */
-    fun randomElementModP(minimum: Int = 0) =
-        binaryToElementModPsafe(randomBytes(MAX_BYTES_P), minimum)
 
     /** debugging operation counts. */
     fun getAndClearOpCounts(): Map<String, Int>
@@ -149,14 +133,6 @@ interface Element {
      * needing to pass in the context.
      */
     val context: GroupContext
-
-    /**
-     * Normal computations should ensure that every [Element] is in the modular bounds defined by
-     * the group, but deserialization of hostile inputs or buggy code might not preserve this
-     * property, so it's valuable to have a way to check. This method allows anything in [0, N)
-     * where N is the group modulus.
-     */
-    fun inBounds(): Boolean
 
     /** Converts to a [ByteArray] representation. Inverse to group.binaryToElementModX(). */
     fun byteArray(): ByteArray
@@ -188,14 +164,15 @@ interface ElementModQ : Element, Comparable<ElementModQ> {
 
     /** Checks whether this element is zero. */
     fun isZero(): Boolean
+
+    /** Validate the element is in [0,Q) */
+    fun inBounds(): Boolean
 }
 
 interface ElementModP : Element, Comparable<ElementModP> {
-    /**
-     * Validates that this element is a quadratic residue, ie in Z_p^r.
-     * "Z_p^r is the set of r-th-residues in Z∗p", see spec 2.0 p.9
-     */
-    fun isValidResidue(): Boolean
+
+    /** Validates that this element is a member of the Group */
+    fun isValidElement(): Boolean
 
     /** Computes b^e mod p */
     infix fun powP(exp: ElementModQ): ElementModP

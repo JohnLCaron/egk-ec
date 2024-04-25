@@ -7,6 +7,7 @@ import org.cryptobiotic.util.Stopwatch
 import java.math.BigInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class TestElem {
 
@@ -113,13 +114,35 @@ class TestElem {
     }
 
     @Test
+    fun testZeroOnCurve() {
+        val ecGroup = VecGroups.getEcGroup("P-256")
+        val fx = BigInteger.ZERO
+        val fy = ecGroup.equationf(fx)
+        // is this legal ?
+        assertFailsWith<RuntimeException> {
+            VecElementP(ecGroup, fx, fy)
+        }
+    }
+
+    @Test
+    fun testOneOnCurve() {
+        val ecGroup = VecGroups.getEcGroup("P-256")
+        val fx = BigInteger.ONE
+        val fy = ecGroup.equationf(fx)
+        // is this legal ?
+        assertFailsWith<RuntimeException> {
+            VecElementP(ecGroup, fx, fy)
+        }
+    }
+
+    @Test
     fun testSqrt() {
         if (VecGroups.hasNativeLibrary()) {
             val group = productionGroup("P-256") as EcGroupContext
             val vecGroupN = group.vecGroup as VecGroupNative
 
             repeat(100) {
-                val elemP = group.randomElementModP(2).ec
+                val elemP = group.randomElementModP().ec
                 val elemPx = elemP.x
                 val elemPy2 = vecGroupN.equationf(elemPx)
 

@@ -28,9 +28,8 @@ private fun testSchnorrProof(name: String, group: GroupContext) = wordSpec {
                     Arb.int(1, 11),
                     Arb.int(0, 10),
                     elementsModQ(group),
-                    validResiduesOfP(group),
                     elementsModQ(group)
-                ) { kp, i, j, nonce, fakeElementModP, fakeElementModQ ->
+                ) { kp, i, j, nonce, fakeElementModQ ->
                     val goodProof = kp.schnorrProof(i, j, nonce)
                     (goodProof.validate(i, j) is Ok) shouldBe true
                 }
@@ -47,9 +46,8 @@ private fun testSchnorrProof(name: String, group: GroupContext) = wordSpec {
                     Arb.int(1, 11),
                     Arb.int(0, 10),
                     elementsModQ(group),
-                    validResiduesOfP(group),
                     elementsModQ(group)
-                ) { kp, i, j, nonce, fakeElementModP, fakeElementModQ ->
+                ) { kp, i, j, nonce, fakeElementModQ ->
                     val goodProof = kp.schnorrProof(i, j, nonce)
                     val badProof1 = goodProof.copy(challenge = fakeElementModQ)
                     val badProof2 = goodProof.copy(response = fakeElementModQ)

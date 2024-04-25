@@ -94,6 +94,8 @@ open class VecGroup(
     fun elementFromByteArray(ba: ByteArray): VecElementP? = elementFromByteArray1(ba)
 
     val ffbyte: Byte = (-1).toByte()
+
+    // this is for serialization of both the x and y value.
     fun elementFromByteArray2(ba: ByteArray): VecElementP? {
         if (ba.size != 2*pbyteLength) return null
         val allff = ba.fold( true) { a, b -> a && (b == ffbyte) }
@@ -123,6 +125,7 @@ open class VecGroup(
         return makeVecModP(x, y)
     }
 
+    // this is for testing that 1 and 2 are equivilent
     fun elementFromByteArray1from2(ba: ByteArray): VecElementP? {
         if (ba.size != 2*pbyteLength) return null
         val allff = ba.fold( true) { a, b -> a && (b == ffbyte) }
@@ -132,6 +135,7 @@ open class VecGroup(
         return makeVecModP(x, y)
     }
 
+    // this value will always > 1, since 0, 1 are not on the curve.
     fun randomElement(): VecElementP {
         for (j in 0 until 1000) { // limited in case theres a bug
             try {

@@ -6,23 +6,27 @@ import io.kotest.common.ExperimentalKotest
 import io.kotest.property.Arb
 import io.kotest.property.PropTestConfig
 import io.kotest.property.ShrinkingMode
-import io.kotest.property.arbitrary.byte
-import io.kotest.property.arbitrary.byteArray
-import io.kotest.property.arbitrary.constant
-import io.kotest.property.arbitrary.map
+import io.kotest.property.arbitrary.*
 
-/** Generate an arbitrary ElementModP in [minimum, P) for the given group context. */
-fun elementsModP(ctx: GroupContext, minimum: Int = 0): Arb<ElementModP> =
-    Arb.byteArray(Arb.constant(ctx.MAX_BYTES_P), Arb.byte())
-        .map { ctx.randomElementModP() }
+/** Generate an arbitrary ElementModP for the given group context. */
+fun elementsModP(ctx: GroupContext): Arb<ElementModP> {
+    return arbitrary { ctx.randomElementModP() }
+}
+
+//    Arb.byteArray(Arb.constant(ctx.MAX_BYTES_P), Arb.byte())
+//        .map { _ -> ctx.randomElementModP() }
 
 /** Generate an arbitrary ElementModP in [1, P) for the given group context. */
-fun elementsModPNoZero(ctx: GroupContext) = elementsModP(ctx, 1)
+// fun elementsModPNoZero(ctx: GroupContext) = elementsModP(ctx)
 
 /** Generate an arbitrary ElementModQ in [minimum, Q) for the given group context. */
-fun elementsModQ(ctx: GroupContext, minimum: Int = 0): Arb<ElementModQ> =
+fun elementsModQ(ctx: GroupContext, minimum: Int = 0): Arb<ElementModQ> = arbitrary{ ctx.randomElementModQ() }
+
+/* fun elementsModQ(ctx: GroupContext, minimum: Int = 0): Arb<ElementModQ> =
     Arb.byteArray(Arb.constant(ctx.MAX_BYTES_Q), Arb.byte())
         .map { ctx.randomElementModQ() }
+
+ */
 
 /** Generate an arbitrary ElementModQ in [1, Q) for the given group context. */
 fun elementsModQNoZero(ctx: GroupContext) = elementsModQ(ctx, 1)

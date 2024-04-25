@@ -39,7 +39,7 @@ class TestSetMembership {
     }
 
     fun checkMembership(x: ElementModP?): Boolean {
-        return (x != null) && x.isValidResidue()
+        return (x != null) && x.isValidElement()
     }
 
 }

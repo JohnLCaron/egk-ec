@@ -18,7 +18,7 @@ class TestAgainstNative {
 
             // randomElementModP seems to always be the case when p = 3 mod 4
             repeat(100) {
-                val elemP = group.randomElementModP(2).ec
+                val elemP = group.randomElementModP().ec
                 val elemPy2 = vecGroupN.equationf(elemP.x)
 
                 val elemPy = vecGroup.sqrt(elemPy2)
@@ -42,7 +42,7 @@ class TestAgainstNative {
 
         // seems to be the case when p = 3 mod 4
         repeat(100) {
-            val elemP = group.randomElementModP(2).ec
+            val elemP = group.randomElementModP().ec
             val elemPy = elemP.y
 
             val sqrtPy = vecGroup.sqrt(elemPy)

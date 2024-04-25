@@ -16,7 +16,7 @@ data class SchnorrProof(
 
     init {
         compatibleContextOrFail(publicCommitment, challenge, response)
-        require(publicCommitment.isValidResidue()) // 2.A
+        require(publicCommitment.isValidElement()) // 2.A
     }
 
     // verification Box 2, p 23
@@ -30,7 +30,7 @@ data class SchnorrProof(
         // c wouldnt agree unless h = g^u
         // therefore, whoever generated v knows s
 
-        val inBoundsK = publicCommitment.isValidResidue() // 2.A
+        val inBoundsK = publicCommitment.isValidElement() // 2.A
         val inBoundsU = response.inBounds() // 2.B
         val validChallenge = c == challenge // 2.C
         val success = inBoundsK && inBoundsU && validChallenge

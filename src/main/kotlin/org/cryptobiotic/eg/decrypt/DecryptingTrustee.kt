@@ -45,7 +45,7 @@ data class DecryptingTrustee(
         val results: MutableList<PartialDecryption> = mutableListOf()
         val badTexts = mutableListOf<Int>()
         texts.forEachIndexed { idx, text ->
-            if (!text.isValidResidue()) {
+            if (!text.isValidElement()) {
                 badTexts.add(idx)
             } else { // do not process if not valid
                 val u = nonces.get(idx) // random value u in Zq

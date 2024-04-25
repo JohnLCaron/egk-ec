@@ -23,11 +23,8 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP
         return EcElementModP(group, ec.mul(inv))
     }
 
-    // TODO what does it mean to be in bounds ??
-    override fun inBounds(): Boolean = true
-
-    // TODO check this
-    override fun isValidResidue(): Boolean {
+    /** Validate that this element is a member of the elliptic curve Group.*/
+    override fun isValidElement(): Boolean {
         return group.vecGroup.isPointOnCurve(this.ec.x, this.ec.y)
     }
 

@@ -60,8 +60,6 @@ internal class TinyGroupContext(
         dlogger = DLogarithm(gModP)
     }
 
-    override fun isProductionStrength() = false
-
     val groupConstants = IntGroupConstants(name,
         BigInteger(1, p.toByteArray()),
         BigInteger(1, q.toByteArray()),
@@ -93,7 +91,7 @@ internal class TinyGroupContext(
     override val NUM_P_BITS: Int
         get() = 31
 
-    override fun isCompatible(ctx: GroupContext): Boolean = !ctx.isProductionStrength()
+    override fun isCompatible(ctx: GroupContext): Boolean = ctx is TinyGroupContext
 
     /**
      * Convert a ByteArray, of arbitrary size, to a UInt, mod the given modulus. If the ByteArray
@@ -113,22 +111,11 @@ internal class TinyGroupContext(
         }
     }
 
-    override fun binaryToElementModPsafe(b: ByteArray, minimum: Int): ElementModP {
-        if (minimum < 0) {
-            throw IllegalArgumentException("minimum $minimum may not be negative")
-        }
-
-        val u32 = b.toUIntMod(p)
-        val result = if (u32 < minimum.toUInt()) u32 + minimum.toUInt() else u32
-        return uIntToElementModP(result)
-    }
-
-    override fun binaryToElementModQsafe(b: ByteArray, minimum: Int): ElementModQ {
-        if (minimum < 0) {
-            throw IllegalArgumentException("minimum $minimum may not be negative")
-        }
+    override fun randomElementModQ(minimum: Int) : ElementModQ {
+        val b = randomBytes(MAX_BYTES_Q)
+        val useMinimum = if (minimum <= 0) 0U else minimum.toUInt()
         val u32 = b.toUIntMod(q)
-        val result = if (u32 < minimum.toUInt()) u32 + minimum.toUInt() else u32
+        val result = if (u32 < useMinimum) u32 + useMinimum else u32
         return uIntToElementModQ(result)
     }
 
@@ -139,11 +126,9 @@ internal class TinyGroupContext(
         return if (u32 >= p) null else uIntToElementModP(u32)
     }
 
-    override fun binaryToElementModQ(b: ByteArray): ElementModQ? {
-        if (b.size > 4) return null // guaranteed to be out of bounds
-
-        val u32: UInt = b.toUIntMod()
-        return if (u32 >= q) null else uIntToElementModQ(u32)
+    override fun binaryToElementModQ(b: ByteArray): ElementModQ {
+        val u32: UInt = b.toUIntMod(q)
+        return uIntToElementModQ(u32)
     }
 
     override fun uIntToElementModQ(i: UInt): ElementModQ =
@@ -176,6 +161,15 @@ internal class TinyGroupContext(
 
     override fun dLogG(p: ElementModP, maxResult: Int): Int? = dlogger.dLog(p, maxResult)
 
+    override fun randomElementModP() = binaryToElementModPmin(randomBytes(MAX_BYTES_P), 2)
+
+    private fun binaryToElementModPmin(b: ByteArray, minimum: Int): ElementModP {
+        val useMinimum = if (minimum <= 0) 0U else minimum.toUInt()
+        val u32 = b.toUIntMod(p)
+        val result = if (u32 < useMinimum) u32 + useMinimum else u32
+        return uIntToElementModP(result)
+    }
+
     override fun getAndClearOpCounts() = emptyMap<String, Int>()
 }
 
@@ -185,10 +179,10 @@ internal class TinyElementModP(val element: UInt, val groupContext: TinyGroupCon
     fun UInt.wrap(): ElementModP = TinyElementModP(this, groupContext)
     fun ULong.wrap(): ElementModP = toUInt().wrap()
 
-    override fun isValidResidue(): Boolean {
-        val residue =
-            this powP TinyElementModQ(groupContext.q, groupContext) == groupContext.ONE_MOD_P
-        return inBounds() && residue
+    override fun isValidElement(): Boolean {
+        val inBounds = element < groupContext.p
+        val residue = this powP TinyElementModQ(groupContext.q, groupContext) == groupContext.ONE_MOD_P
+        return inBounds && residue
     }
 
     override fun powP(exp: ElementModQ): ElementModP {
@@ -225,7 +219,7 @@ internal class TinyElementModP(val element: UInt, val groupContext: TinyGroupCon
     override val context: GroupContext
         get() = groupContext
 
-    override fun inBounds(): Boolean = element < groupContext.p
+    // fun inBounds(): Boolean = element < groupContext.p
 
     override fun byteArray(): ByteArray = element.toByteArray()
 
