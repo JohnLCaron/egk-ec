@@ -11,6 +11,7 @@ class RunTrustedKeyCeremonyTest {
                 "-in", "src/test/data/startConfigEc",
                 "-trustees", "${Testing.testOut}/cliWorkflow/keyceremonyEc/trustees",
                 "-out", "${Testing.testOut}/cliWorkflow/keyceremonyEc",
+                "--noexit"
             )
         )
     }

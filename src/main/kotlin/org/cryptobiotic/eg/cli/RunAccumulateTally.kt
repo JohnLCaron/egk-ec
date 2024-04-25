@@ -15,6 +15,7 @@ import kotlinx.cli.ArgType
 import kotlinx.cli.default
 import kotlinx.cli.required
 import org.cryptobiotic.util.Stopwatch
+import kotlin.system.exitProcess
 
 /**
  * Run tally accumulation CLI.
@@ -58,6 +59,12 @@ class RunAccumulateTally {
                 shortName = "createdBy",
                 description = "who created"
             )
+            val noexit by parser.option(
+                ArgType.Boolean,
+                shortName = "noexit",
+                description = "Dont call System.exit"
+            ).default(false)
+
             parser.parse(args)
 
             val startupInfo = "starting '$name" +
@@ -80,7 +87,7 @@ class RunAccumulateTally {
 
             } catch (t: Throwable) {
                 logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }
-                t.printStackTrace()
+                if (!noexit) exitProcess(-1)
             }
         }
 
@@ -91,14 +98,14 @@ class RunAccumulateTally {
             name: String,
             createdBy: String,
             countNumberOfBallots: Boolean = false,
-        ) {
+        ): Int {
             val stopwatch = Stopwatch()
 
             val consumerIn = makeConsumer(inputDir)
             val initResult = consumerIn.readElectionInitialized()
             if (initResult is Err) {
                 logger.error { "readElectionInitialized error ${initResult.error}" }
-                return
+                return 1
             }
             val electionInit = initResult.unwrap()
             val manifest = consumerIn.makeManifest(electionInit.config.manifestBytes)
@@ -134,6 +141,7 @@ class RunAccumulateTally {
             )
 
             logger.debug { "processed $countOk good ballots, $countBad bad ballots, ${stopwatch.tookPer(countOk, "good ballot")}" }
+            return if (countBad == 0) 0 else 2
         }
     }
 }

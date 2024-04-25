@@ -5,15 +5,15 @@ import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
 import kotlinx.cli.required
+import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption.Companion
 import org.cryptobiotic.eg.publish.Consumer
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.verifier.Verifier
 import org.cryptobiotic.util.Stats
 import org.cryptobiotic.util.Stopwatch
+import kotlin.system.exitProcess
 
-/**
- * Run election record verification CLI.
- */
+/** Run election record verification CLI. */
 class RunVerifier {
 
     companion object {
@@ -37,13 +37,26 @@ class RunVerifier {
                 shortName = "time",
                 description = "Show timing"
             ).default(false)
+            val noexit by parser.option(
+                ArgType.Boolean,
+                shortName = "noexit",
+                description = "Dont call System.exit"
+            ).default(false)
+
             parser.parse(args)
+
             logger.info { "RunVerifier input= $inputDir" }
 
-            runVerifier(inputDir, nthreads, showTime)
+            try {
+                val retval = runVerifier(inputDir, nthreads, showTime)
+                if (!noexit && retval != 0) exitProcess(retval)
+            } catch (t: Throwable) {
+                logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }
+                if (!noexit) exitProcess(-1)
+            }
         }
 
-        fun runVerifier(inputDir: String, nthreads: Int, showTime: Boolean = false): Boolean {
+        fun runVerifier(inputDir: String, nthreads: Int, showTime: Boolean = false): Int {
             val stopwatch = Stopwatch() // start timing here
 
             val electionRecord = readElectionRecord(inputDir)
@@ -56,7 +69,7 @@ class RunVerifier {
 
             logger.debug { "${stopwatch.took()}" }
             logger.info { "$inputDir verified = ${allOk}" }
-            return allOk
+            return if (allOk) 0 else 1
         }
 
         fun verifyEncryptedBallots(inputDir: String, nthreads: Int) {
@@ -104,7 +117,7 @@ class RunVerifier {
 
         fun verifyTallyBallotIds(inputDir: String) {
             val electionRecord = readElectionRecord(inputDir)
-            println("$inputDir stage=${electionRecord.stage()} ncast_ballots=${electionRecord.encryptedTally()!!.castBallotIds.size}")
+            // println("$inputDir stage=${electionRecord.stage()} ncast_ballots=${electionRecord.encryptedTally()!!.castBallotIds.size}")
 
             val verifier = Verifier(electionRecord, 1)
             val errs = verifier.verifyTallyBallotIds()

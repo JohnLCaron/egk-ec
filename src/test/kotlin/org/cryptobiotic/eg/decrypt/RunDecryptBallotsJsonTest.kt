@@ -24,13 +24,14 @@ class RunDecryptBallotsJsonTest {
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "${Testing.testOut}/decrypt/testDecryptBallotsAllJson"
         println("\ntestDecryptBallotsAll")
-        val n = runDecryptBallots(
+        val (retval, n) = runDecryptBallots(
             inputDir,
             outputDir,
             readDecryptingTrustees(inputDir, trusteeDir),
             "ALL",
             nthreads,
         )
+        assertEquals(0, retval)
         assertEquals(42, n)
     }
 
@@ -40,13 +41,14 @@ class RunDecryptBallotsJsonTest {
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "${Testing.testOut}/decrypt/testDecryptBallotsSomeJson"
         println("\ntestDecryptBallotsAll")
-        val n = runDecryptBallots(
+        val (retval, n) = runDecryptBallots(
             inputDir,
             outputDir,
             readDecryptingTrustees(inputDir, trusteeDir),
             "ALL",
             nthreads,
         )
+        assertEquals(0, retval)
         assertEquals(42, n)
     }
 
@@ -56,7 +58,7 @@ class RunDecryptBallotsJsonTest {
         val trusteeDir = "$inputDir/private_data/trustees"
         val outputDir = "${Testing.testOut}/decrypt/testDecryptBallotsSomeFromListJson"
         println("\ntestDecryptBallotsSomeFromList")
-        val n = runDecryptBallots(
+        val (retval, n) = runDecryptBallots(
             inputDir, outputDir, readDecryptingTrustees(inputDir, trusteeDir, "5"),
             "id-6," +
                     "id-7," +
@@ -64,6 +66,7 @@ class RunDecryptBallotsJsonTest {
                     "id-1,",
             3,
         )
+        assertEquals(0, retval)
         assertEquals(4, n)
     }
 

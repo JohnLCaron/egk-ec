@@ -7,6 +7,7 @@ import com.github.michaelbull.result.unwrap
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
+import kotlinx.cli.default
 import kotlinx.cli.required
 
 import org.cryptobiotic.eg.core.*
@@ -17,6 +18,7 @@ import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.*
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.mergeErrorMessages
+import kotlin.system.exitProcess
 
 /**
  * Run Trusted Tally Decryption CLI.
@@ -62,21 +64,30 @@ class RunTrustedTallyDecryption {
                 shortName = "missing",
                 description = "missing guardians' xcoord, comma separated, eg '2,4'"
             )
+            val noexit by parser.option(
+                ArgType.Boolean,
+                shortName = "noexit",
+                description = "Dont call System.exit"
+            ).default(false)
+
             parser.parse(args)
+
             val startupInfo = "starting\n   input= $inputDir\n   trustees= $trusteeDir\n   output = $outputDir"
             val extraInfo = if (encryptedTallyFile != null) "\n   encryptedTallyFile = $encryptedTallyFile" else ""
             logger.info { startupInfo + extraInfo}
 
             try {
-                runDecryptTally(
+                val retval = runDecryptTally(
                     inputDir,
                     outputDir,
                     readDecryptingTrustees(inputDir, trusteeDir, missing),
                     createdBy,
                     encryptedTallyFile,
                 )
+                if (!noexit && retval != 0) exitProcess(retval)
             } catch (t: Throwable) {
                 logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }
+                if (!noexit) exitProcess(-1)
             }
         }
 
@@ -112,12 +123,12 @@ class RunTrustedTallyDecryption {
             decryptingTrustees: List<DecryptingTrusteeIF>,
             createdBy: String? = null,
             encryptedTallyFile: String? = null,
-        ) {
+        ): Int {
             val consumerIn = makeConsumer(inputDir)
             val resultInit = consumerIn.readElectionInitialized()
             if (resultInit is Err) {
                 logger.error { "readElectionInitialized error ${resultInit.error}" }
-                return
+                return 1
             }
             val electionInit = resultInit.unwrap()
 
@@ -128,7 +139,7 @@ class RunTrustedTallyDecryption {
             val quorum = electionInit.config.quorum
             if (decryptingTrustees.size < quorum) {
                 logger.error { " encryptedTally.decrypt $inputDir does not have a quorum=${quorum}, only ${electionInit.config.quorum} guardians" }
-                return
+                return 2
             }
 
             val guardians = Guardians(consumerIn.group, electionInit.guardians)
@@ -145,7 +156,7 @@ class RunTrustedTallyDecryption {
                 val result = consumerIn.readTallyResult()
                 if (result is Err) {
                     logger.error { "readTallyResult error ${result.error}" }
-                    return
+                    return 3
                 }
                 tallyResult = result.unwrap()
                 tallyResult.encryptedTally
@@ -153,42 +164,37 @@ class RunTrustedTallyDecryption {
                 val result = consumerIn.readEncryptedTallyFromFile(encryptedTallyFile)
                 if (result is Err) {
                     logger.error { " Cant read readEncryptedTallyFromFile $encryptedTallyFile err = $result" }
-                    return
+                    return 4
                 }
                 result.unwrap()
             }
 
             val errs = ErrorMessages("RunTrustedTallyDecryption")
-            try {
-                val decryptedTally = decryptor.decrypt(encryptedTally, errs)
-                if (decryptedTally == null) {
-                    logger.error { " encryptedTally.decrypt $inputDir has error=${errs}" }
-                    return
-                }
-                val publisher = makePublisher(outputDir, false)
-                if (tallyResult != null) {
-                    publisher.writeDecryptionResult(
-                        DecryptionResult(
-                            tallyResult,
-                            decryptedTally,
-                            mapOf(
-                                Pair("CreatedBy", createdBy ?: "RunTrustedTallyDecryption"),
-                                Pair("CreatedOn", getSystemDate()),
-                                Pair("CreatedFromDir", inputDir),
-                            ),
-                        ),
-                    )
-                    logger.info{ "writeDecryptionResult to output directory $outputDir "}
-                } else {
-                    publisher.writeDecryptedTally(decryptedTally)
-                    logger.info{ "writeDecryptedTally to output directory $outputDir "}
-                }
-                logger.info { "success" }
-            } catch (t: Throwable) {
-                errs.add("Exception= ${t.message} ${t.stackTraceToString()}")
-                logger.error { errs }
+            val decryptedTally = decryptor.decrypt(encryptedTally, errs)
+            if (decryptedTally == null) {
+                logger.error { " encryptedTally.decrypt $inputDir has error=${errs}" }
+                return 5
             }
-
+            val publisher = makePublisher(outputDir, false)
+            if (tallyResult != null) {
+                publisher.writeDecryptionResult(
+                    DecryptionResult(
+                        tallyResult,
+                        decryptedTally,
+                        mapOf(
+                            Pair("CreatedBy", createdBy ?: "RunTrustedTallyDecryption"),
+                            Pair("CreatedOn", getSystemDate()),
+                            Pair("CreatedFromDir", inputDir),
+                        ),
+                    ),
+                )
+                logger.info{ "writeDecryptionResult to output directory $outputDir "}
+            } else {
+                publisher.writeDecryptedTally(decryptedTally)
+                logger.info{ "writeDecryptedTally to output directory $outputDir "}
+            }
+            logger.info { "success" }
+            return 0
         }
     }
 }

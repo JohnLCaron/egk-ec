@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.cli.default
 import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption.Companion.readDecryptingTrustees
 
 import org.cryptobiotic.eg.core.*
@@ -27,6 +28,7 @@ import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.*
 import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stopwatch
+import kotlin.system.exitProcess
 
 /**
  * Decrypt challenged ballots with local trustees CLI.
@@ -68,18 +70,28 @@ class RunTrustedBallotDecryption {
                 shortName = "nthreads",
                 description = "Number of parallel threads to use"
             )
+            val noexit by parser.option(
+                ArgType.Boolean,
+                shortName = "noexit",
+                description = "Dont call System.exit"
+            ).default(false)
+
             parser.parse(args)
+
             val startupInfo = "RunTrustedBallotDecryption starting   input= $inputDir   trustees= $trusteeDir" +
                         "   decryptChallenged = $decryptChallenged   output = $outputDir"
             logger.info { startupInfo }
 
             try {
-                runDecryptBallots(
+                val (retval, _) = runDecryptBallots(
                     inputDir, outputDir, readDecryptingTrustees(inputDir, trusteeDir),
                     decryptChallenged, nthreads ?: 11
                 )
+                if (!noexit && retval != 0) exitProcess(retval)
+
             } catch (t : Throwable) {
                 logger.error{"Exception= ${t.message} ${t.stackTraceToString()}"}
+                if (!noexit) exitProcess(-1)
             }
         }
 
@@ -89,14 +101,14 @@ class RunTrustedBallotDecryption {
             decryptingTrustees: List<DecryptingTrusteeIF>,
             decryptChallenged: String?, // comma delimited, no spaces
             nthreads: Int,
-        ): Int {
+        ): Pair<Int,Int> {
             val stopwatch = Stopwatch() // start timing here
 
             val consumerIn = makeConsumer(inputDir)
             val result: Result<TallyResult, ErrorMessages> = consumerIn.readTallyResult()
             if (result is Err) {
                 logger.error { result.error.toString() }
-                return 0
+                return Pair(1,0)
             }
             val tallyResult = result.unwrap()
             val guardians = Guardians(consumerIn.group, tallyResult.electionInitialized.guardians)
@@ -170,7 +182,7 @@ class RunTrustedBallotDecryption {
 
             logger.info {" decrypt ballots ${stopwatch.tookPer(count, "ballots")}" }
 
-            return count
+            return Pair(0, count)
         }
 
         // parallelize over ballots

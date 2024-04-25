@@ -16,6 +16,7 @@ import org.cryptobiotic.eg.keyceremony.KeyCeremonyTrustee
 import org.cryptobiotic.eg.keyceremony.keyCeremonyExchange
 import org.cryptobiotic.eg.publish.*
 import org.cryptobiotic.util.Stopwatch
+import kotlin.system.exitProcess
 
 /**
  * Run KeyCeremony CLI.
@@ -50,20 +51,26 @@ class RunTrustedKeyCeremony {
                 shortName = "createdBy",
                 description = "who created"
             ).default("RunTrustedKeyCeremony")
+            val noexit by parser.option(
+                ArgType.Boolean,
+                shortName = "noexit",
+                description = "Dont call System.exit"
+            ).default(false)
+
             parser.parse(args)
 
             val startupInfo = "starting\n   input= $inputDir\n   trustees= $trusteeDir\n   output = $outputDir"
             logger.info { startupInfo }
 
-            val consumerIn = makeConsumer(inputDir)
-            val configResult = consumerIn.readElectionConfig()
-            if (configResult is Err) {
-                logger.error {"readElectionConfig error ${configResult.error}"}
-                return
-            }
-            val config = configResult.unwrap()
-
             try {
+                val consumerIn = makeConsumer(inputDir)
+                val configResult = consumerIn.readElectionConfig()
+                if (configResult is Err) {
+                    logger.error {"readElectionConfig error ${configResult.error}"}
+                    if (!noexit) exitProcess(1)
+                }
+                val config = configResult.unwrap()
+
                 val result = runKeyCeremony(
                     consumerIn.group,
                     inputDir,
@@ -74,10 +81,11 @@ class RunTrustedKeyCeremony {
                     createdBy
                 )
                 logger.info {"result = $result"}
-                require(result is Ok)
+                if (!noexit && result !is Ok) exitProcess(2)
 
             } catch (t: Throwable) {
                 logger.error{ "Exception= ${t.message} ${t.stackTraceToString()}" }
+                if (!noexit) exitProcess(-1)
             }
         }
 

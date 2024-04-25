@@ -70,6 +70,7 @@ class TestNumGuardiansPresent {
                 "-out", workingDir,
                 "-device", "device11",
                 "-createdBy", name1,
+                "-noexit"
             )
         )
 
@@ -98,7 +99,8 @@ class TestNumGuardiansPresent {
                 "-trustees", trusteeDir,
                 "-out", workingDir,
                 "-challenged", "all",
-                "-nthreads", nthreads.toString()
+                "-nthreads", nthreads.toString(),
+                "--noexit"
             )
         )
         println(group.showOpCountResults("----------- after decrypt ballots"))

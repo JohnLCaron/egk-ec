@@ -48,6 +48,7 @@ class VerifierTest {
                 "-nthreads",
                 "11",
                 "--showTime",
+                "--noexit"
             )
         )
     }
