@@ -22,6 +22,7 @@ class RunExampleEncryptionTest {
                     "--plaintextBallotDir", "$outputDir/plaintext",
                     "--outputDir", outputDir,
                     "-device", "device42,device11",
+                    "--noexit"
                 )
             )
 
@@ -45,6 +46,7 @@ class RunExampleEncryptionTest {
                 "-device", "device42,device11",
                 "--outputDir", "$outputDir",
                 "--noDeviceNameInDir",
+                "--noexit"
             )
         )
 

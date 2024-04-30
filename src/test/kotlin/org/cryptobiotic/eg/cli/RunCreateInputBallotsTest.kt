@@ -10,7 +10,8 @@ class RunCreateInputBallotsTest {
             arrayOf(
                 "-manifest", "src/test/data/startConfigEc",
                 "-out", "${Testing.testOut}/generateInputBallots",
-                "-n", "42"
+                "-n", "42",
+                "--noexit"
             )
         )
     }

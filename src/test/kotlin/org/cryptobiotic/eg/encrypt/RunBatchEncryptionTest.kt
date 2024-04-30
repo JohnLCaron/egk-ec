@@ -9,6 +9,7 @@ import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.util.Testing
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 
 class
 RunBatchEncryptionTest {
@@ -25,6 +26,7 @@ RunBatchEncryptionTest {
                 "-nthreads", "$nthreads",
                 "-device", "device2",
                 "--cleanOutput",
+                "--noexit"
             )
         )
         RunVerifier.runVerifier("${Testing.testOut}/encrypt/testRunBatchEncryptionWithEc", 11)
@@ -41,6 +43,7 @@ RunBatchEncryptionTest {
                 "-nthreads", "$nthreads",
                 "-device", "device2",
                 "--cleanOutput",
+                "--noexit"
             )
         )
         RunVerifier.runVerifier("${Testing.testOut}/encrypt/testRunBatchEncryptionWithInteger", 11)
@@ -58,6 +61,7 @@ RunBatchEncryptionTest {
                 "-device", "device4",
                 "-check", "EncryptTwice",
                 "--cleanOutput",
+                "--noexit"
             )
         )
     }
@@ -74,6 +78,7 @@ RunBatchEncryptionTest {
                 "-device", "device35",
                 "-check", "Verify",
                 "--cleanOutput",
+                "--noexit"
             )
         )
     }
@@ -90,6 +95,7 @@ RunBatchEncryptionTest {
                 "-device", "device42",
                 "-check", "DecryptNonce",
                 "--cleanOutput",
+                "--noexit"
             )
         )
     }
@@ -105,7 +111,7 @@ RunBatchEncryptionTest {
         val ballot = RandomBallotProvider(electionRecord.manifest(), 1).makeBallot()
         val ballots = listOf( ballot.copy(ballotStyle = "badStyleId"))
 
-        batchEncryption(
+        val retval = batchEncryption(
             inputDir,
             ballots,
             device = "testDevice",
@@ -115,6 +121,7 @@ RunBatchEncryptionTest {
             1,
             "testInvalidBallot",
         )
+        assertEquals(0, retval)
 
         val consumerOut = ConsumerJson(invalidDir, electionRecord.group)
         consumerOut.iteratePlaintextBallots(invalidDir, null).forEach {

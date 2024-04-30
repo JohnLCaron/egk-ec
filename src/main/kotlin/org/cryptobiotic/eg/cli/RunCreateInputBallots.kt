@@ -1,5 +1,6 @@
 package org.cryptobiotic.eg.cli
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
@@ -8,11 +9,14 @@ import org.cryptobiotic.eg.election.PlaintextBallot
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makePublisher
 import org.cryptobiotic.eg.publish.readAndCheckManifest
+import kotlin.system.exitProcess
 
 /** Run Create Input Ballots CLI. */
 class RunCreateInputBallots {
 
     companion object {
+        private val logger = KotlinLogging.logger("RunCreateInputBallots")
+
         @JvmStatic
         fun main(args: Array<String>) {
             val parser = ArgParser("RunCreateInputBallots")
@@ -31,32 +35,36 @@ class RunCreateInputBallots {
                 shortName = "n",
                 description = "Number of ballots to generate"
             ).default(11)
-            val isJson by parser.option(
+            val noexit by parser.option(
                 ArgType.Boolean,
-                shortName = "json",
-                description = "Generate Json ballots (default to manifest type)"
-            )
+                shortName = "noexit",
+                description = "Dont call System.exit"
+            ).default(false)
+
             parser.parse(args)
 
             println(
                 "RunCreateInputBallots\n" +
                         "  electionManifest = '$manifestDirOrFile'\n" +
                         "  outputDir = '$outputDir'\n" +
-                        "  nballots = '$nballots'\n" +
-                        "  isJson = '$isJson'\n"
+                        "  nballots = '$nballots'\n"
             )
 
-            val (manifestIsJson, manifest, _) = readAndCheckManifest(manifestDirOrFile)
-            val useJson = isJson ?: manifestIsJson
-            val publisher = makePublisher(outputDir, true)
+            try {
+                val (_, manifest, _) = readAndCheckManifest(manifestDirOrFile)
+                val publisher = makePublisher(outputDir, true)
 
-            val ballots = mutableListOf<PlaintextBallot>()
-            val ballotProvider = RandomBallotProvider(manifest)
-            repeat(nballots) {
-                ballots.add(ballotProvider.makeBallot())
+                val ballots = mutableListOf<PlaintextBallot>()
+                val ballotProvider = RandomBallotProvider(manifest)
+                repeat(nballots) {
+                    ballots.add(ballotProvider.makeBallot())
+                }
+                publisher.writePlaintextBallot(outputDir, ballots)
+
+            } catch (t: Throwable) {
+                logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }
+                if (!noexit) exitProcess(-1)
             }
-
-            publisher.writePlaintextBallot(outputDir, ballots)
         }
     }
 }
