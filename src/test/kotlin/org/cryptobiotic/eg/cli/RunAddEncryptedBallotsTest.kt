@@ -18,6 +18,7 @@ class RunAddEncryptedBallotsTest {
                     "--device", "device11",
                     "--outputDir", outputDir,
                     "--challengePct", "10",
+                    "--noexit"
                 )
             )
 
@@ -38,6 +39,7 @@ class RunAddEncryptedBallotsTest {
                 "--device", "device11",
                 "--outputDir", outputDir,
                 "--challengePct", "10",
+                "--noexit"
             )
         )
 

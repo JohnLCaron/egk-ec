@@ -13,6 +13,7 @@ class CreateTestManifest {
                 "-ncontests", "20",
                 "-nselections", "4",
                 "-out", "${Testing.testOut}/manifest/runCreateTestManifest",
+                "--noexit"
             )
         )
     }
