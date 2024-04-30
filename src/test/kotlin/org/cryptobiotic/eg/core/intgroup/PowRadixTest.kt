@@ -117,7 +117,7 @@ class PowRadixTest {
 
             assertEquals(ctxSlow.ONE_MOD_P, powRadix.pow(0.toElementModQ(ctxSlow)))
             assertEquals(ctxSlow.G_MOD_P, powRadix.pow(1.toElementModQ(ctxSlow)))
-            assertEquals(ctxSlow.G_SQUARED_MOD_P, powRadix.pow(2.toElementModQ(ctxSlow)))
+            // assertEquals(ctxSlow.G_SQUARED_MOD_P, powRadix.pow(2.toElementModQ(ctxSlow)))
 
             // check fewer cases because it's so much slower
             checkAll(propTestFastConfig, elementsModQ(ctxSlow)) { e ->

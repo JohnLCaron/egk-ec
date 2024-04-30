@@ -75,7 +75,7 @@ class VerifyDecryption(
                     continue
                 }
 
-                if (!selection.proof.r.inBounds()) {
+                if (!selection.proof.r.isValidElement()) {
                     val what = if (isBallot) "12.A" else "9.A"
                     serrs.add("    $what response out of bounds")
                 }
@@ -128,7 +128,7 @@ class VerifyDecryption(
 
     private fun verifyContestData(decryptedContestData: DecryptedTallyOrBallot.DecryptedContestData, errs: ErrorMessages){
         // (11.A,14.A) The given value v is in the set Zq.
-        if (!decryptedContestData.proof.r.inBounds()) {
+        if (!decryptedContestData.proof.r.isValidElement()) {
             errs.add("     (11.A,14.A) The value v is not in the set Zq.")
         }
         if (!decryptedContestData.proof.verifyContestDataDecryption(publicKey, extendedBaseHash, decryptedContestData.beta, decryptedContestData.encryptedContestData)) {

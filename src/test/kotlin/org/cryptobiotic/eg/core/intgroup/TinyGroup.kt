@@ -74,9 +74,9 @@ internal class TinyGroupContext(
         get() = oneModP
     override val G_MOD_P: ElementModP
         get() = gModP
-    override val GINV_MOD_P: ElementModP
+    val GINV_MOD_P: ElementModP
         get() = gInvModP
-    override val G_SQUARED_MOD_P: ElementModP
+    val G_SQUARED_MOD_P: ElementModP
         get() = gSquaredModP
     override val ZERO_MOD_Q: ElementModQ
         get() = zeroModQ
@@ -294,7 +294,7 @@ internal class TinyElementModQ(val element: UInt, val groupContext: TinyGroupCon
     override val context: GroupContext
         get() = groupContext
 
-    override fun inBounds(): Boolean = element < groupContext.q
+    override fun isValidElement(): Boolean = element < groupContext.q
 
     override fun isZero(): Boolean = element == 0U
 

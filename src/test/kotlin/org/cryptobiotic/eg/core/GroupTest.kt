@@ -58,7 +58,7 @@ class GroupTest {
 
     fun qInBounds(context: GroupContext) {
         runTest {
-            forAll(propTestFastConfig, elementsModQ(context)) { it.inBounds() }
+            forAll(propTestFastConfig, elementsModQ(context)) { it.isValidElement() }
         }
     }
 
@@ -128,7 +128,7 @@ class GroupTest {
             checkAll(propTestFastConfig, Arb.int(min = 0, max = intTestQ - 1)) { i ->
                 val iq = context.uIntToElementModQ(i.toUInt())
                 val q = context.ZERO_MOD_Q - iq
-                assertTrue(q.inBounds())
+                assertTrue(q.isValidElement())
                 assertEquals(context.ZERO_MOD_Q, q + iq)
             }
         }

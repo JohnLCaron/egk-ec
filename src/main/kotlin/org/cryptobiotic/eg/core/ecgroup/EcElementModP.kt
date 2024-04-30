@@ -25,7 +25,7 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP
 
     /** Validate that this element is a member of the elliptic curve Group.*/
     override fun isValidElement(): Boolean {
-        return group.vecGroup.isPointOnCurve(this.ec.x, this.ec.y)
+        return this.ec.isValidElement()
     }
 
     override fun multInv(): ElementModP {

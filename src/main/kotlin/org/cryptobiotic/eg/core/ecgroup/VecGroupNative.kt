@@ -48,7 +48,7 @@ class VecGroupNative(
     /** Pointer to curve parameters in native space. */
     val nativePointer: ByteArray = VEC.getCurve("P-256")
 
-    override fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean) = VecElementPnative(this, x, y, safe)
+    override fun makeVecModP(x: BigInteger, y: BigInteger) = VecElementPnative(this, x, y)
 
     override fun sqrt(x: BigInteger): BigInteger {
        return VEC.sqrt(x, primeModulus).toPositive()

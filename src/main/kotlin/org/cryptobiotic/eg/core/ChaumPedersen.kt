@@ -149,9 +149,9 @@ fun ChaumPedersenRangeProofKnownNonce.verify(
     val expandedProofs = proofs.mapIndexed { j, proof ->
         // recomputes all the a and b values
         val (cj, vj) = proof
-        if (cj.inBounds() && vj.inBounds()) results.add(Ok(true))
-        if (!cj.inBounds()) results.add(Err("    5.B,6.B cj (idx $j) not in bounds"))
-        if (!vj.inBounds()) results.add(Err("    5.C,6.C vj (idx $j) not in bounds"))
+        if (cj.isValidElement() && vj.isValidElement()) results.add(Ok(true))
+        if (!cj.isValidElement()) results.add(Err("    5.B,6.B cj (idx $j) not in bounds"))
+        if (!vj.isValidElement()) results.add(Err("    5.C,6.C vj (idx $j) not in bounds"))
 
         val wj = (vj - j.toElementModQ(group) * cj)
         ExpandedChaumPedersenProof(
@@ -222,7 +222,7 @@ fun ChaumPedersenProof.verifyDecryption(
     val b = (encryptedVote.pad powP this.r) * (M powP this.c) // 9.3
 
     // 9.A The given value v is in the set Z_q.
-    if (!this.r.inBounds()) {
+    if (!this.r.isValidElement()) {
         return false
     }
     // The challenge value c = H(HE ; 0x30, K, A, B, a, b, M ). eq 71, 9.B.
@@ -253,7 +253,7 @@ fun ChaumPedersenProof.verifyContestDataDecryption(
     val b = (hashedCiphertext.c0 powP this.r) * (beta powP this.c) // 11.2
 
     // 11.A The given value v is in the set Z_q.
-    if (!this.r.inBounds()) {
+    if (!this.r.isValidElement()) {
         return false
     }
     // The challenge value c = H(HE ; 0x31, K, C0 , C1 , C2 , a, b, β) // 11.B

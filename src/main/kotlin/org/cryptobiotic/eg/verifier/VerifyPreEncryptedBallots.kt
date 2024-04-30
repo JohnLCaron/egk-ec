@@ -7,11 +7,12 @@ import org.cryptobiotic.util.ErrorMessages
 
 //////////////////////////////////////////////////////////////////////////////
 // pre-encryption
+// TODO Is verification boxes 15, 16 the same as 5 and 6?
 
 /*
 Every step of verification that applies to traditional ElectionGuard ballots also applies to pre-
 encrypted ballots – with the exception of the process for computing confirmation codes. However,
-52there are some additional verification steps that must be applied to pre-encrypted ballots. Specifi-
+there are some additional verification steps that must be applied to pre-encrypted ballots. Specifi-
 cally, the following verifications should be done for every pre-encrypted cast ballot contained in the
 election record.
     • The ballot confirmation code correctly matches the hash of all contest hashes on the ballot

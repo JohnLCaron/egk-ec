@@ -30,8 +30,6 @@ class ProductionGroupContext(
     val r: BigInteger
     val oneModP: ProductionElementModP
     val gModP: ProductionElementModP
-    val gInvModP by lazy { gPowP(qMinus1Q) }
-    val gSquaredModP: ProductionElementModP
     val zeroModQ: ProductionElementModQ
     val oneModQ: ProductionElementModQ
     val twoModQ: ProductionElementModQ
@@ -48,7 +46,6 @@ class ProductionGroupContext(
         r = rBytes.toBigInteger()
         oneModP = ProductionElementModP(1U.toBigInteger(), this)
         gModP = ProductionElementModP(g, this).acceleratePow() as ProductionElementModP
-        gSquaredModP = ProductionElementModP((g * g).mod(p), this)
         zeroModQ = ProductionElementModQ(0U.toBigInteger(), this)
         oneModQ = ProductionElementModQ(1U.toBigInteger(), this)
         twoModQ = ProductionElementModQ(2U.toBigInteger(), this)
@@ -69,12 +66,6 @@ class ProductionGroupContext(
 
     override val G_MOD_P
         get() = gModP
-
-    override val GINV_MOD_P
-        get() = gInvModP
-
-    override val G_SQUARED_MOD_P
-        get() = gSquaredModP
 
     override val ZERO_MOD_Q
         get() = zeroModQ
@@ -189,7 +180,7 @@ class ProductionElementModQ(internal val element: BigInteger, val groupContext: 
 
     override fun isZero() = element == BigInteger.ZERO
 
-    override fun inBounds() = element >= BigInteger.ZERO && element < groupContext.q
+    override fun isValidElement() = element >= BigInteger.ZERO && element < groupContext.q
 
     override operator fun compareTo(other: ElementModQ): Int = element.compareTo(other.getCompat(groupContext))
 
@@ -238,8 +229,9 @@ open class ProductionElementModP(internal val element: BigInteger, val groupCont
     override operator fun compareTo(other: ElementModP): Int = element.compareTo(other.getCompat(groupContext))
 
     /**
-     * Validates that this element is a member of the Integer Group, ie in Z_p^r.
-     * "Z_p^r is the set of r-th-residues in Z∗p", see spec 2.0 p.9
+     * Validates that this element is in Z_p^r, "set of r-th-residues in Z_p".
+     * "A value x is in Z_p^r if and only if x is an integer such that 0 ≤ x < p
+     * and x^q mod p == 1", see spec 2.0 p.9.
      */
     override fun isValidElement(): Boolean {
         groupContext.opCounts.getOrPut("exp") { AtomicInteger(0) }.incrementAndGet()

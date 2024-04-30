@@ -15,7 +15,7 @@ class EcElementModQ(val group: EcGroupContext, val element: BigInteger): Element
     override val context: GroupContext
         get() = group
 
-    override fun inBounds() = element >= BigInteger.ZERO && element < group.vecGroup.order
+    override fun isValidElement() = element >= BigInteger.ZERO && element < group.vecGroup.order
 
     override operator fun compareTo(other: ElementModQ): Int = element.compareTo(other.getCompat(group))
 
