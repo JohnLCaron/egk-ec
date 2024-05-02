@@ -110,11 +110,11 @@ class LagrangeTest {
                       present: List<Int>) {
         val available = trustees.filter {present.contains(it.xCoordinate())}
         val lagrangeCoefficients = available.associate { it.id to computeLagrangeCoefficient(group, it.xCoordinate, present) }
-        lagrangeCoefficients.values.forEach { assertTrue( it.inBounds()) }
+        lagrangeCoefficients.values.forEach { assertTrue( it.isValidElement()) }
 
         val weightedSum = group.addQ(
             trustees.map {
-                assertTrue(it.computeSecretKeyShare().inBounds())
+                assertTrue(it.computeSecretKeyShare().isValidElement())
                 val coeff = lagrangeCoefficients[it.id] ?: throw IllegalArgumentException()
                 it.computeSecretKeyShare() * coeff
             }

@@ -89,7 +89,7 @@ open class VecGroup(
         pIs3mod4 = primeModulus.testBit(0) && primeModulus.testBit(1) // p mod 4 = 3, true for P-256
     }
 
-    open fun makeVecModP(x: BigInteger, y: BigInteger, safe: Boolean = false) = VecElementP(this, x, y, safe)
+    open fun makeVecModP(x: BigInteger, y: BigInteger) = VecElementP(this, x, y)
 
     fun elementFromByteArray(ba: ByteArray): VecElementP? = elementFromByteArray1(ba)
 
@@ -144,7 +144,7 @@ open class VecGroup(
 
                 if (jacobiSymbol(fx, primeModulus) == 1) {
                     val y2 = sqrt(fx)
-                    return makeVecModP(x, y2, true)
+                    return makeVecModP(x, y2)
                 }
             } catch (e: RuntimeException) {
                 throw RuntimeException("Unexpected format exception", e)

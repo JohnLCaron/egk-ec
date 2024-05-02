@@ -9,9 +9,7 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
     val vecGroup: VecGroup = VecGroups.getEcGroup(name, useNative)
     val ONE = EcElementModP(this, vecGroup.ONE)
 
-    override val GINV_MOD_P: ElementModP = EcElementModP(this, vecGroup.g.inv())
     override val G_MOD_P: ElementModP = EcElementModP(this, vecGroup.g)
-    override val G_SQUARED_MOD_P: ElementModP = EcElementModP(this, vecGroup.g.square())
     override val NUM_P_BITS: Int = vecGroup.pbitLength
     override val MAX_BYTES_P: Int = vecGroup.pbyteLength + 1 // x plus sign of y
     override val ONE_MOD_P: ElementModP = this.ONE

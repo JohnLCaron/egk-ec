@@ -21,12 +21,6 @@ interface GroupContext {
     /** Useful constant: the group generator */
     val G_MOD_P: ElementModP
 
-    /** Useful constant: the inverse of the group generator */
-    val GINV_MOD_P: ElementModP
-
-    /** Useful constant: the group generator, squared */
-    val G_SQUARED_MOD_P: ElementModP
-
     /** Useful constant: zero mod q */
     val ZERO_MOD_Q: ElementModQ
 
@@ -134,6 +128,9 @@ interface Element {
      */
     val context: GroupContext
 
+    /** Validates that this element is a member of the Group */
+    fun isValidElement(): Boolean
+
     /** Converts to a [ByteArray] representation. Inverse to group.binaryToElementModX(). */
     fun byteArray(): ByteArray
 
@@ -164,15 +161,9 @@ interface ElementModQ : Element, Comparable<ElementModQ> {
 
     /** Checks whether this element is zero. */
     fun isZero(): Boolean
-
-    /** Validate the element is in [0,Q) */
-    fun inBounds(): Boolean
 }
 
 interface ElementModP : Element, Comparable<ElementModP> {
-
-    /** Validates that this element is a member of the Group */
-    fun isValidElement(): Boolean
 
     /** Computes b^e mod p */
     infix fun powP(exp: ElementModQ): ElementModP

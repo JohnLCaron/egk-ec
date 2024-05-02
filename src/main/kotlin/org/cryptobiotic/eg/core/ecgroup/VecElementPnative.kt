@@ -37,14 +37,13 @@ open class VecElementPnative(
     pGroup: VecGroup,
     x: BigInteger,
     y: BigInteger,
-    safe: Boolean = false
-) : VecElementP(pGroup, x, y, safe) {
+) : VecElementP(pGroup, x, y) {
     val vgNative = pGroup as VecGroupNative
 
     constructor(group: VecGroup, xs: String, ys: String): this(group, BigInteger(xs,16), BigInteger(ys, 16))
 
     override fun acceleratePow(): VecElementP {
-        return VecElementPnativeAcc(pGroup, x, y, true)
+        return VecElementPnativeAcc(pGroup, x, y)
     }
 
     /** Compute the product of this element with other. */
@@ -89,8 +88,7 @@ class VecElementPnativeAcc(
     pGroup: VecGroup,
     x: BigInteger,
     y: BigInteger,
-    safe: Boolean = false
-) : VecElementPnative(pGroup, x, y, safe) {
+) : VecElementPnative(pGroup, x, y) {
     val tablePtr: ByteArray by lazy { // TODO free the native memory....
 
         /**

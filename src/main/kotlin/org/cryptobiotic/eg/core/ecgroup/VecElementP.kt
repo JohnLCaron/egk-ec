@@ -39,17 +39,21 @@ open class VecElementP(
     val pGroup: VecGroup,
     val x: BigInteger,
     val y: BigInteger,
-    safe: Boolean = false // eg randomElement() knows its safe
 ) {
     val modulus = pGroup.primeModulus
 
     constructor(group: VecGroup, xs: String, ys: String): this(group, BigInteger(xs,16), BigInteger(ys, 16))
 
     init {
-        if (!safe && !pGroup.isPointOnCurve(x, y)) {
-            pGroup.isPointOnCurve(x, y)
+        if (!isValidElement()) {
             throw RuntimeException("Given point is not on the described curve")
         }
+    }
+
+    fun isValidElement(): Boolean {
+        // TODO this has to be true unless it was constructed with safe=true.
+        // Note this also checks that both x and y are in [0,P)
+        return pGroup.isPointOnCurve(x, y)
     }
 
     open fun acceleratePow(): VecElementP {
@@ -90,7 +94,7 @@ open class VecElementP(
         // Otherwise we perform multiplication of two points in general position.
         // s = (y-e.y)/(x-e.x)
 
-        val s = y.subtract(other.y).multiply(x.subtract(other.x).modInverse(modulus).mod(modulus));
+        val s = y.subtract(other.y).multiply(x.subtract(other.x).modInverse(modulus).mod(modulus))
 
         // rx = s^2 - (x + e.x)
         val rx = s.multiply(s).subtract(this.x).subtract(other.x).mod(modulus)

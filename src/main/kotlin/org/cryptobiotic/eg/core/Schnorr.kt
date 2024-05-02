@@ -31,7 +31,7 @@ data class SchnorrProof(
         // therefore, whoever generated v knows s
 
         val inBoundsK = publicCommitment.isValidElement() // 2.A
-        val inBoundsU = response.inBounds() // 2.B
+        val inBoundsU = response.isValidElement() // 2.B
         val validChallenge = c == challenge // 2.C
         val success = inBoundsK && inBoundsU && validChallenge
 
