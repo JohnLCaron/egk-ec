@@ -91,13 +91,13 @@ fun List<ElGamalCiphertext>.add(other: List<ElGamalCiphertext>): List<ElGamalCip
 
 fun Int.encrypt(
     keypair: ElGamalKeypair,
-    nonce: ElementModQ = keypair.context.randomElementModQ(minimum = 1)
+    nonce: ElementModQ = keypair.context.randomElementModQ()
 ) = this.encrypt(keypair.publicKey, nonce)
 
 /** Encrypt an Int. Value must be positive. */
 fun Int.encrypt(
     publicKey: ElGamalPublicKey,
-    nonce: ElementModQ = publicKey.context.randomElementModQ(minimum = 1)
+    nonce: ElementModQ = publicKey.context.randomElementModQ()
 ): ElGamalCiphertext {
     val context = compatibleContextOrFail(publicKey.key, nonce)
 
@@ -119,7 +119,7 @@ fun Int.encrypt(
 /** Encrypt a Long. Used to encrypt serial number. Value must be positive. */
 fun Long.encrypt(
     publicKey: ElGamalPublicKey,
-    nonce: ElementModQ = publicKey.context.randomElementModQ(minimum = 1)
+    nonce: ElementModQ = publicKey.context.randomElementModQ()
 ): ElGamalCiphertext {
     val context = compatibleContextOrFail(publicKey.key, nonce)
 

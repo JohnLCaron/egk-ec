@@ -355,6 +355,14 @@ open class VecGroup(
             return x == MINUS_ONE && y == MINUS_ONE
         }
 
+        /**
+         * Returns the Jacobi symbol of this instance modulo the input.
+         * This is an implementation of the binary Jacobi-symbol algorithm.
+         *
+         * @param value Integer to test.
+         * @param modulus An odd modulus.
+         * @return Jacobi symbol of this instance modulo the input.
+         */
         fun jacobiSymbol(value: BigInteger, modulus: BigInteger): Int {
             var a = value
             var n = modulus

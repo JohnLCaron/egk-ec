@@ -64,7 +64,7 @@ class KeyCeremonyJsonTest {
                 Arb.string(minSize = 3),
                 Arb.string(minSize = 3),
             ) { id, owner, secretShareFor,  ->
-                val kshare = KeyShare(id, owner, secretShareFor, group.randomElementModQ(2))
+                val kshare = KeyShare(id, owner, secretShareFor, group.randomElementModQ())
                 assertEquals(kshare, kshare.publishJson().import(group))
             }
         }

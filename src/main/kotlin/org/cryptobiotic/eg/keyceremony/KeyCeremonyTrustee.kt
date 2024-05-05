@@ -202,10 +202,10 @@ open class KeyCeremonyTrustee(
     open fun shareEncryption(
         Pil: ElementModQ,
         other: PublicKeys,
-        nonce: ElementModQ = group.randomElementModQ(minimum = 2)
+        nonce: ElementModQ = group.randomElementModQ()
     ): HashedElGamalCiphertext {
 
-        val hp = Pil.context.constants.parameterBaseHash
+        val hp = Pil.group.constants.parameterBaseHash
         val i = xCoordinate
         val l = other.guardianXCoordinate
 

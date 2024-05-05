@@ -64,10 +64,10 @@ interface GroupContext {
     fun binaryToElementModQ(b: ByteArray): ElementModQ
 
     /**
-     * Returns a random number in [minimum, Q), where minimum defaults to zero. Promises to use a
-     * "secure" random number generator, such that the results are suitable for use as cryptographic keys.
+     * Returns a random number in [2, Q). Promises to use a "secure" random number generator, such that
+     * the results are suitable for use as cryptographic keys.
      */
-    fun randomElementModQ(minimum: Int = 0) : ElementModQ // = binaryToElementModQ(randomBytes(MAX_BYTES_Q), minimum)
+    fun randomElementModQ() : ElementModQ
 
     /**
      * Returns a random ElementModP. Promises to use a "secure" random number generator, such that
@@ -121,12 +121,8 @@ interface GroupContext {
 }
 
 interface Element {
-    /**
-     * Every Element knows the [GroupContext] that was used to create it. This simplifies code that
-     * computes with elements, allowing arithmetic expressions to be written in many cases without
-     * needing to pass in the context.
-     */
-    val context: GroupContext
+    /** The [GroupContext] it belongs to */
+    val group: GroupContext
 
     /** Validates that this element is a member of the Group */
     fun isValidElement(): Boolean
@@ -206,6 +202,17 @@ fun Long.toElementModQ(ctx: GroupContext) =
     }
 
 /**
+ * Throughout our bignum arithmetic, every operation needs to check that its operands are compatible
+ * (i.e., that we're not trying to use the test group and the production group interchangeably).
+ * This will verify that compatibility and throw an `ArithmeticException` if they're not.
+ */
+fun GroupContext.assertCompatible(other: GroupContext) {
+    if (!this.isCompatible(other)) {
+        throw ArithmeticException("incompatible group contexts")
+    }
+}
+
+/**
  * Verifies that every element has a compatible [GroupContext] and returns the first context.
  *
  * @throws IllegalArgumentException if there's an incompatibility.
@@ -217,12 +224,12 @@ fun compatibleContextOrFail(vararg elements: Element): GroupContext {
 
     if (elements.isEmpty()) throw IllegalArgumentException("no arguments")
 
-    val headContext = elements[0].context
+    val headContext = elements[0].group
 
     // Note: this is comparing the head of the list to itself, which seems inefficient,
     // but adding something like drop(1) in here would allocate an ArrayList and
     // entail a bunch of copying overhead. What's here is almost certainly cheaper.
-    val allCompat = elements.all { it.context.isCompatible(headContext) }
+    val allCompat = elements.all { it.group.isCompatible(headContext) }
 
     if (!allCompat) {
         throw IllegalArgumentException("incompatible contexts")

@@ -24,7 +24,7 @@ internal val tinyGroupContext =
 fun tinyGroup(): GroupContext = tinyGroupContext
 
 internal fun Element.getCompat(other: GroupContext): UInt {
-    context.assertCompatible(other)
+    group.assertCompatible(other)
     return when (this) {
         is TinyElementModP -> this.element
         is TinyElementModQ -> this.element
@@ -111,11 +111,10 @@ internal class TinyGroupContext(
         }
     }
 
-    override fun randomElementModQ(minimum: Int) : ElementModQ {
+    override fun randomElementModQ() : ElementModQ {
         val b = randomBytes(MAX_BYTES_Q)
-        val useMinimum = if (minimum <= 0) 0U else minimum.toUInt()
         val u32 = b.toUIntMod(q)
-        val result = if (u32 < useMinimum) u32 + useMinimum else u32
+        val result = if (u32 < 2U) u32 + 2U else u32
         return uIntToElementModQ(result)
     }
 
@@ -216,7 +215,7 @@ internal class TinyElementModP(val element: UInt, val groupContext: TinyGroupCon
     override fun compareTo(other: ElementModP): Int =
         element.compareTo(other.getCompat(groupContext))
 
-    override val context: GroupContext
+    override val group: GroupContext
         get() = groupContext
 
     // fun inBounds(): Boolean = element < groupContext.p
@@ -291,7 +290,7 @@ internal class TinyElementModQ(val element: UInt, val groupContext: TinyGroupCon
     override fun compareTo(other: ElementModQ): Int =
         element.compareTo(other.getCompat(groupContext))
 
-    override val context: GroupContext
+    override val group: GroupContext
         get() = groupContext
 
     override fun isValidElement(): Boolean = element < groupContext.q

@@ -17,7 +17,7 @@ class ElGamalKeysTest : WordSpec({
 private fun testKeys(name: String, group: GroupContext) = wordSpec {
     name should {
         "have correct public key using elGamalKeyPairFromSecret" {
-            val secret = group.randomElementModQ(2)
+            val secret = group.randomElementModQ()
             val keypair = elGamalKeyPairFromSecret(secret)
             keypair.secretKey shouldBe secret
             keypair.publicKey shouldBe group.gPowP(secret)

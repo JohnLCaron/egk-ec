@@ -71,7 +71,7 @@ class PowRadix(val basis: ProductionElementModP, val acceleration: PowRadixOptio
     init {
         val k = acceleration.numBits
         val mBasis = basis.toMontgomeryElementModP()
-        montgomeryOne = (basis.context.ONE_MOD_P as ProductionElementModP).toMontgomeryElementModP()
+        montgomeryOne = (basis.group.ONE_MOD_P as ProductionElementModP).toMontgomeryElementModP()
 
         if (k == 0) {
             tableLength = 0
@@ -101,7 +101,7 @@ class PowRadix(val basis: ProductionElementModP, val acceleration: PowRadixOptio
     }
 
     fun pow(e: ElementModQ): ElementModP {
-        basis.context.assertCompatible(e.context)
+        basis.group.assertCompatible(e.group)
 
         return if (acceleration.numBits == 0) basis powP e else {
             val slices = e.byteArray().kBitsPerSlice(acceleration, tableLength)
