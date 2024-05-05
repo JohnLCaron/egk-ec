@@ -33,14 +33,14 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
     }
 
     /** Returns a random number in [2, Q). */
-    override fun randomElementModQ() : ElementModQ  {
-        val b = randomBytes(MAX_BYTES_Q)
+    override fun randomElementModQ(statBytes:Int) : ElementModQ  {
+        val b = randomBytes(MAX_BYTES_Q + statBytes)
         val tmp = b.toBigInteger().mod(vecGroup.order)
         val tmp2 = if (tmp < BigInteger.TWO) tmp + BigInteger.TWO else tmp
         return EcElementModQ(this, tmp2)
     }
 
-    override fun randomElementModP() = EcElementModP(this, vecGroup.randomElement())
+    override fun randomElementModP(statBytes:Int) = EcElementModP(this, vecGroup.randomElement(statBytes))
 
     override fun dLogG(p: ElementModP, maxResult: Int): Int? {
         require(p is EcElementModP)

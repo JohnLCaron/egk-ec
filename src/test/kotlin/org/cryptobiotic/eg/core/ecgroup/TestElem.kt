@@ -94,7 +94,7 @@ class TestElem {
         val group = VecGroups.getEcGroup("P-256")
         val n = 100
 
-        val elems = List(n) { group.randomElement() }
+        val elems = List(n) { group.randomElement(16) }
         val exps = List(n) { BigInteger(256, r)}
         val stopwatch = Stopwatch()
         elems.forEachIndexed { idx, elem ->

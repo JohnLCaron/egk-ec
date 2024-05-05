@@ -136,10 +136,10 @@ open class VecGroup(
     }
 
     // this value will always > 1, since 0, 1 are not on the curve.
-    fun randomElement(): VecElementP {
+    fun randomElement(statBytes:Int): VecElementP {
         for (j in 0 until 1000) { // limited in case theres a bug
             try {
-                val x = BigInteger(1, randomBytes(pbyteLength))
+                val x = BigInteger(1, randomBytes(pbyteLength + statBytes)).mod(primeModulus)
                 val fx = equationf(x)
 
                 if (jacobiSymbol(fx, primeModulus) == 1) {

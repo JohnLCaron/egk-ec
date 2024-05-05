@@ -116,7 +116,7 @@ class VecTest {
 
             assertTrue(h is EcElementModP)
             assertTrue(hn is EcElementModP)
-            assertTrue((h as EcElementModP).ec is VecElementP)
+            assertTrue((h as EcElementModP).ec !is VecElementPnative)
             assertTrue((hn as EcElementModP).ec is VecElementPnative)
 
             val prodpow: ElementModP = nonces.map { h powP it }.reduce { a, b -> a * b }

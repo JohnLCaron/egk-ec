@@ -48,6 +48,7 @@ internal class TinyGroupContext(
     val twoModQ: ElementModQ
     val dlogger: DLogarithm
     val qMinus1Q: ElementModQ
+    val pm1overq = TinyElementModQ ((p - 1U).div(q), this) // (p-1)/q
 
     init {
         oneModP = TinyElementModP(1U, this)
@@ -102,7 +103,7 @@ internal class TinyGroupContext(
      * If the modulus is zero, it's ignored, and the intermediate value is truncated to a UInt and
      * returned.
      */
-    internal fun ByteArray.toUIntMod(modulus: UInt = 0U): UInt {
+    internal fun ByteArray.toUIntMod(modulus: UInt): UInt {
         val preModulus = this.fold(0UL) { prev, next -> ((prev shl 8) or next.toUByte().toULong()) }
         return if (modulus == 0U) {
             preModulus.toUInt()
@@ -111,18 +112,22 @@ internal class TinyGroupContext(
         }
     }
 
-    override fun randomElementModQ() : ElementModQ {
+    override fun randomElementModQ(statBytes:Int) : ElementModQ {
         val b = randomBytes(MAX_BYTES_Q)
         val u32 = b.toUIntMod(q)
         val result = if (u32 < 2U) u32 + 2U else u32
         return uIntToElementModQ(result)
     }
 
-    override fun binaryToElementModP(b: ByteArray): ElementModP? {
-        if (b.size > 4) return null // guaranteed to be out of bounds
+    override fun randomElementModP(statBytes:Int): ElementModP {
+        val tmp = binaryToElementModP(randomBytes(MAX_BYTES_P)) as TinyElementModP
+        val modp = if (tmp.element < 2U) uIntToElementModP(tmp.element + 2U) else tmp
+        return modp powP pm1overq // by magic this makes it into a group element
+    }
 
-        val u32: UInt = b.toUIntMod()
-        return if (u32 >= p) null else uIntToElementModP(u32)
+    override fun binaryToElementModP(b: ByteArray): ElementModP {
+        val u32: UInt = b.toUIntMod(p)
+        return uIntToElementModP(u32)
     }
 
     override fun binaryToElementModQ(b: ByteArray): ElementModQ {
@@ -160,15 +165,6 @@ internal class TinyGroupContext(
 
     override fun dLogG(p: ElementModP, maxResult: Int): Int? = dlogger.dLog(p, maxResult)
 
-    override fun randomElementModP() = binaryToElementModPmin(randomBytes(MAX_BYTES_P), 2)
-
-    private fun binaryToElementModPmin(b: ByteArray, minimum: Int): ElementModP {
-        val useMinimum = if (minimum <= 0) 0U else minimum.toUInt()
-        val u32 = b.toUIntMod(p)
-        val result = if (u32 < useMinimum) u32 + useMinimum else u32
-        return uIntToElementModP(result)
-    }
-
     override fun getAndClearOpCounts() = emptyMap<String, Int>()
 }
 
@@ -180,8 +176,8 @@ internal class TinyElementModP(val element: UInt, val groupContext: TinyGroupCon
 
     override fun isValidElement(): Boolean {
         val inBounds = element < groupContext.p
-        val residue = this powP TinyElementModQ(groupContext.q, groupContext) == groupContext.ONE_MOD_P
-        return inBounds && residue
+        val residue = this powP TinyElementModQ(groupContext.q, groupContext)
+        return inBounds && (residue == groupContext.ONE_MOD_P)
     }
 
     override fun powP(exp: ElementModQ): ElementModP {

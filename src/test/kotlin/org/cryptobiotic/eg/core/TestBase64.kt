@@ -69,7 +69,7 @@ class TestBase64 {
         runTest {
             val context = productionGroup()
             val test = "1234567890".repeat(1000)
-            val e1 = assertFailsWith<IllegalArgumentException>(block = { println(" convert = ${context.base64ToElementModQ(test)}") })
+            assertFailsWith<IllegalArgumentException>(block = { println(" convert = ${context.base64ToElementModQ(test)}") })
         }
     }
 

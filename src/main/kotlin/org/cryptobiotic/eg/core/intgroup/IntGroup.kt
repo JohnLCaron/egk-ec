@@ -57,6 +57,8 @@ class ProductionGroupContext(
     }
 
     val groupConstants = IntGroupConstants(name, p, q, r, g)
+    val pm1overq = (p - BigInteger.ONE).div(q) // (p-1)/q
+
     override val constants = groupConstants.constants
 
     override fun toString() : String = name
@@ -90,11 +92,13 @@ class ProductionGroupContext(
     }
 
     /** Returns a random number in [2, P). */
-    override fun randomElementModP(): ElementModP {
-        val b = randomBytes(MAX_BYTES_P)
-        val tmp = b.toBigInteger().mod(p)
-        val tmp2 = if (tmp < BigInteger.TWO) tmp + BigInteger.TWO else tmp
-        return ProductionElementModP(tmp2, this)
+    override fun randomElementModP(statBytes:Int): ElementModP {
+        val b = randomBytes(MAX_BYTES_P+statBytes)
+        val bi = b.toBigInteger()
+        val ti = bi.modPow(pm1overq, p) // by magic this makes it into a group element
+
+        val tinbounds = if (ti < BigInteger.TWO) ti + BigInteger.TWO else ti
+        return ProductionElementModP(tinbounds, this)
     }
 
     override fun binaryToElementModP(b: ByteArray): ElementModP? =
@@ -106,8 +110,8 @@ class ProductionGroupContext(
         }
 
     /** Returns a random number in [2, Q). */
-    override fun randomElementModQ() : ElementModQ  {
-        val b = randomBytes(MAX_BYTES_Q)
+    override fun randomElementModQ(statBytes:Int) : ElementModQ  {
+        val b = randomBytes(MAX_BYTES_Q + statBytes)
         val tmp = b.toBigInteger().mod(q)
         val tmp2 = if (tmp < BigInteger.TWO) tmp + BigInteger.TWO else tmp
         return ProductionElementModQ(tmp2, this)

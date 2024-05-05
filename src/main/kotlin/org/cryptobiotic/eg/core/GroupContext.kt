@@ -64,16 +64,19 @@ interface GroupContext {
     fun binaryToElementModQ(b: ByteArray): ElementModQ
 
     /**
-     * Returns a random number in [2, Q). Promises to use a "secure" random number generator, such that
-     * the results are suitable for use as cryptographic keys.
+     * Returns a random number in [2, Q).
+     * Add "statistical distance" when generating.
+     * Uses a "secure" random number generator, such that the results are suitable for use as cryptographic keys.
      */
-    fun randomElementModQ() : ElementModQ
+    fun randomElementModQ(statBytes:Int = 0) : ElementModQ
 
     /**
-     * Returns a random ElementModP. Promises to use a "secure" random number generator, such that
-     * the results are suitable for use as cryptographic keys.
+     * Returns a random ElementModP.
+     * Add "statistical distance" when generating.
+     * Uses a "secure" random number generator, such that the results are suitable for use as cryptographic keys.
+     * TODO no one actually needs this
      */
-    fun randomElementModP() : ElementModP
+    fun randomElementModP(statBytes:Int = 0) : ElementModP
 
     /** Converts an integer to an ElementModQ, with optimizations when possible for small integers */
     fun uIntToElementModQ(i: UInt): ElementModQ

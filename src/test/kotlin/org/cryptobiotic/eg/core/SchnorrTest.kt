@@ -29,7 +29,7 @@ private fun testSchnorrProof(name: String, group: GroupContext) = wordSpec {
                     Arb.int(0, 10),
                     elementsModQ(group),
                     elementsModQ(group)
-                ) { kp, i, j, nonce, fakeElementModQ ->
+                ) { kp, i, j, nonce, _ ->
                     val goodProof = kp.schnorrProof(i, j, nonce)
                     (goodProof.validate(i, j) is Ok) shouldBe true
                 }

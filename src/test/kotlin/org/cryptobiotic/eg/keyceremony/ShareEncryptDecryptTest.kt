@@ -28,7 +28,7 @@ class ShareEncryptDecryptTest {
             checkAll(
                 propTestFastConfig,
                 Arb.int(min = 1, max = 100),
-                elementsModQ(group, minimum = 2)
+                elementsModQ(group)
             ) { xcoord, pil ->
                 val trustee1 = KeyCeremonyTrustee(group, "id1", xcoord, 4, 4)
                 val trustee2 = KeyCeremonyTrustee(group, "id2", xcoord + 1, 4, 4)
