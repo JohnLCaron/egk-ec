@@ -40,7 +40,7 @@ internal data class PreContest(
 
 internal data class PreSelectionVector(
     val selectionId: String, // do not serialize
-    val selectionHash: ElementModQ, // ψi (92)
+    val selectionHash: UInt256, // ψi (92)
     val shortCode: String,
     val encryptions: List<ElGamalCiphertext>, // Ej, size = nselections, in order by sequence_order
     val nonces: List<ElementModQ>, // size = nselections, in order by sequence_order, do not serialize
@@ -103,7 +103,7 @@ internal fun MarkedPreEncryptedBallot.makePreBallot(preeBallot : PreEncryptedBal
             PreSelectionVector(preeSelection.selectionId, preeSelection.selectionHash, preeSelection.shortCode,
                 preeSelection.selectionVector, preeSelection.selectionNonces)
         }
-        val allSortedSelectedHashes = preeContest.selections.sortedBy { it.selectionHash }.map { it.selectionHash.toUInt256safe() }
+        val allSortedSelectedHashes = preeContest.selections.sortedBy { it.selectionHash }.map { it.selectionHash }
 
         contests.add(
              PreContest(

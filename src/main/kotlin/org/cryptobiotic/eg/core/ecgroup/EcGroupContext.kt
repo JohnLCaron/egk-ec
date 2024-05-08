@@ -1,7 +1,6 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.intgroup.ProductionElementModQ
 import org.cryptobiotic.eg.core.intgroup.toBigInteger
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicInteger
@@ -15,22 +14,24 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
     override val MAX_BYTES_P: Int = vecGroup.pbyteLength + 1 // x plus sign of y
     override val ONE_MOD_P: ElementModP = this.ONE
 
-    override val MAX_BYTES_Q: Int = vecGroup.qbyteLength
+    override val MAX_BYTES_Q: Int = vecGroup.nbyteLength
     override val ZERO_MOD_Q: ElementModQ = EcElementModQ(this, BigInteger.ZERO)
     override val ONE_MOD_Q: ElementModQ = EcElementModQ(this, BigInteger.ONE)
     override val TWO_MOD_Q: ElementModQ = EcElementModQ(this, BigInteger.TWO)
 
     override val constants = vecGroup.constants
-    val dlogg = DLogarithm(G_MOD_P)
+
+    private val dlogg = DLogarithm(G_MOD_P)
+    private val rfc9380 = RFC9380(this, "QUUX-V01-CS02-with-P256_XMD:SHA-256_SSWU_RO_".toByteArray(), 16)
 
     override fun binaryToElementModP(b: ByteArray): ElementModP? {
         val elem = vecGroup.elementFromByteArray(b)
         return if (elem != null) EcElementModP(this, elem) else null
     }
 
-    override fun binaryToElementModQ(b: ByteArray): ElementModQ {
-        return EcElementModQ(this, BigInteger(1, b))
-    }
+    override fun binaryToElementModQ(b: ByteArray) = EcElementModQ(this, BigInteger(1, b))
+
+    override fun hashToElementModQ(hash: UInt256): ElementModQ = rfc9380.hash_to_field(hash.bytes)
 
     /** Returns a random number in [2, Q). */
     override fun randomElementModQ(statBytes:Int) : ElementModQ  {

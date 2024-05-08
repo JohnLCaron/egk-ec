@@ -2,6 +2,7 @@ package org.cryptobiotic.eg.core
 
 import org.cryptobiotic.eg.core.Base16.toHex
 import org.cryptobiotic.eg.core.Base64.toBase64
+import java.nio.ByteBuffer
 import kotlin.experimental.xor
 
 /**
@@ -9,9 +10,22 @@ import kotlin.experimental.xor
  * care, because [ByteArray] allows for mutation, and the internal representation is available for
  * external use.
  */
-data class UInt256(val bytes: ByteArray) {
+data class UInt256(val bytes: ByteArray): Comparable<UInt256> {
     init {
         require(bytes.size == 32) { "UInt256 must have exactly 32 bytes" }
+    }
+
+    override fun compareTo(other: UInt256): Int {
+        var mismatch = -1
+        for (idx in 0..31) {
+            if (bytes[idx] != other.bytes[idx]) {
+                mismatch = idx
+                break
+            }
+        }
+
+        if (mismatch == -1) return 0
+        return bytes[mismatch].toUByte().compareTo(other.bytes[mismatch].toUByte())
     }
 
     override fun equals(other: Any?): Boolean = other is UInt256 && other.bytes.contentEquals(bytes)
@@ -80,11 +94,11 @@ fun ByteArray.normalize(nbytes: Int): ByteArray {
 }
 
 /**
- * Safely converts a [UInt256] to an [ElementModQ], wrapping values outside the range back to the
+ * Converts a [UInt256] to an [ElementModQ], wrapping values outside the range back to the
  * beginning by computing "mod q".
  */
 fun UInt256.toElementModQ(context: GroupContext): ElementModQ =
-    context.binaryToElementModQ(bytes)
+    context.hashToElementModQ(this)
 
 fun ElementModQ.toUInt256safe(): UInt256 = this.byteArray().toUInt256safe()
 fun ULong.toUInt256(): UInt256 = this.toByteArray().toUInt256safe()

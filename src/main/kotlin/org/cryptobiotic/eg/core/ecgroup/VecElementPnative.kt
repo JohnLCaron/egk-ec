@@ -103,7 +103,7 @@ class VecElementPnativeAcc(
         //                                         final BigInteger basisx,
         //                                         final BigInteger basisy,
         //                                         final int size) {
-        VEC.fmul_precompute(vgNative.nativePointer, x, y, vgNative.qbitLength)
+        VEC.fmul_precompute(vgNative.nativePointer, x, y, vgNative.nbitLength)
     }
 
     override fun exp(exponent: BigInteger): VecElementP {

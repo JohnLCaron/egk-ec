@@ -4,7 +4,6 @@ import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.Base64.toBase64
 import java.math.BigInteger
 
-// Theres not really any difference with the Integer Group ElementModQ.
 class EcElementModQ(override val group: EcGroupContext, val element: BigInteger): ElementModQ {
 
     override fun byteArray(): ByteArray = element.toByteArray().normalize(32)

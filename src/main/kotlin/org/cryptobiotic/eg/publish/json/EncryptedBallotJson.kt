@@ -187,7 +187,7 @@ private fun RecordedPreEncryption.publishJson(): PreEncryptionJson {
 
 private fun RecordedSelectionVector.publishJson(): SelectionVectorJson {
     return SelectionVectorJson(
-            this.selectionHash.toUInt256safe().publishJson(),
+            this.selectionHash.publishJson(),
             this.shortCode,
             this.encryptions.map { it.publishJson() },
         )
@@ -214,7 +214,7 @@ fun PreEncryptionJson.import(group: GroupContext, errs: ErrorMessages): Encrypte
     val selectedVectors = this.selected_vectors.mapIndexed { idx,it -> it.import(group, errs.nested("selectedVectors $idx")) }
 
     return if (errs.hasErrors()) null
-    else  EncryptedBallot.PreEncryption(
+    else EncryptedBallot.PreEncryption(
         preencryptionHash!!,
         allSelectionHashes.filterNotNull(),
         selectedVectors.filterNotNull(),

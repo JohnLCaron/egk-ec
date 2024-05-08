@@ -69,7 +69,7 @@ class PreEncryptor(
         }
 
         // numerically sorted selectionHashes
-        val selectionHashes = preeSelections.sortedBy { it.selectionHash }.map { it.selectionHash.toUInt256safe() }
+        val selectionHashes = preeSelections.sortedBy { it.selectionHash }.map { it.selectionHash }
 
         // χl = H(HE ; 0x41, indc (Λl ), K, ψσ(1) , ψσ(2) , . . . , ψσ(m+L) ) ; 94
         val preencryptionHash = hashFunction(extendedBaseHash.bytes, 0x41.toByte(), this.sequenceOrder, publicKey, selectionHashes)
@@ -107,7 +107,7 @@ class PreEncryptor(
         return PreEncryptedSelection(
             thisSelectionId,
             thisSelectionIndex,
-            selectionHash.toElementModQ(group),
+            selectionHash,
             sigma(selectionHash),
             encryptionVector,
             encryptionNonces,

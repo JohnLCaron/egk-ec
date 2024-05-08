@@ -12,6 +12,7 @@ import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Testing
 import kotlin.random.Random
 import kotlin.test.Test
+import kotlin.test.fail
 
 private val random = Random
 
@@ -71,7 +72,7 @@ class PreEncryptorOutputTest {
         }
         if (errs.hasErrors()) {
             println(errs)
-            return
+            fail()
         }
         val (recordedBallot, ciphertextBallot) = pair!!
 
@@ -125,7 +126,7 @@ class PreEncryptorOutputTest {
             while (doneIdx.size < pcontest.contestLimit) {
                 val idx = random.nextInt(nselections)
                 if (!doneIdx.contains(idx)) {
-                    shortCodes.add(sigma(pcontest.selections[idx].selectionHash.toUInt256safe()))
+                    shortCodes.add(sigma(pcontest.selections[idx].selectionHash))
                     selections.add(pcontest.selections[idx].selectionId)
                     doneIdx.add(idx)
                 }

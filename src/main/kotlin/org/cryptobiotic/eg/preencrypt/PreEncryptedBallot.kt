@@ -34,7 +34,7 @@ data class PreEncryptedContest(
 data class PreEncryptedSelection(
     val selectionId: String, // could just pass the manifest selection, in case other info is needed
     val sequenceOrder: Int,  // matches the Manifest
-    val selectionHash: ElementModQ, // allow numerical sorting with ElementModQ, eq 92
+    val selectionHash: UInt256, // allow numerical sorting with ElementModQ, eq 92
     val shortCode: String,
     val selectionVector: List<ElGamalCiphertext>, // nselections, in sequenceOrder, eq 91
     val selectionNonces: List<ElementModQ>, // nselections, in sequenceOrder (optional)
