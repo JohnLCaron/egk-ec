@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.*
+import org.cryptobiotic.eg.core.intgroup.ProductionElementModQ
 import org.cryptobiotic.eg.core.intgroup.toBigInteger
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicInteger
@@ -31,15 +32,15 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
         return EcElementModQ(this, BigInteger(1, b))
     }
 
-    override fun randomElementModQ(minimum: Int) : ElementModQ {
-        val b = randomBytes(MAX_BYTES_Q)
-        val bigMinimum = if (minimum <= 0) BigInteger.ZERO else minimum.toBigInteger()
+    /** Returns a random number in [2, Q). */
+    override fun randomElementModQ(statBytes:Int) : ElementModQ  {
+        val b = randomBytes(MAX_BYTES_Q + statBytes)
         val tmp = b.toBigInteger().mod(vecGroup.order)
-        val big = if (tmp < bigMinimum) tmp + bigMinimum else tmp
-        return EcElementModQ(this, big)
+        val tmp2 = if (tmp < BigInteger.TWO) tmp + BigInteger.TWO else tmp
+        return EcElementModQ(this, tmp2)
     }
 
-    override fun randomElementModP() = EcElementModP(this, vecGroup.randomElement())
+    override fun randomElementModP(statBytes:Int) = EcElementModP(this, vecGroup.randomElement(statBytes))
 
     override fun dLogG(p: ElementModP, maxResult: Int): Int? {
         require(p is EcElementModP)

@@ -20,16 +20,10 @@ fun elementsModP(ctx: GroupContext): Arb<ElementModP> {
 // fun elementsModPNoZero(ctx: GroupContext) = elementsModP(ctx)
 
 /** Generate an arbitrary ElementModQ in [minimum, Q) for the given group context. */
-fun elementsModQ(ctx: GroupContext, minimum: Int = 0): Arb<ElementModQ> = arbitrary{ ctx.randomElementModQ() }
-
-/* fun elementsModQ(ctx: GroupContext, minimum: Int = 0): Arb<ElementModQ> =
-    Arb.byteArray(Arb.constant(ctx.MAX_BYTES_Q), Arb.byte())
-        .map { ctx.randomElementModQ() }
-
- */
+fun elementsModQ(ctx: GroupContext): Arb<ElementModQ> = arbitrary{ ctx.randomElementModQ() }
 
 /** Generate an arbitrary ElementModQ in [1, Q) for the given group context. */
-fun elementsModQNoZero(ctx: GroupContext) = elementsModQ(ctx, 1)
+fun elementsModQNoZero(ctx: GroupContext) = elementsModQ(ctx)
 
 /**
  * Generates a valid element of the subgroup of ElementModP where there exists an e in Q such that v
@@ -43,7 +37,7 @@ fun validResiduesOfP(ctx: GroupContext): Arb<ElementModP> =
  * accelerated using the default PowRadixOption in the GroupContext.
  */
 fun elGamalKeypairs(ctx: GroupContext): Arb<ElGamalKeypair> =
-    elementsModQ(ctx, minimum = 2).map { elGamalKeyPairFromSecret(it) }
+    elementsModQ(ctx).map { elGamalKeyPairFromSecret(it) }
 
 /** Generates arbitrary UInt256 values. */
 fun uint256s(): Arb<UInt256> = Arb.byteArray(Arb.constant(32), Arb.byte()).map { UInt256(it) }

@@ -33,7 +33,7 @@ data class DecryptingTrustee(
         texts: List<ElementModP>,
     ): PartialDecryptions {
 
-        val seed = group.randomElementModQ(2) // random value u in Zq
+        val seed = group.randomElementModQ() // random value u in Zq
         val batchId = randomInt()
         runBlocking {
             mutex.withLock {

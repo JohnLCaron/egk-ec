@@ -17,10 +17,10 @@ class DLogarithm(val base: ElementModP) {
     private val dLogMapping: MutableMap<ElementModP, Int> =
         ConcurrentHashMap<ElementModP, Int>()
             .apply {
-                this[base.context.ONE_MOD_P] = 0
+                this[base.group.ONE_MOD_P] = 0
             }
 
-    private var dLogMaxElement = base.context.ONE_MOD_P
+    private var dLogMaxElement = base.group.ONE_MOD_P
     private var dLogMaxExponent = 0
 
     private val mutex = Mutex()

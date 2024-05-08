@@ -53,10 +53,7 @@ operator fun Nonces.get(index: Int): ElementModQ = getWithHeaders(index)
 fun Nonces.getWithHeaders(index: Int, vararg headers: String) =
     hashFunction(internalSeed, index, *headers).toElementModQ(internalGroup)
 
-/**
- * Get an infinite (lazy) sequences of nonces. Equivalent to indexing with [Nonces.get] starting at
- * 0.
- */
+/** Get an infinite (lazy) sequences of nonces. Equivalent to indexing with [Nonces.get] starting at 1 */
 fun Nonces.asSequence(): Sequence<ElementModQ> = generateSequence(0) { it + 1 }.map { this[it] }
 
 /** Gets a list of the desired number (`n`) of nonces. */

@@ -19,10 +19,10 @@ class TestWorkflowEncryptDecrypt {
     fun singleTrusteeZero() {
         runTest {
             val group = productionGroup()
-            val secret = group.randomElementModQ(minimum = 1)
+            val secret = group.randomElementModQ()
             val publicKey = ElGamalPublicKey(group.gPowP(secret))
             val keypair = ElGamalKeypair(ElGamalSecretKey(secret), publicKey)
-            val nonce = group.randomElementModQ(minimum = 1)
+            val nonce = group.randomElementModQ()
 
             // accumulate random sequence of 1 and 0
             val vote = 0
@@ -44,10 +44,10 @@ class TestWorkflowEncryptDecrypt {
     fun singleTrusteeOne() {
         runTest {
             val group = productionGroup()
-            val secret = group.randomElementModQ(minimum = 1)
+            val secret = group.randomElementModQ()
             val publicKey = ElGamalPublicKey(group.gPowP(secret))
             val keypair = ElGamalKeypair(ElGamalSecretKey(secret), publicKey)
-            val nonce = group.randomElementModQ(minimum = 1)
+            val nonce = group.randomElementModQ()
 
             // acumulate random sequence of 1 and 0
             val vote = 1
@@ -68,15 +68,15 @@ class TestWorkflowEncryptDecrypt {
     fun singleTrusteeTally() {
         runTest {
             val group = productionGroup()
-            val secret = group.randomElementModQ(minimum = 1)
+            val secret = group.randomElementModQ()
             val publicKey = ElGamalPublicKey(group.gPowP(secret))
             assertEquals(group.gPowP(secret), publicKey.key)
             val keypair = ElGamalKeypair(ElGamalSecretKey(secret), publicKey)
 
             val vote = 1
-            val evote1 = vote.encrypt(publicKey, group.randomElementModQ(minimum = 1))
-            val evote2 = vote.encrypt(publicKey, group.randomElementModQ(minimum = 1))
-            val evote3 = vote.encrypt(publicKey, group.randomElementModQ(minimum = 1))
+            val evote1 = vote.encrypt(publicKey, group.randomElementModQ())
+            val evote2 = vote.encrypt(publicKey, group.randomElementModQ())
+            val evote3 = vote.encrypt(publicKey, group.randomElementModQ())
 
             val accum = listOf(evote1, evote2, evote3)
             val eAccum = accum.encryptedSum()?: 0.encrypt(publicKey)
@@ -102,9 +102,9 @@ class TestWorkflowEncryptDecrypt {
             val publicKey = ElGamalPublicKey( group.multP(pkeys) )
 
             val vote = 1
-            val evote1 = vote.encrypt(publicKey, group.randomElementModQ(minimum = 1))
-            val evote2 = vote.encrypt(publicKey, group.randomElementModQ(minimum = 1))
-            val evote3 = vote.encrypt(publicKey, group.randomElementModQ(minimum = 1))
+            val evote1 = vote.encrypt(publicKey, group.randomElementModQ())
+            val evote2 = vote.encrypt(publicKey, group.randomElementModQ())
+            val evote3 = vote.encrypt(publicKey, group.randomElementModQ())
 
             // tally
             val accum = listOf(evote1, evote2, evote3)

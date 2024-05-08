@@ -57,6 +57,8 @@ class ProductionGroupContext(
     }
 
     val groupConstants = IntGroupConstants(name, p, q, r, g)
+    val pm1overq = (p - BigInteger.ONE).div(q) // (p-1)/q
+
     override val constants = groupConstants.constants
 
     override fun toString() : String = name
@@ -89,16 +91,14 @@ class ProductionGroupContext(
         return (ctx is ProductionGroupContext) && productionMode == ctx.productionMode
     }
 
-    /**
-     * Returns a random number in [2, P). Promises to use a
-     * "secure" random number generator, such that the results are suitable for use as cryptographic keys.
-     * @throws IllegalArgumentException if the minimum is negative
-     */
-    override fun randomElementModP(): ElementModP {
-        val b = randomBytes(MAX_BYTES_P)
-        val tmp = b.toBigInteger().mod(p)
-        val tmp2 = if (tmp < BigInteger.TWO) tmp + BigInteger.TWO else tmp
-        return ProductionElementModP(tmp2, this)
+    /** Returns a random number in [2, P). */
+    override fun randomElementModP(statBytes:Int): ElementModP {
+        val b = randomBytes(MAX_BYTES_P+statBytes)
+        val bi = b.toBigInteger()
+        val ti = bi.modPow(pm1overq, p) // by magic this makes it into a group element
+
+        val tinbounds = if (ti < BigInteger.TWO) ti + BigInteger.TWO else ti
+        return ProductionElementModP(tinbounds, this)
     }
 
     override fun binaryToElementModP(b: ByteArray): ElementModP? =
@@ -109,11 +109,11 @@ class ProductionGroupContext(
             null
         }
 
-    override fun randomElementModQ(minimum: Int) : ElementModQ  {
-        val b = randomBytes(MAX_BYTES_Q)
-        val bigMinimum = if (minimum <= 0) BigInteger.ZERO else minimum.toBigInteger()
+    /** Returns a random number in [2, Q). */
+    override fun randomElementModQ(statBytes:Int) : ElementModQ  {
+        val b = randomBytes(MAX_BYTES_Q + statBytes)
         val tmp = b.toBigInteger().mod(q)
-        val tmp2 = if (tmp < bigMinimum) tmp + bigMinimum else tmp
+        val tmp2 = if (tmp < BigInteger.TWO) tmp + BigInteger.TWO else tmp
         return ProductionElementModQ(tmp2, this)
     }
 
@@ -159,7 +159,7 @@ class ProductionGroupContext(
 }
 
 private fun Element.getCompat(other: ProductionGroupContext): BigInteger {
-    context.assertCompatible(other)
+    group.assertCompatible(other)
     return when (this) {
         is ProductionElementModP -> this.element
         is ProductionElementModQ -> this.element
@@ -167,39 +167,35 @@ private fun Element.getCompat(other: ProductionGroupContext): BigInteger {
     }
 }
 
-class ProductionElementModQ(internal val element: BigInteger, val groupContext: ProductionGroupContext): ElementModQ,
+class ProductionElementModQ(internal val element: BigInteger, override val group: ProductionGroupContext): ElementModQ,
     Element, Comparable<ElementModQ> {
 
     override fun byteArray(): ByteArray = element.toByteArray().normalize(32)
 
-    private fun BigInteger.modWrap(): ElementModQ = this.mod(groupContext.q).wrap()
-    private fun BigInteger.wrap(): ElementModQ = ProductionElementModQ(this, groupContext)
-
-    override val context: GroupContext
-        get() = groupContext
+    private fun BigInteger.modWrap(): ElementModQ = this.mod(this@ProductionElementModQ.group.q).wrap()
+    private fun BigInteger.wrap(): ElementModQ = ProductionElementModQ(this, this@ProductionElementModQ.group)
 
     override fun isZero() = element == BigInteger.ZERO
+    override fun isValidElement() = element >= BigInteger.ZERO && element < this.group.q
 
-    override fun isValidElement() = element >= BigInteger.ZERO && element < groupContext.q
-
-    override operator fun compareTo(other: ElementModQ): Int = element.compareTo(other.getCompat(groupContext))
+    override operator fun compareTo(other: ElementModQ): Int = element.compareTo(other.getCompat(this.group))
 
     override operator fun plus(other: ElementModQ) =
-        (this.element + other.getCompat(groupContext)).modWrap()
+        (this.element + other.getCompat(this.group)).modWrap()
 
     override operator fun minus(other: ElementModQ) =
         this + (-other)
 
     override operator fun times(other: ElementModQ) =
-        (this.element * other.getCompat(groupContext)).modWrap()
+        (this.element * other.getCompat(this.group)).modWrap()
 
-    override fun multInv(): ElementModQ = element.modInverse(groupContext.q).wrap()
+    override fun multInv(): ElementModQ = element.modInverse(this.group.q).wrap()
 
     override operator fun unaryMinus(): ElementModQ =
-        if (this == groupContext.zeroModQ)
+        if (this == this.group.zeroModQ)
             this
         else
-            (groupContext.q - element).wrap()
+            (this.group.q - element).wrap()
 
     override infix operator fun div(denominator: ElementModQ): ElementModQ =
         this * denominator.multInv()
@@ -223,7 +219,7 @@ open class ProductionElementModP(internal val element: BigInteger, val groupCont
     private fun BigInteger.modWrap(): ElementModP = this.mod(groupContext.p).wrap()
     private fun BigInteger.wrap(): ElementModP = ProductionElementModP(this, groupContext)
 
-    override val context: GroupContext
+    override val group: GroupContext
         get() = groupContext
 
     override operator fun compareTo(other: ElementModP): Int = element.compareTo(other.getCompat(groupContext))

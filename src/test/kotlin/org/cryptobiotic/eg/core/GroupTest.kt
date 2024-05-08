@@ -20,6 +20,8 @@ class GroupTest {
     fun basics() {
         groups.forEach { testBasics(it) }
         groups.forEach { testBasicsL(it) }
+        groups.forEach { testRandom(it) }
+        groups.forEach { testRandomWithStatBytes(it) }
     }
 
     fun testBasics(context: GroupContext) {
@@ -34,6 +36,27 @@ class GroupTest {
         val four = context.uLongToElementModQ(4U)
         val seven = context.uLongToElementModQ(7U)
         assertEquals(seven, three + four)
+    }
+
+    fun testRandom(group: GroupContext) {
+        val randomP = group.randomElementModP()
+        val randomQ = group.randomElementModQ()
+        if (!randomP.isValidElement()) {
+            randomP.isValidElement()
+        }
+        assertTrue(randomP.isValidElement(),"group ${group.constants.name}")
+        assertTrue(randomQ.isValidElement(), "group ${group.constants.name}")
+
+        println("random p= ${randomP.toStringShort()} random q = $randomQ are ok")
+    }
+
+    fun testRandomWithStatBytes(group: GroupContext) {
+        val randomP = group.randomElementModP(16)
+        val randomQ = group.randomElementModQ(16)
+        assertTrue(randomP.isValidElement(), "group ${group.constants.name}")
+        assertTrue(randomQ.isValidElement(), "group ${group.constants.name}")
+
+        println("random p= ${randomP.toStringShort()} random q = $randomQ are ok")
     }
 
     @Test
@@ -89,7 +112,8 @@ class GroupTest {
     fun binaryArrayRoundTrip(context: GroupContext) {
         runTest {
             forAll(propTestFastConfig, elementsModP(context)) {
-                it == context.binaryToElementModP(it.byteArray())
+                val what = context.binaryToElementModP(it.byteArray())
+                it == what
             }
             forAll(propTestFastConfig, elementsModQ(context)) {
                 it == context.binaryToElementModQ(it.byteArray())

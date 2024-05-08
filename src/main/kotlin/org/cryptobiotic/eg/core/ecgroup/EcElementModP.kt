@@ -3,8 +3,7 @@ package org.cryptobiotic.eg.core.ecgroup
 import org.cryptobiotic.eg.core.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP {
-    override val context: GroupContext = group
+class EcElementModP(override val group: EcGroupContext, val ec: VecElementP): ElementModP {
 
     override fun acceleratePow(): ElementModP {
         return EcElementModP(this.group, this.ec.acceleratePow())
@@ -20,7 +19,7 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP
     override fun div(denominator: ElementModP): ElementModP {
         require (denominator is EcElementModP)
         val inv = denominator.ec.inv()
-        return EcElementModP(group, ec.mul(inv))
+        return EcElementModP(this.group, ec.mul(inv))
     }
 
     /** Validate that this element is a member of the elliptic curve Group.*/
@@ -29,18 +28,18 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP
     }
 
     override fun multInv(): ElementModP {
-        return EcElementModP(group, ec.inv())
+        return EcElementModP(this.group, ec.inv())
     }
 
     override fun powP(exp: ElementModQ): ElementModP {
         require (exp is EcElementModQ)
-        group.opCounts.getOrPut("exp") { AtomicInteger(0) }.incrementAndGet()
-        return EcElementModP(group, ec.exp(exp.element))
+        this.group.opCounts.getOrPut("exp") { AtomicInteger(0) }.incrementAndGet()
+        return EcElementModP(this.group, ec.exp(exp.element))
     }
 
     override fun times(other: ElementModP): ElementModP {
         require (other is EcElementModP)
-        return EcElementModP(group, ec.mul(other.ec))
+        return EcElementModP(this.group, ec.mul(other.ec))
     }
 
     override fun toString(): String {
@@ -57,14 +56,14 @@ class EcElementModP(val group: EcGroupContext, val ec: VecElementP): ElementModP
 
         other as EcElementModP
 
-        if (group != other.group) return false
+        if (this.group != other.group) return false
         if (ec != other.ec) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = group.hashCode()
+        var result = this.group.hashCode()
         result = 31 * result + ec.hashCode()
         return result
     }

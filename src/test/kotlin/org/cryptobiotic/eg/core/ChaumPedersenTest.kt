@@ -338,12 +338,12 @@ class ChaumPedersenTest {
 
     fun testAccumDifferentNonces(context: GroupContext) {
         val constant = 42
-        val contestNonce = context.randomElementModQ(2)
+        val contestNonce = context.randomElementModQ()
         val hashHeader = UInt256.random()
-        val keyPair = elGamalKeyPairFromSecret(context.randomElementModQ(2))
+        val keyPair = elGamalKeyPairFromSecret(context.randomElementModQ())
         val publicKey = keyPair.publicKey
 
-        val randomQ = context.randomElementModQ(2)
+        val randomQ = context.randomElementModQ()
         val nonceSequence = Nonces(randomQ, contestNonce)
 
         val vote0 = 0.encrypt(publicKey, nonceSequence[0])

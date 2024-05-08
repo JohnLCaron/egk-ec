@@ -83,7 +83,7 @@ private fun testEncryption(name: String, group: GroupContext) = wordSpec {
                     smallInts()
                 ) { keypair, message ->
                     val encryption = message.encrypt(keypair)
-                    val reencryption = encryption.reencrypt(keypair.publicKey, group.randomElementModQ(minimum = 1))
+                    val reencryption = encryption.reencrypt(keypair.publicKey, group.randomElementModQ())
                     val decryption = reencryption.decrypt(keypair)
                     message shouldBe decryption
                 }
@@ -100,7 +100,7 @@ private fun testEncryption(name: String, group: GroupContext) = wordSpec {
                     elGamalKeypairs(group), smallInts()
                 ) { keypair, message ->
                     val org = message.encrypt(keypair)
-                    val extra: ElementModQ = group.randomElementModQ(minimum = 1)
+                    val extra: ElementModQ = group.randomElementModQ()
                     val extraEncryption =
                         ElGamalCiphertext(org.pad * group.gPowP(extra), org.data * (keypair.publicKey powP extra))
                     val decryption = extraEncryption.decrypt(keypair)

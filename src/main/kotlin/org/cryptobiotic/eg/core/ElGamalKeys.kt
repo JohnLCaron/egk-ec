@@ -21,7 +21,7 @@ class ElGamalPublicKey(inputKey: ElementModP) {
     private val dlogger = DLogarithm(inputKey)
 
     val context: GroupContext
-        get() = this.key.context
+        get() = this.key.group
 
     /** Helper function. `key powP e` is shorthand for `key.key powP e`. */
     infix fun powP(exponent: ElementModQ): ElementModP = key powP exponent
@@ -59,12 +59,12 @@ class ElGamalPublicKey(inputKey: ElementModP) {
  */
 class ElGamalSecretKey(val key: ElementModQ) {
     init {
-        if (key < key.context.TWO_MOD_Q)
-            throw ArithmeticException("secret key must be in [2, Q) group=${key.context.javaClass.name}")
+        if (key < key.group.TWO_MOD_Q)
+            throw ArithmeticException("secret key must be in [2, Q) group=${key.group.javaClass.name}")
     }
     val negativeKey: ElementModQ = -key
     val context: GroupContext
-        get() = this.key.context
+        get() = this.key.group
 
     override fun equals(other: Any?) =
         when (other) {
@@ -83,8 +83,8 @@ class ElGamalSecretKey(val key: ElementModQ) {
  * @throws ArithmeticException if the secret key is less than two
  */
 fun elGamalKeyPairFromSecret(secret: ElementModQ) =
-    ElGamalKeypair(ElGamalSecretKey(secret), ElGamalPublicKey(secret.context.gPowP(secret))) // eq 10
+    ElGamalKeypair(ElGamalSecretKey(secret), ElGamalPublicKey(secret.group.gPowP(secret))) // eq 10
 
 /** Generates a random ElGamal keypair. */
 fun elGamalKeyPairFromRandom(context: GroupContext) =
-    elGamalKeyPairFromSecret(context.randomElementModQ(minimum = 2))
+    elGamalKeyPairFromSecret(context.randomElementModQ())

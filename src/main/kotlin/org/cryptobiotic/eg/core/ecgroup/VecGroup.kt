@@ -136,10 +136,10 @@ open class VecGroup(
     }
 
     // this value will always > 1, since 0, 1 are not on the curve.
-    fun randomElement(): VecElementP {
+    fun randomElement(statBytes:Int): VecElementP {
         for (j in 0 until 1000) { // limited in case theres a bug
             try {
-                val x = BigInteger(1, randomBytes(pbyteLength))
+                val x = BigInteger(1, randomBytes(pbyteLength + statBytes)).mod(primeModulus)
                 val fx = equationf(x)
 
                 if (jacobiSymbol(fx, primeModulus) == 1) {
@@ -355,6 +355,14 @@ open class VecGroup(
             return x == MINUS_ONE && y == MINUS_ONE
         }
 
+        /**
+         * Returns the Jacobi symbol of this instance modulo the input.
+         * This is an implementation of the binary Jacobi-symbol algorithm.
+         *
+         * @param value Integer to test.
+         * @param modulus An odd modulus.
+         * @return Jacobi symbol of this instance modulo the input.
+         */
         fun jacobiSymbol(value: BigInteger, modulus: BigInteger): Int {
             var a = value
             var n = modulus

@@ -135,7 +135,7 @@ fun testDoerreDecrypt(group: GroupContext,
     val missing = trustees.filter {!present.contains(it.xCoordinate())}.map { it.id }
     println("present $present, missing $missing")
     val vote = 42
-    val evote = vote.encrypt(publicKey, group.randomElementModQ(minimum = 1))
+    val evote = vote.encrypt(publicKey, group.randomElementModQ())
 
     val available = trustees.filter {present.contains(it.xCoordinate())}
     val lagrangeCoefficients = available.associate { it.id to computeLagrangeCoefficient(group, it.xCoordinate, present) }

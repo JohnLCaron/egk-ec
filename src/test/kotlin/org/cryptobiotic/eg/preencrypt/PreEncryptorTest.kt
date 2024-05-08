@@ -186,7 +186,7 @@ internal fun runComplete(
 ) {
     if (show) println("===================================================================")
     val qbar = 4242U.toUInt256()
-    val secret = group.randomElementModQ(minimum = 1)
+    val secret = group.randomElementModQ()
     val publicKey = ElGamalPublicKey(group.gPowP(secret))
     val primaryNonce = UInt256.random()
 

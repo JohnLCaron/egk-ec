@@ -70,17 +70,6 @@ fun fileReadBytes(filename: String): ByteArray = File(filename).readBytes()
 fun fileReadText(filename: String): String = File(filename).readText()
 
 /**
- * Throughout our bignum arithmetic, every operation needs to check that its operands are compatible
- * (i.e., that we're not trying to use the test group and the production group interchangeably).
- * This will verify that compatibility and throw an `ArithmeticException` if they're not.
- */
-fun GroupContext.assertCompatible(other: GroupContext) {
-    if (!this.isCompatible(other)) {
-        throw ArithmeticException("incompatible group contexts")
-    }
-}
-
-/**
  * Convert an unsigned 64-bit long into a big-endian byte array of size 1, 2, 4, or 8 bytes, as
  * necessary to fit the value.
  */

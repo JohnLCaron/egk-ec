@@ -36,7 +36,7 @@ class WebappDecryptionTest {
                 propTestFastConfig,
                 Arb.string(minSize = 3),
                 Arb.int(min = 1, max = 5),
-                elementsModQ(group, minimum = 2)
+                elementsModQ(group)
             ) { name, nmissing, lc ->
                 val miss = List(nmissing) { name + it }
                 val org = SetMissingRequest(lc, miss)
@@ -111,7 +111,7 @@ class WebappDecryptionTest {
                 Arb.int(min = 1, max = 122221),
                 Arb.int(min = 1, max = 11),
             ) {  batchId, nrequests ->
-                val crs = List(nrequests) { elementsModQ(group, minimum = 2).single() }
+                val crs = List(nrequests) { elementsModQ(group).single() }
                 // ChallengeRequest(val batchId: Int, val texts: List<ElementModQ>)
                 val org = ChallengeRequest(batchId, crs)
                 val responses = org.publishJson().import(group)
@@ -133,7 +133,7 @@ class WebappDecryptionTest {
                 Arb.string(minSize = 3),
                 Arb.int(min = 1, max = 11),
             ) {  name, nrequests ->
-                val crs = List(nrequests) { elementsModQ(group, minimum = 2).single() }
+                val crs = List(nrequests) { elementsModQ(group).single() }
                 val org = ChallengeResponses(null, 42, crs)
                 val responses = org.publishJson().import(group)
                 assertTrue(responses is Ok)
