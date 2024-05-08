@@ -63,6 +63,9 @@ interface GroupContext {
      */
     fun binaryToElementModQ(b: ByteArray): ElementModQ
 
+    /** Converts a hash value to an [ElementModQ] */
+    fun hashToElementModQ(hash: UInt256): ElementModQ = binaryToElementModQ(hash.bytes)
+
     /**
      * Returns a random number in [2, Q).
      * Add "statistical distance" when generating.

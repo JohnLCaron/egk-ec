@@ -4,6 +4,7 @@ import io.kotest.property.checkAll
 import io.kotest.property.forAll
 import org.cryptobiotic.eg.core.Base16.fromHexSafe
 import org.cryptobiotic.eg.core.Base16.toHex
+import org.cryptobiotic.eg.core.Base64.fromBase64
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -35,21 +36,18 @@ class HashTest {
 
     @Test
     fun testNonce() {
-        runTest {
-            val group = productionGroup()
-            val contestDescriptionHashQ = "00C49A1E8053FBA95F6B7CD3F3B30B101CDD595C435A46AECF2872F47F1C601206".fromHexSafe()
-                .toUInt256safe().toElementModQ(group)
-            println(" contestDescriptionHashQ = $contestDescriptionHashQ hex = ${contestDescriptionHashQ}")
-            val ballotNonce = "13E7A2F4253E6CCE42ED5576CF7B01A06BE07835227E7AFE5F538FB94E9A9B73".fromHexSafe()
-                .toUInt256safe().toElementModQ(group)
-            val nonceSequence = Nonces(contestDescriptionHashQ, ballotNonce)
-            val nonce0: ElementModQ = nonceSequence[0]
-            println(" nonce seed in hex = ${nonceSequence.internalSeed.toHex()}")
-            println(" nonce0 in hex = ${nonce0}")
-            val expect = "ACDE405F255D4C3101A895AE80863EA4639A889593D557EB5AD5B855684D5B50".fromHexSafe()
-                .toUInt256safe().toElementModQ(group)
-            assertEquals(expect, nonceSequence[0])
-        }
+        val group = productionGroup()
+        val contestDescriptionHashQ = "00C49A1E8053FBA95F6B7CD3F3B30B101CDD595C435A46AECF2872F47F1C601206".fromHexSafe()
+            .toUInt256safe().toElementModQ(group)
+        println(" contestDescriptionHashQ = $contestDescriptionHashQ hex = ${contestDescriptionHashQ}")
+        val ballotNonce = "13E7A2F4253E6CCE42ED5576CF7B01A06BE07835227E7AFE5F538FB94E9A9B73".fromHexSafe()
+            .toUInt256safe().toElementModQ(group)
+        val nonceSequence = Nonces(contestDescriptionHashQ, ballotNonce)
+        val nonce0: ElementModQ = nonceSequence[0]
+        println(" nonce seed in hex = ${nonceSequence.internalSeed.toHex()}")
+        println(" nonce0 in hex = ${nonce0}")
+        val expect = group.binaryToElementModQ("IwEC3GZhDUHC+BlFdMfakdtbnPQ6TCcvz77EcKMuNnI=".fromBase64()!!)
+        assertEquals(expect, nonceSequence[0])
     }
 
     @Test

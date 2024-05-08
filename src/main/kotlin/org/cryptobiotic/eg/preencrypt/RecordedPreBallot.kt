@@ -33,7 +33,7 @@ data class RecordedPreEncryption(
 
 data class RecordedSelectionVector(
     val selectionId: String, // do not serialize
-    val selectionHash: ElementModQ, // ψi (92)
+    val selectionHash: UInt256, // ψi (92)
     val shortCode: String,
     val encryptions: List<ElGamalCiphertext>, // Ej, size = nselections, in order by sequence_order
 ) {

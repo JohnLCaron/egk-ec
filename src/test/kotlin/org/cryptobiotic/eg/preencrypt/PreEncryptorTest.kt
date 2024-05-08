@@ -47,33 +47,32 @@ class PreEncryptorTest {
     // sanity check that Recorder.record doesnt barf
     @Test
     fun testRecord() {
-        runTest {
-            val electionRecord = readElectionRecord( input)
-            val electionInit = electionRecord.electionInit()!!
-            val manifest = electionRecord.manifest()
-            val ballotStyle = manifest.ballotStyles[0].ballotStyleId
+        val electionRecord = readElectionRecord( input)
+        val electionInit = electionRecord.electionInit()!!
+        val manifest = electionRecord.manifest()
+        val ballotStyle = manifest.ballotStyles[0].ballotStyleId
 
-            val preEncryptor =
-                PreEncryptor(electionRecord.group, manifest, electionInit.jointPublicKey, electionInit.extendedBaseHash, ::sigma)
+        val preEncryptor =
+            PreEncryptor(electionRecord.group, manifest, electionInit.jointPublicKey, electionInit.extendedBaseHash, ::sigma)
 
-            manifest.ballotStyles.forEach { println(it) }
+        manifest.ballotStyles.forEach { println(it) }
 
-            val primaryNonce = 42U.toUInt256()
-            val pballot = preEncryptor.preencrypt("testDecrypt_ballot_id", ballotStyle, primaryNonce)
-            assertNotNull(pballot)
+        val primaryNonce = 42U.toUInt256()
+        val pballot = preEncryptor.preencrypt("testDecrypt_ballot_id", ballotStyle, primaryNonce)
+        assertNotNull(pballot)
 
-            val mballot = markBallotChooseOne(manifest, pballot)
-            assertNotNull(mballot)
+        val mballot = markBallotChooseOne(manifest, pballot)
+        assertNotNull(mballot)
 
-            val recorder =
-                Recorder(electionRecord.group, manifest, electionInit.jointPublicKey, electionInit.extendedBaseHash, "device", ::sigma)
+        val recorder =
+            Recorder(electionRecord.group, manifest, electionInit.jointPublicKey, electionInit.extendedBaseHash, "device", ::sigma)
 
-            val errs = ErrorMessages("MarkedBallot ${mballot.ballotId}")
-            with (recorder) {
-                mballot.record(primaryNonce, errs)
-            }
-            assertFalse(errs.hasErrors())
+        val errs = ErrorMessages("MarkedBallot ${mballot.ballotId}")
+        with (recorder) {
+            mballot.record(primaryNonce, errs)
         }
+        if (errs.hasErrors()) println(errs)
+        assertFalse(errs.hasErrors())
     }
 
     // check that CiphertextBallot is correctly formed
@@ -307,7 +306,7 @@ internal class ChosenBallot(val selectedIdx: Int) {
                 pcontests.add(
                     MarkedPreEncryptedContest(
                         pcontest.contestId,
-                        listOf(sigma(pselection.selectionHash.toUInt256safe())),
+                        listOf(sigma(pselection.selectionHash)),
                         listOf(pselection.selectionId),
                     )
                 )
@@ -340,7 +339,7 @@ internal fun markBallotChooseOne(manifest: Manifest, pballot: PreEncryptedBallot
         pcontests.add(
             MarkedPreEncryptedContest(
                 pcontest.contestId,
-                listOf(sigma(pselection.selectionHash.toUInt256safe())),
+                listOf(sigma(pselection.selectionHash)),
                 listOf(pselection.selectionId),
             )
         )
@@ -365,7 +364,7 @@ internal fun markBallotToLimit(manifest: Manifest, pballot: PreEncryptedBallot):
         while (doneIdx.size < pcontest.contestLimit) {
             val idx = random.nextInt(nselections)
             if (!doneIdx.contains(idx)) {
-                shortCodes.add(sigma(pcontest.selections[idx].selectionHash.toUInt256safe()))
+                shortCodes.add(sigma(pcontest.selections[idx].selectionHash))
                 selections.add(pcontest.selections[idx].selectionId)
                 doneIdx.add(idx)
             }

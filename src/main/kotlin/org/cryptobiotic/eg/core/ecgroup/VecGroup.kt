@@ -40,20 +40,21 @@ import java.math.BigInteger
  * @param a x-coefficient
  * @param b constant
  * @param primeModulus Field over which to perform calculations.
- * @param order Order of the group, for Q.
+ * @param order Order of the group (n).
  * @param gx x-coordinate of the generator.
  * @param gy y-coordinate of the generator.
  * @throws RuntimeException If the input parameters are * inconsistent
  * @throws RuntimeException If the input parameters are * inconsistentaqrt
  */
 
-// the order of G is the smallest positive number n such that ng = O (the point at infinity of the curve, and the identity element)
+// See https://www.rfc-editor.org/rfc/rfc9380.pdf for more depth on EC groups.
+// This version assume a Prime group where h = 1. Then q = p.
 open class VecGroup(
     val curveName: String,
     val a: BigInteger,
     val b: BigInteger,
     val primeModulus: BigInteger, // Prime primeModulus of the underlying field
-    val order: BigInteger,
+    val order: BigInteger, // n
     gx: BigInteger,
     gy: BigInteger,
     val h: BigInteger
@@ -66,8 +67,8 @@ open class VecGroup(
 
     val pbitLength: Int = primeModulus.bitLength()
     val pbyteLength = (pbitLength + 7) / 8
-    val qbitLength: Int = order.bitLength()
-    val qbyteLength = (qbitLength + 7) / 8
+    val nbitLength: Int = order.bitLength()
+    val nbyteLength = (nbitLength + 7) / 8
 
     val constants by lazy {
         ElectionConstants(curveName, GroupType.EllipticCurve, protocolVersion,
@@ -85,7 +86,9 @@ open class VecGroup(
 
     val pIs3mod4: Boolean
     init {
+        require (h.equals(BigInteger.ONE))
         require (!primeModulus.equals(BigInteger.TWO))
+        require (!primeModulus.equals(BigInteger.valueOf(3)))
         pIs3mod4 = primeModulus.testBit(0) && primeModulus.testBit(1) // p mod 4 = 3, true for P-256
     }
 
@@ -174,6 +177,7 @@ open class VecGroup(
         return a.modPow(v, p)
 
         /* TODO this code is failing when p mod 4 != 3, remove for now
+        // TODO see Appendix I of https://www.rfc-editor.org/rfc/rfc9380.pdf
         println("not p = 3 mod 4")
 
         // Compute k and s, where p = 2^s (2k+1) +1

@@ -119,7 +119,9 @@ open class KeyCeremonyTrustee(
         // decrypt Pi(l)
         val pilbytes = shareDecryption(share)
             ?: return Err("Trustee '$id' couldnt decrypt EncryptedKeyShare for missingGuardianId '${share.polynomialOwner}'")
-        val expectedPil: ElementModQ = pilbytes.toUInt256safe().toElementModQ(group) // Pi(ℓ)
+        // in this case, pilbytes are the bytes of an ElementModQ, not the results of the hash function that needs to be converted
+        // to an ElementModQ, which messes up when the group is an elliptic curve.
+        val expectedPil: ElementModQ = group.binaryToElementModQ(pilbytes) // Pi(ℓ)
 
         // The other's Kij
         val publicKeys = otherPublicKeys[share.polynomialOwner]
