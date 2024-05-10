@@ -23,17 +23,17 @@ class IntGroupConstantsTest {
                 productionIntGroup(
                     acceleration = PowRadixOption.NO_ACCELERATION,
                     mode = ProductionMode.Mode4096
-                ) as ProductionGroupContext
+                ) as IntGroupContext
             val productionGroup2 =
                 productionIntGroup(
                     acceleration = PowRadixOption.LOW_MEMORY_USE,
                     mode = ProductionMode.Mode4096
-                ) as ProductionGroupContext
+                ) as IntGroupContext
             val productionGroup3 =
                 productionIntGroup(
                     acceleration = PowRadixOption.LOW_MEMORY_USE,
                     mode = ProductionMode.Mode3072
-                ) as ProductionGroupContext
+                ) as IntGroupContext
 
             assertTrue(tinyGroup.groupConstants.isCompatible(tinyGroup.groupConstants))
             assertFalse(tinyGroup.groupConstants.isCompatible(productionGroup1.groupConstants))
@@ -61,7 +61,7 @@ class IntGroupConstantsTest {
 
     @Test
     fun testConstants() {
-        val group = productionIntGroup() as ProductionGroupContext
+        val group = productionIntGroup() as IntGroupContext
         val constants = group.groupConstants
 
         println("smallPrime size= ${constants.smallPrime.toByteArray().size}")

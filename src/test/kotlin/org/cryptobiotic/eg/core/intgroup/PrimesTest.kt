@@ -5,6 +5,7 @@ import org.cryptobiotic.eg.core.Base64.fromBase64Safe
 import org.cryptobiotic.eg.core.Base64.toBase64
 import org.cryptobiotic.eg.core.hashFunction
 import org.cryptobiotic.eg.core.normalize
+import org.cryptobiotic.eg.core.toBigInteger
 import org.cryptobiotic.eg.election.parameterBaseHash
 import org.junit.jupiter.api.Test
 import java.math.BigInteger

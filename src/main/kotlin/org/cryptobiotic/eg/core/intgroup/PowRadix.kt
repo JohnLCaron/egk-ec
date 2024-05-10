@@ -63,7 +63,7 @@ interface MontgomeryElementModP {
  *
  * @see PowRadixOption
  */
-class PowRadix(val basis: ProductionElementModP, val acceleration: PowRadixOption) {
+class PowRadix(val basis: IntElementModP, val acceleration: PowRadixOption) {
     internal val tableLength: Int
     internal val numColumns: Int
     internal val table: Array<Array<MontgomeryElementModP>>
@@ -71,7 +71,7 @@ class PowRadix(val basis: ProductionElementModP, val acceleration: PowRadixOptio
     init {
         val k = acceleration.numBits
         val mBasis = basis.toMontgomeryElementModP()
-        montgomeryOne = (basis.group.ONE_MOD_P as ProductionElementModP).toMontgomeryElementModP()
+        montgomeryOne = (basis.group.ONE_MOD_P as IntElementModP).toMontgomeryElementModP()
 
         if (k == 0) {
             tableLength = 0

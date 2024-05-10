@@ -132,6 +132,14 @@ fun BigInteger.normalize() : String {
 }
 fun BigInteger.toHex() = this.toByteArray().toHex().lowercase()
 
+
+internal fun UInt.toBigInteger() = BigInteger.valueOf(this.toLong())
+internal fun ULong.toBigInteger() = BigInteger.valueOf(this.toLong())
+
+/** Convert an array of bytes, in big-endian format, to a BigInteger */
+internal fun ByteArray.toBigInteger() = BigInteger(1, this)
+
+
 /**
  * Convert an integer to a big-endian array of four bytes. Negative numbers will be in
  * twos-complement.

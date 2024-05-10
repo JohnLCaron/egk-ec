@@ -33,14 +33,14 @@ class MontgomeryTest {
 
     fun shiftyModAndDiv(contextF: () -> GroupContext) {
         runTest {
-            val context = contextF() as ProductionGroupContext
+            val context = contextF() as IntGroupContext
 
             checkAll(
                 propTestSlowConfig,
                 validResiduesOfP(context), validResiduesOfP((context))
             ) { a, b ->
-                val aVal = (a as ProductionElementModP).toMontgomeryElementModP() as ProductionMontgomeryElementModP
-                val bVal = (b as ProductionElementModP).toMontgomeryElementModP() as ProductionMontgomeryElementModP
+                val aVal = (a as IntElementModP).toMontgomeryElementModP() as ProductionMontgomeryElementModP
+                val bVal = (b as IntElementModP).toMontgomeryElementModP() as ProductionMontgomeryElementModP
                 with (aVal) {
                     val twoPowPBits = BigInteger.TWO.pow(context.NUM_P_BITS)
                     assertEquals(element, element.modI())
@@ -69,7 +69,7 @@ class MontgomeryTest {
         runTest {
             listOf(productionGroup("Integer4096"), productionGroup("Integer3072"))
                 .forEach { context ->
-                    val pContext = context as ProductionGroupContext
+                    val pContext = context as IntGroupContext
                     val pPrime = pContext.montgomeryPPrime
                     val p = pContext.p
                     val iPrime = pContext.montgomeryIPrime

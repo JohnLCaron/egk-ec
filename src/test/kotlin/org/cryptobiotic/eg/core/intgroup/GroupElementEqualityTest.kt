@@ -11,14 +11,14 @@ class ElementEqualityTest {
     /** Test ElementModQ compares equal even when BigInteger is unnormalized. */
     @Test
     fun testElementModQ() {
-        val group = productionIntGroup() as ProductionGroupContext
+        val group = productionIntGroup() as IntGroupContext
         val bi = BigInteger("89378920920032937196531702992192972263302712977973574040976517358784464109329")
-        val biq: ElementModQ = ProductionElementModQ(bi, group)
+        val biq: ElementModQ = IntElementModQ(bi, group)
         val biu: UInt256 = biq.toUInt256safe()
         assertEquals(biu.toString(), "UInt256(0xC59AAD302F149A018F925AEC7B819C6F890441F0954C36C198FD0066C5A93F11)")
 
         val bi2 = BigInteger("-26413168317283258227039282016494935589967271687666989998481066649128665530607")
-        val biq2: ElementModQ = ProductionElementModQ(bi2, group)
+        val biq2: ElementModQ = IntElementModQ(bi2, group)
         val biu2: UInt256 = biq2.toUInt256safe()
         assertEquals(biu2.toString(), "UInt256(0xC59AAD302F149A018F925AEC7B819C6F890441F0954C36C198FD0066C5A93F11)")
 
@@ -35,7 +35,7 @@ class ElementEqualityTest {
     /** Test ElementModP compares equal even when BigInteger is unnormalized. */
     @Test
     fun testElementModP() {
-        val group = productionIntGroup() as ProductionGroupContext
+        val group = productionIntGroup() as IntGroupContext
         val big10 = BigInteger(
             "-985885428196823793871112996193692117877338077477509313481176490080043572707575411869476082314071793964095333398744714332767945309577734923855959666952312525705983935794224254844921191506542799980986277785730101641969998008950665607552674779780255443794340755631453736511195965846294137817959149387975188426988363938995046173983376227628568878079936975107253562158738016217863695915516514543524467023351623372147699587151823964788878931625535092111399233104855398144355716461292664016469938048164770562262915176131141149306974339848374124423701816561022798560781880074347370789098569941039608169169423225225700784888687065727520873473846824836442424518979566061683638437879690405121721580003679584987758993406983880687066931891663303142191385688382810398036456017524079326674174907842832390598151860062729968684600437956686678947144020988482631829670396480266255416655992443923337019632004174957302256795150925344684757543832824644645093832263068544636807355769443006223707566815533908185857489241864957258108438753697424938535863201731916633015843613633242770037047355829251893057397651915198708984643944247423365612497135095192340593592328347935363489421152889044708789452933119622244096831912473291882094524612876636835909701347"
         )
@@ -44,11 +44,11 @@ class ElementEqualityTest {
             16
         )
         assertEquals(big10, big16)
-        val p: ElementModP = ProductionElementModP(big10, group)
+        val p: ElementModP = IntElementModP(big10, group)
 
         val normalized = p.byteArray()
         val bign = BigInteger(1, normalized)
-        val pn = ProductionElementModP(bign, group)
+        val pn = IntElementModP(bign, group)
 
         assertNotEquals(big10, bign)
         assertEquals(p, pn)
@@ -59,7 +59,7 @@ class ElementEqualityTest {
     /** Shows that BigIntegers's cant be normalized by normalizing the byte array in the constructor. */
     @Test
     fun testNormalizedBigIntegers() {
-        val group = productionIntGroup() as ProductionGroupContext
+        val group = productionIntGroup() as IntGroupContext
         val q2 = group.TWO_MOD_Q
         val q2b: BigInteger = q2.element
         assertNotEquals(q2b.toByteArray().size, 32)
@@ -67,7 +67,7 @@ class ElementEqualityTest {
         val ba : ByteArray = q2.element.toByteArray()
         val ban = ba.normalize(32)
         assertEquals(ban.size, 32)
-        val q2n = ProductionElementModQ(BigInteger(ban), group)
+        val q2n = IntElementModQ(BigInteger(ban), group)
 
         assertEquals(q2, q2n)
         val q2nb: BigInteger = q2n.element

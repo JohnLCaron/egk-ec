@@ -76,7 +76,7 @@ class PowRadixTest {
     fun bitSlicingBasics() {
         val option = PowRadixOption.LOW_MEMORY_USE
         val ctx = productionIntGroup(option)
-        val powRadix = PowRadix(ctx.G_MOD_P as ProductionElementModP, option)
+        val powRadix = PowRadix(ctx.G_MOD_P as IntElementModP, option)
 
         val bytes = 258.toElementModQ(ctx).byteArray()
         // validate it's big-endian
@@ -113,7 +113,7 @@ class PowRadixTest {
 
         runTest {
             val ctxSlow = productionIntGroup(acceleration = PowRadixOption.NO_ACCELERATION)
-            val powRadix = PowRadix(ctxSlow.G_MOD_P as ProductionElementModP, option)
+            val powRadix = PowRadix(ctxSlow.G_MOD_P as IntElementModP, option)
 
             assertEquals(ctxSlow.ONE_MOD_P, powRadix.pow(0.toElementModQ(ctxSlow)))
             assertEquals(ctxSlow.G_MOD_P, powRadix.pow(1.toElementModQ(ctxSlow)))
