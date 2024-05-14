@@ -15,7 +15,7 @@ import org.cryptobiotic.eg.core.Base64.fromBase64Safe
 import org.cryptobiotic.eg.core.Base64.fromBase64Url
 import org.cryptobiotic.eg.core.Base64.toBase64
 import org.cryptobiotic.eg.core.Base64.toBase64Url
-import org.cryptobiotic.eg.core.intgroup.ProductionGroupContext
+import org.cryptobiotic.eg.core.intgroup.IntGroupContext
 import java.nio.charset.StandardCharsets
 import kotlin.test.*
 
@@ -143,7 +143,7 @@ class TestBase64 {
     @Test
     fun testConstants() {
         val group = productionGroup("Integer4096")
-        val constants = (group as ProductionGroupContext).groupConstants
+        val constants = (group as IntGroupContext).groupConstants
 
         println("smallPrime size= ${constants.smallPrime.toByteArray().size}")
         println("smallPrime     = ${constants.smallPrime.toHex()}")

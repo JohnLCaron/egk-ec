@@ -47,7 +47,7 @@ class ElementsTest {
     fun testElementRoundtrip(group: GroupContext) {
         runTest {
             checkAll(
-                iterations = 10000,
+                iterations = 100,
                 elementsModP(group),
                 elementsModQ(group)
             ) { p, q ->

@@ -1,7 +1,6 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.intgroup.toBigInteger
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicInteger
 

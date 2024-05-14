@@ -53,9 +53,9 @@ enum class ProductionMode(val numBitsInP: Int) {
 private val montgomeryI4096 = BigInteger.ONE shl Primes4096.nbits
 private val p4096 = BigInteger(Primes4096.pStr, 16)
 
-private val productionGroups4096 : Map<PowRadixOption, ProductionGroupContext> =
+private val productionGroups4096 : Map<PowRadixOption, IntGroupContext> =
     PowRadixOption.entries.associateWith {
-        ProductionGroupContext(
+        IntGroupContext(
             pBytes = Primes4096.largePrimeBytes,
             qBytes = Primes4096.smallPrimeBytes,
             gBytes = Primes4096.generatorBytes,
@@ -73,9 +73,9 @@ private val productionGroups4096 : Map<PowRadixOption, ProductionGroupContext> =
 private val montgomeryI3072 = BigInteger.ONE shl Primes3072.nbits
 private val p3072 = BigInteger(Primes3072.pStr, 16)
 
-private val productionGroups3072 : Map<PowRadixOption, ProductionGroupContext> =
+private val productionGroups3072 : Map<PowRadixOption, IntGroupContext> =
     PowRadixOption.entries.associateWith {
-        ProductionGroupContext(
+        IntGroupContext(
             pBytes = Primes3072.largePrimeBytes,
             qBytes = Primes3072.smallPrimeBytes,
             gBytes = Primes3072.generatorBytes,

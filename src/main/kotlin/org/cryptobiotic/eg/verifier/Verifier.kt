@@ -5,7 +5,7 @@ import com.github.michaelbull.result.*
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.intgroup.IntGroupConstants
 import org.cryptobiotic.eg.core.intgroup.Primes4096
-import org.cryptobiotic.eg.core.intgroup.ProductionGroupContext
+import org.cryptobiotic.eg.core.intgroup.IntGroupContext
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.ElectionRecord
 import org.cryptobiotic.util.ErrorMessages
@@ -131,7 +131,7 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
         }
 
         if (group.constants.type == GroupType.IntegerGroup) {
-            val constants: IntGroupConstants = (group as ProductionGroupContext).groupConstants
+            val constants: IntGroupConstants = (group as IntGroupContext).groupConstants
 
             if (!constants.largePrime.toByteArray().normalize(512).contentEquals(Primes4096.largePrimeBytes)) {
                 check.add(Err("  1.B The large prime is not equal to p defined in Section 3.1.1"))
