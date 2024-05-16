@@ -112,14 +112,16 @@ internal class TinyGroupContext(
         }
     }
 
-    override fun randomElementModQ(statBytes:Int) : ElementModQ {
+    override fun hashToElementModQ(hash: UInt256): ElementModQ = binaryToElementModQ(hash.bytes)
+
+    override fun randomElementModQ() : ElementModQ {
         val b = randomBytes(MAX_BYTES_Q)
         val u32 = b.toUIntMod(q)
         val result = if (u32 < 2U) u32 + 2U else u32
         return uIntToElementModQ(result)
     }
 
-    override fun randomElementModP(statBytes:Int): ElementModP {
+    override fun randomElementModP(): ElementModP {
         val tmp = binaryToElementModP(randomBytes(MAX_BYTES_P)) as TinyElementModP
         val modp = if (tmp.element < 2U) uIntToElementModP(tmp.element + 2U) else tmp
         return modp powP pm1overq // by magic this makes it into a group element

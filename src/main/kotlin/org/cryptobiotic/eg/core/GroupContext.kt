@@ -63,22 +63,20 @@ interface GroupContext {
     fun binaryToElementModQ(b: ByteArray): ElementModQ
 
     /** Converts a hash value to an [ElementModQ] */
-    fun hashToElementModQ(hash: UInt256): ElementModQ = binaryToElementModQ(hash.bytes)
+    fun hashToElementModQ(hash: UInt256): ElementModQ
 
     /**
-     * Returns a random number in [2, Q).
-     * Add "statistical distance" when generating.
+     * Returns a uniform random number in [2, Q).
      * Uses a "secure" random number generator, such that the results are suitable for use as cryptographic keys.
      */
-    fun randomElementModQ(statBytes:Int = 0) : ElementModQ
+    fun randomElementModQ() : ElementModQ
 
     /**
-     * Returns a random ElementModP.
-     * Add "statistical distance" when generating.
+     * Returns a uniform random ElementModP.
      * Uses a "secure" random number generator, such that the results are suitable for use as cryptographic keys.
      * TODO no one actually needs this
      */
-    fun randomElementModP(statBytes:Int = 0) : ElementModP
+    fun randomElementModP() : ElementModP
 
     /** Converts an integer to an ElementModQ, with optimizations when possible for small integers */
     fun uIntToElementModQ(i: UInt): ElementModQ

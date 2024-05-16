@@ -85,8 +85,8 @@ class IntGroupContext(
     }
 
     /** Returns a random number in [2, P). */
-    override fun randomElementModP(statBytes:Int): ElementModP {
-        val b = randomBytes(MAX_BYTES_P+statBytes)
+    override fun randomElementModP(): ElementModP {
+        val b = randomBytes(MAX_BYTES_P)
         val bi = b.toBigInteger()
         val ti = bi.modPow(pm1overq, p) // by magic this makes it into a group element
 
@@ -102,9 +102,11 @@ class IntGroupContext(
             null
         }
 
+    override fun hashToElementModQ(hash: UInt256): ElementModQ = binaryToElementModQ(hash.bytes)
+
     /** Returns a random number in [2, Q). */
-    override fun randomElementModQ(statBytes:Int) : ElementModQ  {
-        val b = randomBytes(MAX_BYTES_Q + statBytes)
+    override fun randomElementModQ() : ElementModQ  {
+        val b = randomBytes(MAX_BYTES_Q)
         val tmp = b.toBigInteger().mod(q)
         val tmp2 = if (tmp < BigInteger.TWO) tmp + BigInteger.TWO else tmp
         return IntElementModQ(tmp2, this)
