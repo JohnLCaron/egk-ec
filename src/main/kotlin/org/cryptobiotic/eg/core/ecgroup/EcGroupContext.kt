@@ -21,7 +21,7 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
     override val constants = vecGroup.constants
 
     private val dlogg = DLogarithm(G_MOD_P)
-    private val rfc9380 = RFC9380(this, "QUUX-V01-CS02-with-P256_XMD:SHA-256_SSWU_RO_".toByteArray(), 16)
+    private val rfc9380 = RFC9380(this, "QUUX-V01-CS02-with-P256_XMD:SHA-256_SSWU_RO_".toByteArray(), statBytesQ/8)
 
     override fun binaryToElementModP(b: ByteArray): ElementModP? {
         val elem = vecGroup.elementFromByteArray(b)
@@ -32,15 +32,14 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
 
     override fun hashToElementModQ(hash: UInt256): ElementModQ = rfc9380.hash_to_field(hash.bytes)
 
-    /** Returns a random number in [2, Q). */
-    override fun randomElementModQ(statBytes:Int) : ElementModQ  {
-        val b = randomBytes(MAX_BYTES_Q + statBytes)
-        val tmp = b.toBigInteger().mod(vecGroup.order)
-        val tmp2 = if (tmp < BigInteger.TWO) tmp + BigInteger.TWO else tmp
-        return EcElementModQ(this, tmp2)
+    override fun randomElementModQ() : ElementModQ  {
+        val b = randomBytes(MAX_BYTES_Q)
+        return rfc9380.hash_to_field(b)
     }
 
-    override fun randomElementModP(statBytes:Int) = EcElementModP(this, vecGroup.randomElement(statBytes))
+    override fun randomElementModP() : EcElementModP {
+        return EcElementModP(this, vecGroup.randomElement(statBytesP))
+    }
 
     override fun dLogG(p: ElementModP, maxResult: Int): Int? {
         require(p is EcElementModP)
@@ -50,14 +49,6 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
     override fun gPowP(exp: ElementModQ): ElementModP {
         require(exp is EcElementModQ)
         return EcElementModP(this, vecGroup.g.exp(exp.element))
-    }
-
-    var opCounts: HashMap<String, AtomicInteger> = HashMap()
-    override fun getAndClearOpCounts(): Map<String, Int> {
-        val result = HashMap<String, Int>()
-        opCounts.forEach { (key, value) -> result[key] = value.get() }
-        opCounts = HashMap()
-        return result.toSortedMap()
     }
 
     override fun isCompatible(ctx: GroupContext): Boolean {
@@ -101,5 +92,19 @@ class EcGroupContext(val name: String, useNative: Boolean = true): GroupContext 
         }
         val ec = vecGroup.prodPowers(bases, exps)
         return EcElementModP(this, ec)
+    }
+
+
+    var opCounts: HashMap<String, AtomicInteger> = HashMap()
+    override fun getAndClearOpCounts(): Map<String, Int> {
+        val result = HashMap<String, Int>()
+        opCounts.forEach { (key, value) -> result[key] = value.get() }
+        opCounts = HashMap()
+        return result.toSortedMap()
+    }
+
+    companion object {
+        const val statBytesQ = 128
+        const val statBytesP = 128
     }
 }

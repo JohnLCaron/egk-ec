@@ -5,7 +5,7 @@ package org.cryptobiotic.eg.core.ecgroup
 // You’ll need that algorithms expand_message in 5.3 and hash_to_field in 5.2, which uses expand_message.
 // Note that you only need to do this for m=1 (and then their q = their p) and count = 1.
 
-// TODO see example output in Appendix J.1 of https://www.rfc-editor.org/rfc/rfc9380.pdf
+// This implementation is only for P-256, and its only doing hash_to_field() not hash_to_curve().
 
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -50,7 +50,7 @@ class RFC9380(val group: EcGroupContext, val DST: ByteArray, kBytes: Int) {
         //Steps:
         val uniform_bytes = expand_message(msg)
         val bi = BigInteger(1, uniform_bytes) // OS2IP equiv
-        return EcElementModQ(group, bi.mod(group.vecGroup.primeModulus))
+        return EcElementModQ(group, bi.mod(group.vecGroup.primeModulus)) // note that p == q for P-256
     }
 
     // expand_message_xmd(msg, DST, len_in_bytes)

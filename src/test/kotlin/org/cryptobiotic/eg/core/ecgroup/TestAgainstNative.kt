@@ -26,7 +26,6 @@ class TestAgainstNative {
 
                 val elemPyt = vecGroupN.sqrt(elemPy2)
                 assertEquals(elemP.y, elemPyt)
-
                 assertEquals(elemPy, elemPyt)
             }
         }
