@@ -16,7 +16,7 @@ data class DecryptedTallyOrBallotJson(
 data class DecryptedContestJson(
     val contest_id: String,
     val selections: List<DecryptedSelectionJson>,
-    val ballot_count: Int = 0,                 // number of ballots voting on this contest
+    val ballot_count: Int? = null,                 // number of ballots voting on this contest
     val decrypted_contest_data: DecryptedContestDataJson?, //  ballot decryption only
 )
 

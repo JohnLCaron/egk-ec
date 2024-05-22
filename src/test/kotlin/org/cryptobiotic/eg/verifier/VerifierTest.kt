@@ -1,21 +1,18 @@
 package org.cryptobiotic.eg.verifier
 
+import com.github.michaelbull.result.Ok
 import org.cryptobiotic.eg.cli.RunVerifier
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class VerifierTest {
 
     // @Test
     fun verifyRemoteWorkflow() {
         try {
-            RunVerifier.runVerifier(
-                "src/test/data/testElectionRecord/remoteWorkflow/keyceremony",
-                11
-            )
-            RunVerifier.runVerifier(
-                "src/test/data/testElectionRecord/remoteWorkflow/electionRecord",
-                11
-            )
+            assertEquals(0, RunVerifier.runVerifier("src/test/data/testElectionRecord/remoteWorkflow/keyceremony", 11))
+            assertEquals(0, RunVerifier.runVerifier("src/test/data/testElectionRecord/remoteWorkflow/electionRecord", 11))
         } catch (t :Throwable) {
             t.printStackTrace(System.out)
         }
@@ -23,20 +20,20 @@ class VerifierTest {
 
     @Test
     fun verificationEc() {
-        RunVerifier.runVerifier("src/test/data/workflow/allAvailableEc", 11, true)
-        RunVerifier.runVerifier("src/test/data/workflow/someAvailableEc", 11, true)
+        assertEquals(0, RunVerifier.runVerifier("src/test/data/workflow/allAvailableEc", 11, true))
+        assertEquals(0, RunVerifier.runVerifier("src/test/data/workflow/someAvailableEc", 11, true))
     }
 
     @Test
     fun verificationInteger() {
-        RunVerifier.runVerifier("src/test/data/workflow/allAvailable", 11, true)
-        RunVerifier.runVerifier("src/test/data/workflow/someAvailable", 11, true)
+        assertEquals(0, RunVerifier.runVerifier("src/test/data/workflow/allAvailable", 11, true))
+        assertEquals(0, RunVerifier.runVerifier("src/test/data/workflow/someAvailable", 11, true))
     }
 
     @Test
     fun verifyAddBallots() {
-        RunVerifier.runVerifier("src/test/data/encrypt/testBallotNoChain", 11)
-        RunVerifier.runVerifier("src/test/data/encrypt/testBallotChain", 11)
+        assertEquals(0, RunVerifier.runVerifier("src/test/data/encrypt/testBallotNoChain", 11))
+        assertEquals(0, RunVerifier.runVerifier("src/test/data/encrypt/testBallotChain", 11))
     }
 
     @Test
@@ -55,23 +52,23 @@ class VerifierTest {
 
     @Test
     fun testVerifyEncryptedBallots() {
-        RunVerifier.verifyEncryptedBallots("src/test/data/workflow/someAvailable", 11)
+        assertTrue(RunVerifier.verifyEncryptedBallots("src/test/data/workflow/someAvailable", 11) is Ok)
     }
 
     @Test
     fun verifyDecryptedTallyWithRecoveredShares() {
-        RunVerifier.verifyDecryptedTally("src/test/data/workflow/someAvailable")
+        assertTrue(RunVerifier.verifyDecryptedTally("src/test/data/workflow/someAvailable") is Ok)
     }
 
     // @Test
     fun verifyChallengedBallots() {
-        RunVerifier.verifyChallengedBallots("src/test/data/workflow/someAvailableEcChained")
+        assertTrue(RunVerifier.verifyChallengedBallots("src/test/data/workflow/someAvailableEcChained") is Ok)
     }
 
     // Ordered lists of the ballots encrypted by each device. spec 2.0, section 3.7, p.46
     @Test
     fun testVerifyTallyBallotIds() {
-        RunVerifier.verifyTallyBallotIds("src/test/data/workflow/allAvailableEc")
-        RunVerifier.verifyTallyBallotIds("src/test/data/workflow/someAvailable")
+        assertTrue(RunVerifier.verifyTallyBallotIds("src/test/data/workflow/allAvailableEc") is Ok)
+        assertTrue(RunVerifier.verifyTallyBallotIds("src/test/data/workflow/someAvailable") is Ok)
     }
 }

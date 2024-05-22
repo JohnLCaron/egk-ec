@@ -3,9 +3,8 @@ package org.cryptobiotic.eg.verifier
 import com.github.michaelbull.result.*
 
 import org.cryptobiotic.eg.core.*
-import org.cryptobiotic.eg.core.intgroup.IntGroupConstants
+import org.cryptobiotic.eg.core.ecgroup.VecGroups
 import org.cryptobiotic.eg.core.intgroup.Primes4096
-import org.cryptobiotic.eg.core.intgroup.IntGroupContext
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.ElectionRecord
 import org.cryptobiotic.util.ErrorMessages
@@ -41,7 +40,7 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
         if (record.stage() < ElectionRecord.Stage.INIT) {
             println("election record stage = ${record.stage()}, stopping verification now\n")
             if (showTime) println("   verify ${stopwatch.took()}")
-            return true
+            return (parametersOk is Ok)
         }
 
         val guardiansOk = verifyGuardianPublicKey()
@@ -53,10 +52,11 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
         val baseHashOk = verifyExtendedBaseHash()
         println(" 4. verifyExtendedBaseHash= $baseHashOk")
 
+        val initOk = (parametersOk is Ok) && (guardiansOk is Ok) && (publicKeyOk is Ok) && (baseHashOk is Ok)
         if (record.stage() < ElectionRecord.Stage.ENCRYPTED) {
             println("election record stage = ${record.stage()}, stopping verification now\n")
             if (showTime) println("   verify 2,3,4 ${stopwatch.took()}")
-            return true
+            return initOk
         }
 
         // encryption and vote limits
@@ -81,7 +81,7 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
 
         if (record.stage() < ElectionRecord.Stage.TALLIED) {
             println("election record stage = ${record.stage()}, stopping verification now\n")
-            return true
+            return initOk && ballotsOk && chainOk
         }
 
         // tally accumulation
@@ -95,7 +95,7 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
 
         if (record.stage() < ElectionRecord.Stage.DECRYPTED) {
             println("election record stage = ${record.stage()}, stopping verification now\n")
-            return true
+            return initOk && ballotsOk && chainOk && tallyOk
         }
 
         // tally decryption
@@ -115,8 +115,7 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
             println(challengedErrs)
         }
 
-        val allOk = (parametersOk is Ok) && (guardiansOk is Ok) && (publicKeyOk is Ok) && (baseHashOk is Ok) &&
-                ballotsOk && chainOk && tallyOk && tdOk && challengedOk
+        val allOk = initOk && ballotsOk && chainOk && tallyOk && tdOk && challengedOk
 
         println("verify allOK = $allOk\n")
         return allOk
@@ -125,25 +124,56 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
     // Verification Box 1
     private fun verifyParameters(config : ElectionConfig, manifestBytes: ByteArray): Result<Boolean, String> {
         val check: MutableList<Result<Boolean, String>> = mutableListOf()
+        val configConstants = config.constants
 
-        if (config.constants.protocolVersion != "v2.0.0" && config.constants.protocolVersion != "v2.1.0") {
-            check.add(Err("  1.A The election record protocolVersion is unknown: '${config.constants.protocolVersion}'"))
+        if (configConstants.protocolVersion != "v2.0.0" && configConstants.protocolVersion != "v2.1.0") {
+            check.add(Err("  1.A The election record protocolVersion is unknown: '${configConstants.protocolVersion}'"))
         }
 
         if (group.constants.type == GroupType.IntegerGroup) {
-            val constants: IntGroupConstants = (group as IntGroupContext).groupConstants
-
-            if (!constants.largePrime.toByteArray().normalize(512).contentEquals(Primes4096.largePrimeBytes)) {
+            val largePrime = configConstants.constants["largePrime"]
+            if (largePrime == null || !largePrime.toByteArray().normalize(512).contentEquals(Primes4096.largePrimeBytes)) {
                 check.add(Err("  1.B The large prime is not equal to p defined in Section 3.1.1"))
             }
-            if (!constants.smallPrime.toByteArray().normalize(32).contentEquals(Primes4096.smallPrimeBytes)) {
+            val smallPrime = configConstants.constants["smallPrime"]
+            if (smallPrime == null || !smallPrime.toByteArray().normalize(32).contentEquals(Primes4096.smallPrimeBytes)) {
                 check.add(Err("  1.C The small prime is not equal to q defined in Section 3.1.1"))
             }
-            if (!constants.cofactor.toByteArray().normalize(512).contentEquals(Primes4096.residualBytes)) {
+            val cofactor = configConstants.constants["cofactor"]
+            if (cofactor == null || !cofactor.toByteArray().normalize(512).contentEquals(Primes4096.residualBytes)) {
                 check.add(Err("  1.D The cofactor is not equal to r defined in Section 3.1.1"))
             }
-            if (!constants.generator.toByteArray().normalize(512).contentEquals(Primes4096.generatorBytes)) {
+            val generator = configConstants.constants["generator"]
+            if (generator == null || !generator.toByteArray().normalize(512).contentEquals(Primes4096.generatorBytes)) {
                 check.add(Err("  1.E The generator is not equal to g defined in Section 3.1.1"))
+            }
+        } else {
+            val vecGroup: VecGroups = VecGroups.NAMED_PARAMS.get("P-256")!!
+
+            val primeModulus = configConstants.constants["primeModulus"]!!
+
+            if (primeModulus == null || !primeModulus.toByteArray().contentEquals(vecGroup.p.toByteArray())) {
+                check.add(Err("  1.B The primeModulus is not equal to p defined in P-256"))
+            }
+            val order = configConstants.constants["order"]
+            if (order == null || !order.toByteArray().contentEquals(vecGroup.n.toByteArray())) {
+                check.add(Err("  1.C The order is not equal to n defined in P-256"))
+            }
+            val a = configConstants.constants["a"]
+            if (a == null || !a.toByteArray().contentEquals(vecGroup.a.toByteArray())) {
+                check.add(Err("  1.D The factor a is not equal to a defined in P-256"))
+            }
+            val b = configConstants.constants["b"]
+            if (b == null || !b.toByteArray().contentEquals(vecGroup.b.toByteArray())) {
+                check.add(Err("  1.D The factor b is not equal to b defined in P-256"))
+            }
+            val gx = configConstants.constants["g.x"]
+            if (gx == null || !gx.toByteArray().contentEquals(vecGroup.gx.toByteArray())) {
+                check.add(Err("  1.E The generatr g.x is not equal to g.x defined in P-256"))
+            }
+            val gy = configConstants.constants["g.y"]
+            if (gy == null || !gy.toByteArray().contentEquals(vecGroup.gy.toByteArray())) {
+                check.add(Err("  1.E The generatr g.y is not equal to g.y defined in P-256"))
             }
         }
 
@@ -155,8 +185,8 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
         if (Hm != config.manifestHash) {
             check.add(Err("  1.G The manifest hash does not match eq 5"))
         }
-        val Hd = electionBaseHash(Hp, Hm, config.numberOfGuardians, config.quorum)
-        if (Hd != config.electionBaseHash) {
+        val Hb = electionBaseHash(Hp, Hm, config.numberOfGuardians, config.quorum)
+        if (Hb != config.electionBaseHash) {
             check.add(Err("  1.H The election base hash does not match eq 6"))
         }
 
@@ -247,23 +277,21 @@ class Verifier(val record: ElectionRecord, val nthreads: Int = 11) {
         return errs
     }
 
-    fun verifyTallyBallotIds(): Boolean {
-        var allOk = true
+    fun verifyTallyBallotIds(): ErrorMessages {
+        val errs = ErrorMessages("verifyTallyBallotIds")
         val encryptedBallotIds = record.encryptedAllBallots{ it.state == EncryptedBallot.BallotState.CAST }.map { it.ballotId }.toSet()
         val tallyBallotIds = record.encryptedTally()!!.castBallotIds.toSet()
         encryptedBallotIds.forEach {
             if (!tallyBallotIds.contains(it)) {
-                println("  tallyBallotIds doesnt contain $it")
-                allOk = false
+                errs.add("  tallyBallotIds doesnt contain $it")
             }
         }
         tallyBallotIds.forEach {
             if (!encryptedBallotIds.contains(it)) {
-                println("  encryptedBallotIds doesnt contain $it")
-                allOk = false
+                errs.add("  encryptedBallotIds doesnt contain $it")
             }
         }
-        return allOk
+        return errs
     }
 
 

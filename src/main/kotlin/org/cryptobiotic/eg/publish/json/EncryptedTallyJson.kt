@@ -18,7 +18,7 @@ data class EncryptedTallyContestJson(
     val contest_id: String,
     val sequence_order: Int,
     val selections: List<EncryptedTallySelectionJson>,
-    val ballot_count: Int = 0,                 // number of ballots voting on this contest
+    val ballot_count: Int? = null,                 // number of ballots voting on this contest
 )
 
 @Serializable
