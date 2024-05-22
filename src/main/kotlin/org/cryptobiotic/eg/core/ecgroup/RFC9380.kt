@@ -71,7 +71,7 @@ class RFC9380(val group: EcGroupContext, val DST: ByteArray, kBytes: Int) {
         // 1. ell = ceil(len_in_bytes / b_in_bytes)
         val ell = (len_in_bytes + b_in_bytes - 1)/ b_in_bytes
         // 2. ABORT if ell > 255 or len_in_bytes > 65535 or len(DST) > 255
-        require (ell < 255 && len_in_bytes < 65535 && DST.size < 255)
+        require (ell < 256 && len_in_bytes < 65536 && DST.size < 256)
 
         // 3. DST_prime = DST || I2OSP(len(DST), 1)
         val DST_prime = DST + I2OSP(DST.size, 1)

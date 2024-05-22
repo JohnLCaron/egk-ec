@@ -13,7 +13,7 @@ class VerifyEncryptedBallotsTest {
     @Test
     fun testVerifyEncryptedBallotBadElectionId() {
         val inputDir = "src/test/data/encrypt/testBallotChain"
-        val wrongDir = "src/test/data/workflow/allAvailableEc"
+        val wrongDir = "src/test/data/encrypt/testChallenged"
 
         val consumerIn = makeConsumer(inputDir)
         val record = readElectionRecord(consumerIn)

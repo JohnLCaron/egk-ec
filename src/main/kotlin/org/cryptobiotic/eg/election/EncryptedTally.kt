@@ -17,7 +17,7 @@ data class EncryptedTally(
         val contestId: String,              // matches ContestDescription.contestId
         val sequenceOrder: Int,             // matches ContestDescription.sequenceOrder
         val selections: List<Selection>,
-        val ballot_count: Int = 0,          // number of ballots voting on this contest
+        val ballot_count: Int? = null,          // number of ballots voting on this contest
         val contestData: HashedElGamalCiphertext? = null, // only used when decrypting ballots, not tallies
     ) {
         init {

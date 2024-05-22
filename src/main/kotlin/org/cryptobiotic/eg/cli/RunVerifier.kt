@@ -1,14 +1,16 @@
 package org.cryptobiotic.eg.cli
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
 import kotlinx.cli.required
-import org.cryptobiotic.eg.cli.RunTrustedTallyDecryption.Companion
-import org.cryptobiotic.eg.publish.Consumer
 import org.cryptobiotic.eg.publish.readElectionRecord
 import org.cryptobiotic.eg.verifier.Verifier
+import org.cryptobiotic.util.ErrorMessages
 import org.cryptobiotic.util.Stats
 import org.cryptobiotic.util.Stopwatch
 import kotlin.system.exitProcess
@@ -72,7 +74,7 @@ class RunVerifier {
             return if (allOk) 0 else 1
         }
 
-        fun verifyEncryptedBallots(inputDir: String, nthreads: Int) {
+        fun verifyEncryptedBallots(inputDir: String, nthreads: Int): Result<Boolean, ErrorMessages> {
             val stopwatch = Stopwatch() // start timing here
 
             val electionRecord = readElectionRecord(inputDir)
@@ -84,9 +86,10 @@ class RunVerifier {
             stats.show(logger)
 
             logger.info { "VerifyEncryptedBallots ${stopwatch.took()}" }
+            return if (errs.hasErrors()) Err(errs) else Ok(true)
         }
 
-        fun verifyDecryptedTally(inputDir: String) {
+        fun verifyDecryptedTally(inputDir: String): Result<Boolean, ErrorMessages> {
             val stopwatch = Stopwatch() // start timing here
 
             val electionRecord = readElectionRecord(inputDir)
@@ -99,9 +102,10 @@ class RunVerifier {
             stats.show(logger)
 
             logger.info { "verifyDecryptedTally ${stopwatch.took()} " }
+            return if (errs.hasErrors()) Err(errs) else Ok(true)
         }
 
-        fun verifyChallengedBallots(inputDir: String) {
+        fun verifyChallengedBallots(inputDir: String): Result<Boolean, ErrorMessages> {
             val stopwatch = Stopwatch() // start timing here
 
             val electionRecord = readElectionRecord(inputDir)
@@ -113,15 +117,17 @@ class RunVerifier {
             stats.show(logger)
 
             logger.info { "verifyRecoveredShares ${stopwatch.took()}" }
+            return if (errs.hasErrors()) Err(errs) else Ok(true)
         }
 
-        fun verifyTallyBallotIds(inputDir: String) {
+        fun verifyTallyBallotIds(inputDir: String): Result<Boolean, ErrorMessages> {
             val electionRecord = readElectionRecord(inputDir)
             // println("$inputDir stage=${electionRecord.stage()} ncast_ballots=${electionRecord.encryptedTally()!!.castBallotIds.size}")
 
             val verifier = Verifier(electionRecord, 1)
             val errs = verifier.verifyTallyBallotIds()
             logger.info { errs }
+            return if (errs.hasErrors()) Err(errs) else Ok(true)
         }
     }
 }
