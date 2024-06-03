@@ -202,14 +202,14 @@ also allows voter challenges. The CLIs documented here have less flexibility but
 ### Run AddEncryptedBallots
 
 ````
-Usage: RunExampleEncryption options_list
+Usage: RunAddEncryptedBallots options_list
 Options: 
     --inputDir, -in -> Directory containing input election record (always required) { String }
     --ballotDir, -ballots -> Directory to read Plaintext ballots from (always required) { String }
     --device, -device -> voting device name (always required) { String }
     --outputDir, -out -> Directory to write output election record (always required) { String }
     --challengePct, -challenge [0] -> Challenge percent of ballots { Int }
-    --help, -h -> Usage info  
+    --help, -h -> Usage info 
 ````
 
 This reads plaintext ballots from ballotDir and writes their encryptions into the specified election record.

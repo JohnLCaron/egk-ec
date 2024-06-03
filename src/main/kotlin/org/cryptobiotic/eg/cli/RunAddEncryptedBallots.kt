@@ -56,7 +56,7 @@ class RunAddEncryptedBallots {
             parser.parse(args)
 
             logger.info {
-                "starting\n inputDir= $inputDir\n  ballotDir = $ballotDir\n device = $device\n" +
+                "starting RunAddEncryptedBallots\n inputDir= $inputDir\n  ballotDir = $ballotDir\n  device = $device\n" +
                         "  outputDir = $outputDir\n  challengePct = $challengePct"
             }
 

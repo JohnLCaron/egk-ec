@@ -102,9 +102,9 @@ Install into one of the library paths, usually _/usr/lib_. You can also use
 sudo make install
 ```
 
-which will install into _/usr/local/lib_.
+which will install libvec.ao into _/usr/local/lib_.
 
-### Building the Verificatum Elliptic Curve Java library (VECJ)
+### Building the Java wrapper for VEC (VECJ)
 
 ```
   cd devhome
@@ -121,7 +121,7 @@ Install into one of the library paths, usually _/usr/lib_. You can also use
 sudo make install
 ```
 
-which will install into _/usr/local/lib_. 
+which will install libvecj.so into _/usr/local/lib_. 
 
 
 ### Make sure libraries are on the load path
