@@ -46,7 +46,7 @@ class HashTest {
         val nonce0: ElementModQ = nonceSequence[0]
         println(" nonce seed in hex = ${nonceSequence.internalSeed.toHex()}")
         println(" nonce0 in hex = ${nonce0}")
-        val expect = group.binaryToElementModQ("IwEC3GZhDUHC+BlFdMfakdtbnPQ6TCcvz77EcKMuNnI=".fromBase64()!!)
+        val expect = group.binaryToElementModQ("cGggiFPT7ziehxdSF5/DyXWa6uSrAh2YdaykmsMLSOA=".fromBase64()!!)
         assertEquals(expect, nonceSequence[0])
     }
 

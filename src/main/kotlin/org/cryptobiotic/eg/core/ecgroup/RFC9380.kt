@@ -50,7 +50,7 @@ class RFC9380(val group: EcGroupContext, val DST: ByteArray, kBytes: Int) {
         //Steps:
         val uniform_bytes = expand_message(msg)
         val bi = BigInteger(1, uniform_bytes) // OS2IP equiv
-        return EcElementModQ(group, bi.mod(group.vecGroup.primeModulus)) // note that p == q for P-256
+        return EcElementModQ(group, bi.mod(group.vecGroup.order))
     }
 
     // expand_message_xmd(msg, DST, len_in_bytes)
