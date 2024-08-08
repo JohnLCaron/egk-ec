@@ -17,6 +17,7 @@ import org.cryptobiotic.eg.decrypt.TallyDecryptor
 import org.cryptobiotic.eg.election.*
 import org.cryptobiotic.eg.publish.*
 import org.cryptobiotic.util.ErrorMessages
+import org.cryptobiotic.util.Stopwatch
 import org.cryptobiotic.util.mergeErrorMessages
 import kotlin.system.exitProcess
 
@@ -168,6 +169,7 @@ class RunTrustedTallyDecryption {
                 }
                 result.unwrap()
             }
+            val stopwatch = Stopwatch() // start timing here
 
             val errs = ErrorMessages("RunTrustedTallyDecryption")
             val decryptedTally = decryptor.decrypt(encryptedTally, errs)
@@ -175,6 +177,9 @@ class RunTrustedTallyDecryption {
                 logger.error { " encryptedTally.decrypt $inputDir has error=${errs}" }
                 return 5
             }
+            val countEncryptions = countEncryptions(decryptedTally)
+            println( "runDecryptTally ${stopwatch.tookPer(countEncryptions, "encryptions")}")
+
             val publisher = makePublisher(outputDir, false)
             if (tallyResult != null) {
                 publisher.writeDecryptionResult(
@@ -197,4 +202,11 @@ class RunTrustedTallyDecryption {
             return 0
         }
     }
+}
+
+
+fun countEncryptions(tally: DecryptedTallyOrBallot): Int {
+    return tally.contests.map { contest ->
+        1 + contest.selections.size
+    }.sum()
 }

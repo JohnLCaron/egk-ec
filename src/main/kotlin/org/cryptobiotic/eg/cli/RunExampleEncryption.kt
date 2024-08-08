@@ -11,6 +11,7 @@ import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
+import org.cryptobiotic.util.Stopwatch
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
@@ -90,6 +91,10 @@ class RunExampleEncryption {
                 val publisher = makePublisher(plaintextBallotDir)
                 var allOk = true
 
+                val styleCount = ManifestInputValidation(manifest).countEncryptions()
+                var countEncryptions = 0
+                val stopwatch = Stopwatch() // start timing here
+
                 val ballotProvider = RandomBallotProvider(manifest)
                 repeat(nballots) {
                     val pballot = ballotProvider.getFakeBallot(manifest, null, "ballot$it")
@@ -97,8 +102,7 @@ class RunExampleEncryption {
                     val pballotFilename = "$plaintextBallotDir/pballot-${pballot.ballotId}.json"
                     val deviceIdx = if (devices.size == 1) 0 else Random.nextInt(devices.size)
                     val device = devices[deviceIdx]
-                    // val eballotDir = if (chaining || !noDeviceNameInDir) "$encryptBallotDir/$device" else encryptBallotDir
-                    // createDirectories(eballotDir)
+                    countEncryptions += styleCount[pballot.ballotStyle] ?: 0
 
                     val retval = RunEncryptBallot.encryptBallot(
                         consumerIn,
@@ -126,6 +130,9 @@ class RunExampleEncryption {
                 } else {
                     if (!noexit) exitProcess(3)
                 }
+                logger.info { "RunExampleEncryption ${stopwatch.tookPer(nballots, "ballot")}" }
+                logger.info { "RunExampleEncryption ${stopwatch.tookPer(countEncryptions, "encryptions")}" }
+
             } catch (t: Throwable) {
                 logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }
                 if (!noexit) exitProcess(-1)
