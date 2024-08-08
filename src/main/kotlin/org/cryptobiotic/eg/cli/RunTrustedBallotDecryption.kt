@@ -40,7 +40,7 @@ class RunTrustedBallotDecryption {
 
     companion object {
         private val logger = KotlinLogging.logger("RunTrustedBallotDecryption")
-        private const val debug = true
+        private const val debug = false
 
         @JvmStatic
         fun main(args: Array<String>) {

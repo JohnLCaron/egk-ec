@@ -25,6 +25,12 @@ class VerifierTest {
     }
 
     @Test
+    fun verificationEcSingle() {
+        assertEquals(0, RunVerifier.runVerifier("src/test/data/workflow/allAvailableEc", 1, true))
+        assertEquals(0, RunVerifier.runVerifier("src/test/data/workflow/someAvailableEc", 1, true))
+    }
+
+    @Test
     fun verificationInteger() {
         assertEquals(0, RunVerifier.runVerifier("src/test/data/workflow/allAvailable", 11, true))
         assertEquals(0, RunVerifier.runVerifier("src/test/data/workflow/someAvailable", 11, true))

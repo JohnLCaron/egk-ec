@@ -14,8 +14,10 @@ import org.cryptobiotic.eg.decrypt.TallyDecryptor
 import org.cryptobiotic.eg.election.DecryptedTallyOrBallot
 import org.cryptobiotic.eg.election.ElectionInitialized
 import org.cryptobiotic.eg.election.EncryptedBallot.BallotState
+import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.util.ErrorMessages
+import org.cryptobiotic.util.Stopwatch
 import org.cryptobiotic.util.Testing
 import kotlin.test.*
 
@@ -65,16 +67,22 @@ class RunTallyAccumulationTest {
         val initResult = consumerIn.readElectionInitialized()
         val electionInit = initResult.unwrap()
         val manifest = consumerIn.makeManifest(electionInit.config.manifestBytes)
+        val styleCount = ManifestInputValidation(manifest).countEncryptions()
 
         val accum = AccumulateTally(group, manifest, "name", electionInit.extendedBaseHash, electionInit.jointPublicKey)
+        val stopwatch = Stopwatch() // start timing here
+        var countEncryptions = 0
 
         val errs = ErrorMessages("addCastBallots")
         consumerIn.iterateAllCastBallots().forEach { eballot ->
             accum.addCastBallot(eballot, errs)
+            countEncryptions += styleCount[eballot.ballotStyleId] ?: 0
         }
         assertFalse(errs.hasErrors())
 
         val etally: EncryptedTally = accum.build()
+        println( "testAccumulateTally ${stopwatch.tookPer(countEncryptions, "encryptions")}")
+
         val tally = decryptTally(group, etally, electionInit, readDecryptingTrustees(inputDir, trusteeDir))
 
         val decryptResult = consumerIn.readDecryptionResult()

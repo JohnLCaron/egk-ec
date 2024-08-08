@@ -11,6 +11,7 @@ import org.cryptobiotic.eg.input.ManifestInputValidation
 import org.cryptobiotic.eg.input.RandomBallotProvider
 import org.cryptobiotic.eg.publish.makeConsumer
 import org.cryptobiotic.eg.publish.makePublisher
+import org.cryptobiotic.util.Stopwatch
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
@@ -89,6 +90,7 @@ class RunExampleEncryption {
                 val chaining = electionInit.config.chainConfirmationCodes
                 val publisher = makePublisher(plaintextBallotDir)
                 var allOk = true
+                val stopwatch = Stopwatch() // start timing here
 
                 val ballotProvider = RandomBallotProvider(manifest)
                 repeat(nballots) {
@@ -126,6 +128,8 @@ class RunExampleEncryption {
                 } else {
                     if (!noexit) exitProcess(3)
                 }
+                logger.info { "RunExampleEncryption ${stopwatch.tookPer(nballots, "ballot")}" }
+
             } catch (t: Throwable) {
                 logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }
                 if (!noexit) exitProcess(-1)

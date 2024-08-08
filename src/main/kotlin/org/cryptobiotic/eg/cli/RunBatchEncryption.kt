@@ -296,9 +296,9 @@ class RunBatchEncryption {
                 logger.info { " wrote ${invalidBallots.size} invalid ballots to $useInvalidDir" }
             }
 
-            logger.debug { "Encryption with nthreads = $nthreads ${stopwatch.tookPer(count, "ballot")}" }
+            logger.info { "Encryption with nthreads = $nthreads ${stopwatch.tookPer(count, "ballot")}" }
             val encryptionPerBallot = if (count == 0) 0 else (countEncryptions / count)
-            logger.debug {
+            logger.info {
                 "  $countEncryptions total encryptions = $encryptionPerBallot per ballot ${
                     stopwatch.tookPer(
                         countEncryptions,

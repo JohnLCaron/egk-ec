@@ -37,6 +37,23 @@ class RunDecryptBallotsTest {
     }
 
     @Test
+    fun testDecryptBallotsAllSingleThreaded() {
+        val inputDir = "src/test/data/workflow/allAvailableEc"
+        val trusteeDir = "$inputDir/private_data/trustees"
+        val outputDir = "${Testing.testOut}/decrypt/testDecryptBallotsAll"
+        println("\ntestDecryptBallotsAll")
+        val (retval, n) = runDecryptBallots(
+            inputDir,
+            outputDir,
+            readDecryptingTrustees(inputDir, trusteeDir),
+            "ALL",
+            1,
+        )
+        assertEquals(0, retval)
+        assertEquals(42, n)
+    }
+
+    @Test
     fun testDecryptBallotsSomeFromList() {
         val inputDir = "src/test/data/workflow/someAvailableEc"
         val trusteeDir = "$inputDir/private_data/trustees"
