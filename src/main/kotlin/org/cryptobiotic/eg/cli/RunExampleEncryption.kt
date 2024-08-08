@@ -90,6 +90,9 @@ class RunExampleEncryption {
                 val chaining = electionInit.config.chainConfirmationCodes
                 val publisher = makePublisher(plaintextBallotDir)
                 var allOk = true
+
+                val styleCount = ManifestInputValidation(manifest).countEncryptions()
+                var countEncryptions = 0
                 val stopwatch = Stopwatch() // start timing here
 
                 val ballotProvider = RandomBallotProvider(manifest)
@@ -99,8 +102,7 @@ class RunExampleEncryption {
                     val pballotFilename = "$plaintextBallotDir/pballot-${pballot.ballotId}.json"
                     val deviceIdx = if (devices.size == 1) 0 else Random.nextInt(devices.size)
                     val device = devices[deviceIdx]
-                    // val eballotDir = if (chaining || !noDeviceNameInDir) "$encryptBallotDir/$device" else encryptBallotDir
-                    // createDirectories(eballotDir)
+                    countEncryptions += styleCount[pballot.ballotStyle] ?: 0
 
                     val retval = RunEncryptBallot.encryptBallot(
                         consumerIn,
@@ -129,6 +131,7 @@ class RunExampleEncryption {
                     if (!noexit) exitProcess(3)
                 }
                 logger.info { "RunExampleEncryption ${stopwatch.tookPer(nballots, "ballot")}" }
+                logger.info { "RunExampleEncryption ${stopwatch.tookPer(countEncryptions, "encryptions")}" }
 
             } catch (t: Throwable) {
                 logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }
