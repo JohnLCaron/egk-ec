@@ -18,7 +18,7 @@ data class ElectionConfig(
     val parameterBaseHash : UInt256, // Hp
     val manifestHash : UInt256, // Hm
     val electionBaseHash : UInt256,  // Hb
-    // the raw bytes of the manifest. You must regenerate the manifest from this.
+    // the raw bytes of the election manifest. You must regenerate the manifest from this.
     val manifestBytes: ByteArray,
 
     val chainConfirmationCodes: Boolean = false,

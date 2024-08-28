@@ -6,7 +6,7 @@ import org.cryptobiotic.util.ErrorMessages
 
 /**
  * Encrypt Plaintext Ballots into PendingEncryptedBallot.
- * The manifest is expected to have passed manifest validation (see ManifestInputValidation).
+ * The election manifest is expected to have passed manifest validation (see ManifestInputValidation).
  * The input ballots are expected to have passed ballot validation
  * See RunExampleEncryption and BallotInputValidation to validate ballots before passing them to this class.
  */

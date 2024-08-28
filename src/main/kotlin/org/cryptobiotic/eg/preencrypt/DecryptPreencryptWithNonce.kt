@@ -27,7 +27,7 @@ class DecryptPreencryptWithNonce(
         val results : List<Result<PlaintextBallot.Contest, String>> = this.contests.map {
             val pcontest = preEncryptedBallot.contests.find { tcontest -> it.contestId == tcontest.contestId}
             if (pcontest == null) {
-                Err("Cant find contest ${it.contestId} in manifest")
+                Err("Cant find contest ${it.contestId} in election manifest")
             } else {
                 decryptContest(ballotNonce, it, pcontest)
             }

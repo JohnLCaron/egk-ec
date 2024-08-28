@@ -24,7 +24,7 @@ class RunCreateElectionConfig {
             val electionManifest by parser.option(
                 ArgType.String,
                 shortName = "manifest",
-                description = "Manifest file or directory"
+                description = "Election manifest file or directory"
             ).required()
             val groupName by parser.option(
                 ArgType.String,

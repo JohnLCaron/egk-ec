@@ -11,7 +11,7 @@ A specific validation is referenced as for example: Manifest.B.5, Ballot.A.2.1, 
 
 ## Manifest
 
-Manifest Validation can be run to catch problems while developing the Manifest.
+Manifest Validation can be run to catch problems while developing the Election manifest.
 
 Manifest Validation must be run when accepting Input Ballots to be encrypted.
 

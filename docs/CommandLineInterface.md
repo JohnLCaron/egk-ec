@@ -32,16 +32,16 @@ last update 04/16/2024
 
 <img src="./images/Workflow.svg" alt="Workflow" width="1200"/>
 
-1. **Create a Manifest record** 
-   1. Generating a real Manifest by election officials is outside the scope of this library. That is to say,
+1. **Create an Election Manifest record** 
+   1. Generating a real Election Manifest by election officials is outside the scope of this library. That is to say,
       you must figure out what that looks like yourself, and use it as input to the library.
-   2. Create a manifest in code with the _org.cryptobiotic.eg.election.Manifest_ classes, and write it out
+   2. Create an election manifest in code with the _org.cryptobiotic.eg.election.Manifest_ classes, and write it out
           with a Publisher. 
-   3. Create a fake manifest for testing with [_RunCreateTestManifest_ CLI](#create-a-fake-election-manifest).
-   4. Use an existing fake manifest for testing in _src/commonTest/data/startManifest/manifest.json_.
+   3. Create a fake election manifest for testing with [_RunCreateTestManifest_ CLI](#create-a-fake-election-manifest).
+   4. Use an existing fake election manifest for testing in _src/commonTest/data/startManifest/manifest.json_.
 
 2. **Create an ElectionConfig record**
-   1. Create an ElectionConfig record from a Manifest and configuration values using [_RunCreateElectionConfig_ CLI](#create-an-election-configuration)
+   1. Create an ElectionConfig record from an Election Manifest and configuration values using [_RunCreateElectionConfig_ CLI](#create-an-election-configuration)
 
 3. **Run the KeyCeremony**
    1. Create an ElectionInitialized record and decrypting trustees from an ElectionConfig by running a KeyCeremony with 
@@ -99,7 +99,7 @@ Options:
     --ncontests, -ncontests -> number of contests (always required) { Int }
     --nselections, -nselections -> number of selections per contest (always required) { Int }
     --outputType, -type [JSON] -> JSON or PROTO { String }
-    --outputDir, -out -> Directory to write test manifest file (always required) { String }
+    --outputDir, -out -> Directory to write test election manifest file (always required) { String }
     --help, -h -> Usage info 
 ````
 
@@ -118,7 +118,7 @@ java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
 ````
 Usage: RunCreateElectionConfig options_list
 Options: 
-    --electionManifest, -manifest -> Manifest file or directory (always required) { String }
+    --electionManifest, -manifest -> Election manifest file or directory (always required) { String }
     --groupName, -group -> Group name  ('P-256' or 'Integer4096') (always required) { String }
     --nguardians, -nguardians -> number of guardians (always required) { Int }
     --quorum, -quorum -> quorum size (always required) { Int }
@@ -176,10 +176,10 @@ java -classpath build/libs/egk-ec-2.1-SNAPSHOT-uber.jar \
 ````
 Usage: RunCreateInputBallots options_list
 Options: 
-    --manifestDirOrFile, -manifest -> Manifest file or directory (always required) { String }
+    --manifestDirOrFile, -manifest -> Election manifest file or directory (always required) { String }
     --outputDir, -out -> Directory to write plaintext ballots (always required) { String }
     --nballots, -n [11] -> Number of ballots to generate { Int }
-    --isJson, -json -> Generate Json ballots (default to manifest type) 
+    --isJson, -json -> Generate Json ballots (default to election manifest type) 
     --help, -h -> Usage info 
 ````
 

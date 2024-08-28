@@ -32,11 +32,11 @@ kotlin {
 ////////////////
 
 tasks {
-    val ENABLE_PREVIEW = "--enable-preview"
+    //val ENABLE_PREVIEW = "--enable-preview"
     withType<JavaCompile>() {
-        options.compilerArgs.add(ENABLE_PREVIEW)
+        //options.compilerArgs.add(ENABLE_PREVIEW)
         // Optionally we can show which preview feature we use.
-        options.compilerArgs.add("-Xlint:preview")
+        //options.compilerArgs.add("-Xlint:preview")
         // options.compilerArgs.add("--enable-native-access=org.openjdk.jextract")
         // Explicitly setting compiler option --release
         // is needed when we wouldn't set the
@@ -48,7 +48,8 @@ tasks {
         useJUnitPlatform()
         minHeapSize = "512m"
         maxHeapSize = "8g"
-        jvmArgs = listOf("-Xss128m", "--enable-preview")
+        //jvmArgs = listOf("-Xss128m", "--enable-preview")
+        jvmArgs = listOf("-Xss128m")
 
         // Make tests run in parallel
         // More info: https://www.jvt.me/posts/2021/03/11/gradle-speed-parallel/
@@ -56,9 +57,9 @@ tasks {
         systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
         systemProperties["junit.jupiter.execution.parallel.mode.classes.default"] = "concurrent"
     }
-    withType<JavaExec>().all {
-        jvmArgs("--enable-preview")
-    }
+    //withType<JavaExec>().all {
+    //    jvmArgs("--enable-preview")
+    //}
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "17"
     }
