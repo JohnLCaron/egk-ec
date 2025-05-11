@@ -4,7 +4,7 @@
 
 # ElectionGuard-Kotlin Elliptic Curve
 
-_last update 05/22/2024_
+_last update 04/21/2024_
 
 EGK Elliptic Curve (egk-ec) is an experimental implementation of [ElectionGuard](https://github.com/microsoft/electionguard), 
 [version 2.0](https://github.com/microsoft/electionguard/releases/download/v2.0/EG_Spec_2_0.pdf), 
@@ -17,7 +17,7 @@ including the option to use the Verificatum C library. See [VCR License](LICENSE
 the library.
 
 Switching to Elliptic Curves is mostly transparent to the ElectionGuard specification, so we are calling this
-version EGK 2.1, which uses the ElectionGuard 2.0 specification on top of elliptic curves.
+version EGK 2.0-ec, which uses the ElectionGuard 2.0 specification on top of elliptic curves.
 
 This library also can use the Electionguard Integer Group, and so can also be used for Electionguard 2.0 compliant applications.
 

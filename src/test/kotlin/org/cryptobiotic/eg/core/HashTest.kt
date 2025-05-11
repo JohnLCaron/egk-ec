@@ -2,6 +2,7 @@ package org.cryptobiotic.eg.core
 
 import io.kotest.property.checkAll
 import io.kotest.property.forAll
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.core.Base16.fromHexSafe
 import org.cryptobiotic.eg.core.Base16.toHex
 import org.cryptobiotic.eg.core.Base64.fromBase64

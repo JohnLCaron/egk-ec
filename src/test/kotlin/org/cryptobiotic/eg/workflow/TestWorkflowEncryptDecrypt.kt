@@ -8,7 +8,7 @@ import org.cryptobiotic.eg.core.elGamalKeyPairFromRandom
 import org.cryptobiotic.eg.core.encrypt
 import org.cryptobiotic.eg.core.encryptedSum
 import org.cryptobiotic.eg.core.productionGroup
-import org.cryptobiotic.eg.core.runTest
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.core.toElementModQ
 import kotlin.test.Test
 import kotlin.test.assertEquals

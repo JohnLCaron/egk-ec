@@ -5,7 +5,7 @@ package org.cryptobiotic.eg.core.intgroup
 import io.kotest.property.checkAll
 import org.cryptobiotic.eg.core.elementsModQ
 import org.cryptobiotic.eg.core.propTestFastConfig
-import org.cryptobiotic.eg.core.runTest
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.core.toElementModQ
 import kotlin.test.Ignore
 import kotlin.test.Test

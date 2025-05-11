@@ -16,13 +16,13 @@ import kotlin.random.nextUInt
  * asserts or `forAll` calls or whatever else inside the `runTest` lambda body.
  */
 
+/*
 fun runTest(f: suspend TestScope.() -> Unit) {
     // another benefit of having this wrapper code: we don't have to have the OptIn thing
     // at the top of every unit test file
     kotlinx.coroutines.test.runTest(EmptyCoroutineContext, 10_1000L, f)
 }
 
-/*
 fun runTest(f: suspend TestScope.() -> Unit) {
     // another benefit of having this wrapper code: we don't have to have the OptIn thing
     // at the top of every unit test file

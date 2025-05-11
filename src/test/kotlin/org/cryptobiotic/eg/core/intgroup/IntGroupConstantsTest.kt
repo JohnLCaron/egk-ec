@@ -4,7 +4,7 @@ import org.cryptobiotic.eg.core.Base16.fromHexSafe
 import org.cryptobiotic.eg.core.Base16.toHex
 import org.cryptobiotic.eg.core.Base64.fromBase64Safe
 import org.cryptobiotic.eg.core.Base64.toBase64
-import org.cryptobiotic.eg.core.runTest
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.core.toHex
 import org.cryptobiotic.eg.election.normalize
 import org.junit.jupiter.api.Assertions.assertNotEquals

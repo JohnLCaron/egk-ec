@@ -72,7 +72,7 @@ class RunCreateTestManifest {
                 } else {
                     val publisher = makePublisher(outputDir, true)
                     publisher.writeManifest(manifest)
-                    logger.info("ManifestInputValidation succeeded")
+                    logger.info {"ManifestInputValidation succeeded"}
                 }
             } catch (t: Throwable) {
                 logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }

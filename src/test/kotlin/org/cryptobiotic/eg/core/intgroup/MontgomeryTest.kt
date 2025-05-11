@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.core.intgroup
 
 import io.kotest.property.checkAll
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.core.*
 import java.math.BigInteger
 import kotlin.test.assertEquals

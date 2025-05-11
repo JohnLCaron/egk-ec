@@ -16,6 +16,7 @@ import org.cryptobiotic.eg.verifier.VerifyEncryptedBallots
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.checkAll
+import kotlinx.coroutines.test.runTest
 import kotlin.math.min
 import kotlin.random.Random
 import kotlin.test.*
