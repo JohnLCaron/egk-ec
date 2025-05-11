@@ -1,5 +1,6 @@
 package org.cryptobiotic.eg.core
 
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.core.Base64.toBase64
 import kotlin.test.Test
 import kotlin.test.assertEquals

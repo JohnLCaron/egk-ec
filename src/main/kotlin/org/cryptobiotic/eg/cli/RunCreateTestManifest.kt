@@ -41,7 +41,7 @@ class RunCreateTestManifest {
             val outputDir by parser.option(
                 ArgType.String,
                 shortName = "out",
-                description = "Directory to write test manifest file"
+                description = "Directory to write test election manifest file"
             ).required()
             val noexit by parser.option(
                 ArgType.Boolean,
@@ -72,7 +72,7 @@ class RunCreateTestManifest {
                 } else {
                     val publisher = makePublisher(outputDir, true)
                     publisher.writeManifest(manifest)
-                    logger.info("ManifestInputValidation succeeded")
+                    logger.info {"ManifestInputValidation succeeded"}
                 }
             } catch (t: Throwable) {
                 logger.error { "Exception= ${t.message} ${t.stackTraceToString()}" }

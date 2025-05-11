@@ -1,6 +1,7 @@
 package org.cryptobiotic.eg.core.ecgroup
 
 import io.kotest.property.checkAll
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.Base64.toBase64
 import org.cryptobiotic.eg.publish.json.import

@@ -1,13 +1,11 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm") version "1.9.22"
-    application
-    alias(libs.plugins.serialization)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlinx.serialization)
+    id ("java-test-fixtures")
 }
 
 group = "org.cryptobiotic"
-version = "2.1-SNAPSHOT"
+version = libs.versions.egkec.get()
 
 repositories {
     mavenCentral()
@@ -24,44 +22,19 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    minHeapSize = "512m"
+    maxHeapSize = "8g"
+    jvmArgs = listOf("-Xss128m")
+
+    // Make tests run in parallel
+    // More info: https://www.jvt.me/posts/2021/03/11/gradle-speed-parallel/
+    systemProperties["junit.jupiter.execution.parallel.enabled"] = "true"
+    systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
+    systemProperties["junit.jupiter.execution.parallel.mode.classes.default"] = "concurrent"
 }
+
 kotlin {
-    jvmToolchain(17)
-}
-
-////////////////
-
-tasks {
-    val ENABLE_PREVIEW = "--enable-preview"
-    withType<JavaCompile>() {
-        options.compilerArgs.add(ENABLE_PREVIEW)
-        // Optionally we can show which preview feature we use.
-        options.compilerArgs.add("-Xlint:preview")
-        // options.compilerArgs.add("--enable-native-access=org.openjdk.jextract")
-        // Explicitly setting compiler option --release
-        // is needed when we wouldn't set the
-        // sourceCompatiblity and targetCompatibility
-        // properties of the Java plugin extension.
-        options.release.set(17)
-    }
-    withType<Test>().all {
-        useJUnitPlatform()
-        minHeapSize = "512m"
-        maxHeapSize = "8g"
-        jvmArgs = listOf("-Xss128m", "--enable-preview")
-
-        // Make tests run in parallel
-        // More info: https://www.jvt.me/posts/2021/03/11/gradle-speed-parallel/
-        systemProperties["junit.jupiter.execution.parallel.enabled"] = "true"
-        systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
-        systemProperties["junit.jupiter.execution.parallel.mode.classes.default"] = "concurrent"
-    }
-    withType<JavaExec>().all {
-        jvmArgs("--enable-preview")
-    }
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
+    jvmToolchain(21)
 }
 
 tasks.register<Jar>("uberJar") {

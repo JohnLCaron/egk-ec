@@ -6,6 +6,7 @@ import io.kotest.property.arbitrary.byteArray
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.positiveLong
 import io.kotest.property.checkAll
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.core.Base16.fromHex
 import org.cryptobiotic.eg.core.Base16.toHex
 import kotlin.test.assertContentEquals

@@ -75,7 +75,7 @@ fun makeConsumer(
 }
 
 /**
- * Read the manifest and check that the file parses and validates.
+ * Read the election manifest and check that the file parses and validates.
  * @param manifestDirOrFile manifest filename, or the directory that its in. May be JSON or proto. If JSON, may be zipped
  * @return isJson, manifest, manifestBytes
  */

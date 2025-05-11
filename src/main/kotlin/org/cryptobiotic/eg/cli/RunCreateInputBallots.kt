@@ -23,7 +23,7 @@ class RunCreateInputBallots {
             val manifestDirOrFile by parser.option(
                 ArgType.String,
                 shortName = "manifest",
-                description = "Manifest file or directory"
+                description = "Election manifest file or directory"
             ).required()
             val outputDir by parser.option(
                 ArgType.String,

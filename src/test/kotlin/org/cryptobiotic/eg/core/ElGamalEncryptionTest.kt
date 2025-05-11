@@ -9,6 +9,7 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.checkAll
 import io.kotest.property.forAll
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.core.ecgroup.EcGroupContext
 
 import kotlin.test.assertEquals

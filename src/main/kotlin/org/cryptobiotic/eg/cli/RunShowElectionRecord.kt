@@ -142,7 +142,7 @@ class RunShowElectionRecord {
 
         fun show(manifest: Manifest, details: Boolean, wantBallotStyle: String?=null): String {
             return buildString {
-                appendLine("\nManifest scopeId=${manifest.electionScopeId} type=${manifest.electionType} spec=${manifest.specVersion}")
+                appendLine("\nElection Manifest scopeId=${manifest.electionScopeId} type=${manifest.electionType} spec=${manifest.specVersion}")
                 appendLine("  gpus: ${manifest.geopoliticalUnits}")
                 if (wantBallotStyle == null) {
                     appendLine("  styles: [")

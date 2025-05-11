@@ -1,5 +1,6 @@
 package org.cryptobiotic.eg.core
 
+import kotlinx.coroutines.test.runTest
 import java.util.stream.IntStream
 import kotlin.streams.toList
 import kotlin.test.Test

@@ -3,6 +3,7 @@ package org.cryptobiotic.eg.core
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.election.ContestData
 import org.cryptobiotic.eg.election.decryptContestData
 import org.cryptobiotic.eg.election.encryptContestData

@@ -4,6 +4,7 @@ import org.cryptobiotic.eg.core.*
 import org.cryptobiotic.eg.core.productionGroup
 
 import io.kotest.property.checkAll
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement

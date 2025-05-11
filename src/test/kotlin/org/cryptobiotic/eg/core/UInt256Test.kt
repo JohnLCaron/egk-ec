@@ -2,12 +2,13 @@ package org.cryptobiotic.eg.core
 
 import io.kotest.property.arbitrary.filterNot
 import io.kotest.property.checkAll
+
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.core.Base16.fromHexSafe
-import org.cryptobiotic.eg.core.productionGroup
 
 class UInt256Test {
     @Test

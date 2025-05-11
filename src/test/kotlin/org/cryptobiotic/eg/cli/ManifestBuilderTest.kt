@@ -1,10 +1,9 @@
 package org.cryptobiotic.eg.cli
 
-import org.cryptobiotic.eg.core.*
-
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.checkAll
+import kotlinx.coroutines.test.runTest
 import org.cryptobiotic.eg.input.ManifestInputValidation
 import kotlin.test.*
 
