@@ -1,4 +1,4 @@
-# EGK Election Record JSON directory and file layout, version 2.1
+# EGK Election Record JSON directory and file layout, version 2.0ec
 
 draft 04/13/2024
 
