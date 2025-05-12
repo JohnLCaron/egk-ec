@@ -1,4 +1,4 @@
-# Egk Election Record JSON version 2.1 serialization (proposed specification)
+# Egk Election Record JSON version 2.0ec serialization (proposed specification)
 
 draft 04/12/2024
 
